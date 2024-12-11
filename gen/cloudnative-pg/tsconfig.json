@@ -1,0 +1,43 @@
+{
+    "compilerOptions": {
+        "outDir": "bin",
+        "target": "es2016",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "declaration": true,
+        "sourceMap": true,
+        "stripInternal": true,
+        "experimentalDecorators": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true
+    },
+    "files": [
+        "index.ts",
+        "postgresql/index.ts",
+        "postgresql/v1/backup.ts",
+        "postgresql/v1/backupList.ts",
+        "postgresql/v1/backupPatch.ts",
+        "postgresql/v1/cluster.ts",
+        "postgresql/v1/clusterImageCatalog.ts",
+        "postgresql/v1/clusterImageCatalogList.ts",
+        "postgresql/v1/clusterImageCatalogPatch.ts",
+        "postgresql/v1/clusterList.ts",
+        "postgresql/v1/clusterPatch.ts",
+        "postgresql/v1/imageCatalog.ts",
+        "postgresql/v1/imageCatalogList.ts",
+        "postgresql/v1/imageCatalogPatch.ts",
+        "postgresql/v1/index.ts",
+        "postgresql/v1/pooler.ts",
+        "postgresql/v1/poolerList.ts",
+        "postgresql/v1/poolerPatch.ts",
+        "postgresql/v1/scheduledBackup.ts",
+        "postgresql/v1/scheduledBackupList.ts",
+        "postgresql/v1/scheduledBackupPatch.ts",
+        "provider.ts",
+        "types/index.ts",
+        "types/input.ts",
+        "types/output.ts",
+        "utilities.ts"
+    ]
+}
