@@ -19,7 +19,7 @@ export {
     postgresql,
     types,
 };
-pulumi.runtime.registerResourcePackage("crds/cloudnative-pg", {
+pulumi.runtime.registerResourcePackage("cloudnative-pg", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {
         if (type !== "pulumi:providers:kubernetes") {

@@ -21,7 +21,7 @@ export {
     cert_manager,
     types,
 };
-pulumi.runtime.registerResourcePackage("crds/certmanager", {
+pulumi.runtime.registerResourcePackage("certmanager", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {
         if (type !== "pulumi:providers:kubernetes") {

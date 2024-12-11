@@ -141,4 +141,4 @@ const _module = {
         }
     },
 };
-pulumi.runtime.registerResourceModule("crds/cloudnative-pg", "postgresql.cnpg.io/v1", _module)
+pulumi.runtime.registerResourceModule("cloudnative-pg", "postgresql.cnpg.io/v1", _module)

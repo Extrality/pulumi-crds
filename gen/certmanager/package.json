@@ -1,5 +1,5 @@
 {
-    "name": "@pulumi/crds/certmanager",
+    "name": "@pulumi/certmanager",
     "version": "1.16.2",
     "keywords": [
         "pulumi",
@@ -34,7 +34,7 @@
     },
     "pulumi": {
         "resource": true,
-        "name": "crds/certmanager",
+        "name": "certmanager",
         "version": "1.16.2"
     }
 }

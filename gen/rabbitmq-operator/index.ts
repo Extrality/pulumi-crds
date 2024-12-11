@@ -19,7 +19,7 @@ export {
     rabbitmq,
     types,
 };
-pulumi.runtime.registerResourcePackage("crds/rabbitmq-operator", {
+pulumi.runtime.registerResourcePackage("rabbitmq-operator", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {
         if (type !== "pulumi:providers:kubernetes") {

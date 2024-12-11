@@ -99,4 +99,4 @@ const _module = {
         }
     },
 };
-pulumi.runtime.registerResourceModule("crds/certmanager", "cert-manager.io/v1", _module)
+pulumi.runtime.registerResourceModule("certmanager", "cert-manager.io/v1", _module)

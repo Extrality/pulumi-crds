@@ -17,14 +17,14 @@ if ! command -v crd2pulumi > /dev/null; then
     fi
 fi
 
-rm -rf tmp gen
-mkdir tmp gen
+rm -rf gen
+mkdir -p tmp gen
 
 git clone --depth 1 --branch "$CNPG_TAG" https://github.com/cloudnative-pg/cloudnative-pg.git tmp/cnpg
-crd2pulumi -v "$CNPG_TAG" --nodejsName crds/cloudnative-pg --nodejsPath gen/cloudnative-pg tmp/cnpg/config/crd/bases/*.yaml
+crd2pulumi -v "$CNPG_TAG" --nodejsName cloudnative-pg --nodejsPath gen/cloudnative-pg tmp/cnpg/config/crd/bases/*.yaml
 
 git clone --depth 1 --branch "$RABBIT_TAG" https://github.com/rabbitmq/cluster-operator.git tmp/rabbitmq-operator
-crd2pulumi -v "$RABBIT_TAG" --nodejsName crds/rabbitmq-operator --nodejsPath gen/rabbitmq-operator tmp/rabbitmq-operator/config/crd/bases/*.yaml
+crd2pulumi -v "$RABBIT_TAG" --nodejsName rabbitmq-operator --nodejsPath gen/rabbitmq-operator tmp/rabbitmq-operator/config/crd/bases/*.yaml
 
 git clone --depth 1 --branch "$CERTMAN_TAG" https://github.com/cert-manager/cert-manager.git tmp/certmanager
-crd2pulumi -v "$CERTMAN_TAG" --nodejsName crds/certmanager --nodejsPath gen/certmanager tmp/certmanager/deploy/crds/*.yaml
+crd2pulumi -v "$CERTMAN_TAG" --nodejsName certmanager --nodejsPath gen/certmanager tmp/certmanager/deploy/crds/*.yaml

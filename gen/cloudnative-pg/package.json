@@ -1,5 +1,5 @@
 {
-    "name": "@pulumi/crds/cloudnative-pg",
+    "name": "@pulumi/cloudnative-pg",
     "version": "1.24.1",
     "keywords": [
         "pulumi",
@@ -34,7 +34,7 @@
     },
     "pulumi": {
         "resource": true,
-        "name": "crds/cloudnative-pg",
+        "name": "cloudnative-pg",
         "version": "1.24.1"
     }
 }

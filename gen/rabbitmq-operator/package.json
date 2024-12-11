@@ -1,5 +1,5 @@
 {
-    "name": "@pulumi/crds/rabbitmq-operator",
+    "name": "@pulumi/rabbitmq-operator",
     "version": "2.11.0",
     "keywords": [
         "pulumi",
@@ -34,7 +34,7 @@
     },
     "pulumi": {
         "resource": true,
-        "name": "crds/rabbitmq-operator",
+        "name": "rabbitmq-operator",
         "version": "2.11.0"
     }
 }
