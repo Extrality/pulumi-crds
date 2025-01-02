@@ -588,6 +588,10 @@ export namespace postgresql {
              * The last backup status
              */
             phase: string;
+            /**
+             * A map containing the plugin metadata
+             */
+            pluginMetadata: {[key: string]: string};
             s3Credentials: outputs.postgresql.v1.BackupStatusS3Credentials;
             /**
              * The server name on S3, the cluster name is used if this
@@ -942,6 +946,10 @@ export namespace postgresql {
              * The last backup status
              */
             phase: string;
+            /**
+             * A map containing the plugin metadata
+             */
+            pluginMetadata: {[key: string]: string};
             s3Credentials: outputs.postgresql.v1.BackupStatusS3CredentialsPatch;
             /**
              * The server name on S3, the cluster name is used if this
@@ -1388,6 +1396,7 @@ export namespace postgresql {
              * for more information
              */
             priorityClassName: string;
+            probes: outputs.postgresql.v1.ClusterSpecProbes;
             projectedVolumeTemplate: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplate;
             replica: outputs.postgresql.v1.ClusterSpecReplica;
             replicationSlots: outputs.postgresql.v1.ClusterSpecReplicationSlots;
@@ -4016,6 +4025,12 @@ export namespace postgresql {
          */
         export interface ClusterSpecBootstrapInitdb {
             /**
+             * Specifies the locale name when the builtin provider is used.
+             * This option requires `localeProvider` to be set to `builtin`.
+             * Available from PostgreSQL 17.
+             */
+            builtinLocale: string;
+            /**
              * Whether the `-k` option should be passed to initdb,
              * enabling checksums on data pages (default: `false`)
              */
@@ -4028,7 +4043,23 @@ export namespace postgresql {
              * The value to be passed as option `--encoding` for initdb (default:`UTF8`)
              */
             encoding: string;
+            /**
+             * Specifies the ICU locale when the ICU provider is used.
+             * This option requires `localeProvider` to be set to `icu`.
+             * Available from PostgreSQL 15.
+             */
+            icuLocale: string;
+            /**
+             * Specifies additional collation rules to customize the behavior of the default collation.
+             * This option requires `localeProvider` to be set to `icu`.
+             * Available from PostgreSQL 16.
+             */
+            icuRules: string;
             import: outputs.postgresql.v1.ClusterSpecBootstrapInitdbImport;
+            /**
+             * Sets the default collation order and character classification in the new database.
+             */
+            locale: string;
             /**
              * The value to be passed as option `--lc-ctype` for initdb (default:`C`)
              */
@@ -4037,6 +4068,11 @@ export namespace postgresql {
              * The value to be passed as option `--lc-collate` for initdb (default:`C`)
              */
             localeCollate: string;
+            /**
+             * This option sets the locale provider for databases created in the new cluster.
+             * Available from PostgreSQL 16.
+             */
+            localeProvider: string;
             /**
              * The list of options that must be passed to initdb when creating the cluster.
              * Deprecated: This could lead to inconsistent configurations,
@@ -4088,6 +4124,20 @@ export namespace postgresql {
              */
             databases: string[];
             /**
+             * List of custom options to pass to the `pg_dump` command. IMPORTANT:
+             * Use these options with caution and at your own risk, as the operator
+             * does not validate their content. Be aware that certain options may
+             * conflict with the operator's intended functionality or design.
+             */
+            pgDumpExtraOptions: string[];
+            /**
+             * List of custom options to pass to the `pg_restore` command. IMPORTANT:
+             * Use these options with caution and at your own risk, as the operator
+             * does not validate their content. Be aware that certain options may
+             * conflict with the operator's intended functionality or design.
+             */
+            pgRestoreExtraOptions: string[];
+            /**
              * List of SQL queries to be executed as a superuser in the application
              * database right after is imported - to be used with extreme care
              * (by default empty). Only available in microservice type.
@@ -4118,6 +4168,20 @@ export namespace postgresql {
              * The databases to import
              */
             databases: string[];
+            /**
+             * List of custom options to pass to the `pg_dump` command. IMPORTANT:
+             * Use these options with caution and at your own risk, as the operator
+             * does not validate their content. Be aware that certain options may
+             * conflict with the operator's intended functionality or design.
+             */
+            pgDumpExtraOptions: string[];
+            /**
+             * List of custom options to pass to the `pg_restore` command. IMPORTANT:
+             * Use these options with caution and at your own risk, as the operator
+             * does not validate their content. Be aware that certain options may
+             * conflict with the operator's intended functionality or design.
+             */
+            pgRestoreExtraOptions: string[];
             /**
              * List of SQL queries to be executed as a superuser in the application
              * database right after is imported - to be used with extreme care
@@ -4165,6 +4229,12 @@ export namespace postgresql {
          */
         export interface ClusterSpecBootstrapInitdbPatch {
             /**
+             * Specifies the locale name when the builtin provider is used.
+             * This option requires `localeProvider` to be set to `builtin`.
+             * Available from PostgreSQL 17.
+             */
+            builtinLocale: string;
+            /**
              * Whether the `-k` option should be passed to initdb,
              * enabling checksums on data pages (default: `false`)
              */
@@ -4177,7 +4247,23 @@ export namespace postgresql {
              * The value to be passed as option `--encoding` for initdb (default:`UTF8`)
              */
             encoding: string;
+            /**
+             * Specifies the ICU locale when the ICU provider is used.
+             * This option requires `localeProvider` to be set to `icu`.
+             * Available from PostgreSQL 15.
+             */
+            icuLocale: string;
+            /**
+             * Specifies additional collation rules to customize the behavior of the default collation.
+             * This option requires `localeProvider` to be set to `icu`.
+             * Available from PostgreSQL 16.
+             */
+            icuRules: string;
             import: outputs.postgresql.v1.ClusterSpecBootstrapInitdbImportPatch;
+            /**
+             * Sets the default collation order and character classification in the new database.
+             */
+            locale: string;
             /**
              * The value to be passed as option `--lc-ctype` for initdb (default:`C`)
              */
@@ -4186,6 +4272,11 @@ export namespace postgresql {
              * The value to be passed as option `--lc-collate` for initdb (default:`C`)
              */
             localeCollate: string;
+            /**
+             * This option sets the locale provider for databases created in the new cluster.
+             * Available from PostgreSQL 16.
+             */
+            localeProvider: string;
             /**
              * The list of options that must be passed to initdb when creating the cluster.
              * Deprecated: This could lead to inconsistent configurations,
@@ -5879,6 +5970,7 @@ export namespace postgresql {
              */
             name: string;
             password: outputs.postgresql.v1.ClusterSpecExternalClustersPassword;
+            plugin: outputs.postgresql.v1.ClusterSpecExternalClustersPlugin;
             sslCert: outputs.postgresql.v1.ClusterSpecExternalClustersSslCert;
             sslKey: outputs.postgresql.v1.ClusterSpecExternalClustersSslKey;
             sslRootCert: outputs.postgresql.v1.ClusterSpecExternalClustersSslRootCert;
@@ -6625,9 +6717,48 @@ export namespace postgresql {
              */
             name: string;
             password: outputs.postgresql.v1.ClusterSpecExternalClustersPasswordPatch;
+            plugin: outputs.postgresql.v1.ClusterSpecExternalClustersPluginPatch;
             sslCert: outputs.postgresql.v1.ClusterSpecExternalClustersSslCertPatch;
             sslKey: outputs.postgresql.v1.ClusterSpecExternalClustersSslKeyPatch;
             sslRootCert: outputs.postgresql.v1.ClusterSpecExternalClustersSslRootCertPatch;
+        }
+
+        /**
+         * The configuration of the plugin that is taking care
+         * of WAL archiving and backups for this external cluster
+         */
+        export interface ClusterSpecExternalClustersPlugin {
+            /**
+             * Enabled is true if this plugin will be used
+             */
+            enabled: boolean;
+            /**
+             * Name is the plugin name
+             */
+            name: string;
+            /**
+             * Parameters is the configuration of the plugin
+             */
+            parameters: {[key: string]: string};
+        }
+
+        /**
+         * The configuration of the plugin that is taking care
+         * of WAL archiving and backups for this external cluster
+         */
+        export interface ClusterSpecExternalClustersPluginPatch {
+            /**
+             * Enabled is true if this plugin will be used
+             */
+            enabled: boolean;
+            /**
+             * Name is the plugin name
+             */
+            name: string;
+            /**
+             * Parameters is the configuration of the plugin
+             */
+            parameters: {[key: string]: string};
         }
 
         /**
@@ -7404,7 +7535,7 @@ export namespace postgresql {
              * not set, the implementation will apply its default routing strategy. If set
              * to "PreferClose", implementations should prioritize endpoints that are
              * topologically close (e.g., same zone).
-             * This is an alpha field and requires enabling ServiceTrafficDistribution feature.
+             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
              */
             trafficDistribution: string;
             /**
@@ -7641,7 +7772,7 @@ export namespace postgresql {
              * not set, the implementation will apply its default routing strategy. If set
              * to "PreferClose", implementations should prioritize endpoints that are
              * topologically close (e.g., same zone).
-             * This is an alpha field and requires enabling ServiceTrafficDistribution feature.
+             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
              */
             trafficDistribution: string;
             /**
@@ -8380,6 +8511,7 @@ export namespace postgresql {
              * for more information
              */
             priorityClassName: string;
+            probes: outputs.postgresql.v1.ClusterSpecProbesPatch;
             projectedVolumeTemplate: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplatePatch;
             replica: outputs.postgresql.v1.ClusterSpecReplicaPatch;
             replicationSlots: outputs.postgresql.v1.ClusterSpecReplicationSlotsPatch;
@@ -8438,6 +8570,10 @@ export namespace postgresql {
          */
         export interface ClusterSpecPlugins {
             /**
+             * Enabled is true if this plugin will be used
+             */
+            enabled: boolean;
+            /**
              * Name is the plugin name
              */
             name: string;
@@ -8452,6 +8588,10 @@ export namespace postgresql {
          * cluster to be reconciled
          */
         export interface ClusterSpecPluginsPatch {
+            /**
+             * Enabled is true if this plugin will be used
+             */
+            enabled: boolean;
             /**
              * Name is the plugin name
              */
@@ -8743,6 +8883,17 @@ export namespace postgresql {
          */
         export interface ClusterSpecPostgresqlSynchronous {
             /**
+             * If set to "required", data durability is strictly enforced. Write operations
+             * with synchronous commit settings (`on`, `remote_write`, or `remote_apply`) will
+             * block if there are insufficient healthy replicas, ensuring data persistence.
+             * If set to "preferred", data durability is maintained when healthy replicas
+             * are available, but the required number of instances will adjust dynamically
+             * if replicas become unavailable. This setting relaxes strict durability enforcement
+             * to allow for operational continuity. This setting is only applicable if both
+             * `standbyNamesPre` and `standbyNamesPost` are unset (empty).
+             */
+            dataDurability: string;
+            /**
              * Specifies the maximum number of local cluster pods that can be
              * automatically included in the `synchronous_standby_names` option in
              * PostgreSQL.
@@ -8778,6 +8929,17 @@ export namespace postgresql {
          */
         export interface ClusterSpecPostgresqlSynchronousPatch {
             /**
+             * If set to "required", data durability is strictly enforced. Write operations
+             * with synchronous commit settings (`on`, `remote_write`, or `remote_apply`) will
+             * block if there are insufficient healthy replicas, ensuring data persistence.
+             * If set to "preferred", data durability is maintained when healthy replicas
+             * are available, but the required number of instances will adjust dynamically
+             * if replicas become unavailable. This setting relaxes strict durability enforcement
+             * to allow for operational continuity. This setting is only applicable if both
+             * `standbyNamesPre` and `standbyNamesPost` are unset (empty).
+             */
+            dataDurability: string;
+            /**
              * Specifies the maximum number of local cluster pods that can be
              * automatically included in the `synchronous_standby_names` option in
              * PostgreSQL.
@@ -8806,6 +8968,296 @@ export namespace postgresql {
              * only useful for priority-based synchronous replication).
              */
             standbyNamesPre: string[];
+        }
+
+        /**
+         * The configuration of the probes to be injected
+         * in the PostgreSQL Pods.
+         */
+        export interface ClusterSpecProbes {
+            liveness: outputs.postgresql.v1.ClusterSpecProbesLiveness;
+            readiness: outputs.postgresql.v1.ClusterSpecProbesReadiness;
+            startup: outputs.postgresql.v1.ClusterSpecProbesStartup;
+        }
+
+        /**
+         * The liveness probe configuration
+         */
+        export interface ClusterSpecProbesLiveness {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
+        }
+
+        /**
+         * The liveness probe configuration
+         */
+        export interface ClusterSpecProbesLivenessPatch {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
+        }
+
+        /**
+         * The configuration of the probes to be injected
+         * in the PostgreSQL Pods.
+         */
+        export interface ClusterSpecProbesPatch {
+            liveness: outputs.postgresql.v1.ClusterSpecProbesLivenessPatch;
+            readiness: outputs.postgresql.v1.ClusterSpecProbesReadinessPatch;
+            startup: outputs.postgresql.v1.ClusterSpecProbesStartupPatch;
+        }
+
+        /**
+         * The readiness probe configuration
+         */
+        export interface ClusterSpecProbesReadiness {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
+        }
+
+        /**
+         * The readiness probe configuration
+         */
+        export interface ClusterSpecProbesReadinessPatch {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
+        }
+
+        /**
+         * The startup probe configuration
+         */
+        export interface ClusterSpecProbesStartup {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
+        }
+
+        /**
+         * The startup probe configuration
+         */
+        export interface ClusterSpecProbesStartupPatch {
+            /**
+             * Minimum consecutive failures for the probe to be considered failed after having succeeded.
+             * Defaults to 3. Minimum value is 1.
+             */
+            failureThreshold: number;
+            /**
+             * Number of seconds after the container has started before liveness probes are initiated.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            initialDelaySeconds: number;
+            /**
+             * How often (in seconds) to perform the probe.
+             * Default to 10 seconds. Minimum value is 1.
+             */
+            periodSeconds: number;
+            /**
+             * Minimum consecutive successes for the probe to be considered successful after having failed.
+             * Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+             */
+            successThreshold: number;
+            /**
+             * Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+             * The grace period is the duration in seconds after the processes running in the pod are sent
+             * a termination signal and the time when the processes are forcibly halted with a kill signal.
+             * Set this value longer than the expected cleanup time for your process.
+             * If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+             * value overrides the value provided by the pod spec.
+             * Value must be non-negative integer. The value zero indicates stop immediately via
+             * the kill signal (no opportunity to shut down).
+             * This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+             * Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+             */
+            terminationGracePeriodSeconds: number;
+            /**
+             * Number of seconds after which the probe times out.
+             * Defaults to 1 second. Minimum value is 1.
+             * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+             */
+            timeoutSeconds: number;
         }
 
         /**
@@ -12098,6 +12550,11 @@ export namespace postgresql {
              */
             operatorCapabilities: string[];
             /**
+             * RestoreJobHookCapabilities are the list of capabilities of the
+             * plugin regarding the RestoreJobHook management
+             */
+            restoreJobHookCapabilities: string[];
+            /**
              * Status contain the status reported by the plugin through the SetStatusInCluster interface
              */
             status: string;
@@ -12136,6 +12593,11 @@ export namespace postgresql {
              * plugin regarding the reconciler
              */
             operatorCapabilities: string[];
+            /**
+             * RestoreJobHookCapabilities are the list of capabilities of the
+             * plugin regarding the RestoreJobHook management
+             */
+            restoreJobHookCapabilities: string[];
             /**
              * Status contain the status reported by the plugin through the SetStatusInCluster interface
              */
@@ -12396,6 +12858,316 @@ export namespace postgresql {
              * in synchronous replica election in case of failures
              */
             successfullyExtracted: boolean;
+        }
+
+        /**
+         * Database is the Schema for the databases API
+         */
+        export interface Database {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "postgresql.cnpg.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "Database";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.postgresql.v1.DatabaseSpec;
+            status: outputs.postgresql.v1.DatabaseStatus;
+        }
+
+        /**
+         * Specification of the desired Database.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseSpec {
+            /**
+             * Maps to the `ALLOW_CONNECTIONS` parameter of `CREATE DATABASE` and
+             * `ALTER DATABASE`. If false then no one can connect to this database.
+             */
+            allowConnections: boolean;
+            /**
+             * Maps to the `BUILTIN_LOCALE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. Specifies the locale name when the
+             * builtin provider is used. This option requires `localeProvider` to
+             * be set to `builtin`. Available from PostgreSQL 17.
+             */
+            builtinLocale: string;
+            cluster: outputs.postgresql.v1.DatabaseSpecCluster;
+            /**
+             * Maps to the `COLLATION_VERSION` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed.
+             */
+            collationVersion: string;
+            /**
+             * Maps to the `CONNECTION LIMIT` clause of `CREATE DATABASE` and
+             * `ALTER DATABASE`. How many concurrent connections can be made to
+             * this database. -1 (the default) means no limit.
+             */
+            connectionLimit: number;
+            /**
+             * The policy for end-of-life maintenance of this database.
+             */
+            databaseReclaimPolicy: string;
+            /**
+             * Maps to the `ENCODING` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Character set encoding to use in the database.
+             */
+            encoding: string;
+            /**
+             * Ensure the PostgreSQL database is `present` or `absent` - defaults to "present".
+             */
+            ensure: string;
+            /**
+             * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. Specifies the ICU locale when the ICU
+             * provider is used. This option requires `localeProvider` to be set to
+             * `icu`. Available from PostgreSQL 15.
+             */
+            icuLocale: string;
+            /**
+             * Maps to the `ICU_RULES` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Specifies additional collation rules to customize
+             * the behavior of the default collation. This option requires
+             * `localeProvider` to be set to `icu`. Available from PostgreSQL 16.
+             */
+            icuRules: string;
+            /**
+             * Maps to the `IS_TEMPLATE` parameter of `CREATE DATABASE` and `ALTER
+             * DATABASE`. If true, this database is considered a template and can
+             * be cloned by any user with `CREATEDB` privileges.
+             */
+            isTemplate: boolean;
+            /**
+             * Maps to the `LOCALE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Sets the default collation order and character
+             * classification in the new database.
+             */
+            locale: string;
+            /**
+             * Maps to the `LC_CTYPE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed.
+             */
+            localeCType: string;
+            /**
+             * Maps to the `LC_COLLATE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed.
+             */
+            localeCollate: string;
+            /**
+             * Maps to the `LOCALE_PROVIDER` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. This option sets the locale provider for
+             * databases created in the new cluster. Available from PostgreSQL 16.
+             */
+            localeProvider: string;
+            /**
+             * The name of the database to create inside PostgreSQL. This setting cannot be changed.
+             */
+            name: string;
+            /**
+             * Maps to the `OWNER` parameter of `CREATE DATABASE`.
+             * Maps to the `OWNER TO` command of `ALTER DATABASE`.
+             * The role name of the user who owns the database inside PostgreSQL.
+             */
+            owner: string;
+            /**
+             * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
+             * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
+             * The name of the tablespace (in PostgreSQL) that will be associated
+             * with the new database. This tablespace will be the default
+             * tablespace used for objects created in this database.
+             */
+            tablespace: string;
+            /**
+             * Maps to the `TEMPLATE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. The name of the template from which to create
+             * this database.
+             */
+            template: string;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster hosting the database.
+         */
+        export interface DatabaseSpecCluster {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster hosting the database.
+         */
+        export interface DatabaseSpecClusterPatch {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * Specification of the desired Database.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseSpecPatch {
+            /**
+             * Maps to the `ALLOW_CONNECTIONS` parameter of `CREATE DATABASE` and
+             * `ALTER DATABASE`. If false then no one can connect to this database.
+             */
+            allowConnections: boolean;
+            /**
+             * Maps to the `BUILTIN_LOCALE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. Specifies the locale name when the
+             * builtin provider is used. This option requires `localeProvider` to
+             * be set to `builtin`. Available from PostgreSQL 17.
+             */
+            builtinLocale: string;
+            cluster: outputs.postgresql.v1.DatabaseSpecClusterPatch;
+            /**
+             * Maps to the `COLLATION_VERSION` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed.
+             */
+            collationVersion: string;
+            /**
+             * Maps to the `CONNECTION LIMIT` clause of `CREATE DATABASE` and
+             * `ALTER DATABASE`. How many concurrent connections can be made to
+             * this database. -1 (the default) means no limit.
+             */
+            connectionLimit: number;
+            /**
+             * The policy for end-of-life maintenance of this database.
+             */
+            databaseReclaimPolicy: string;
+            /**
+             * Maps to the `ENCODING` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Character set encoding to use in the database.
+             */
+            encoding: string;
+            /**
+             * Ensure the PostgreSQL database is `present` or `absent` - defaults to "present".
+             */
+            ensure: string;
+            /**
+             * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. Specifies the ICU locale when the ICU
+             * provider is used. This option requires `localeProvider` to be set to
+             * `icu`. Available from PostgreSQL 15.
+             */
+            icuLocale: string;
+            /**
+             * Maps to the `ICU_RULES` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Specifies additional collation rules to customize
+             * the behavior of the default collation. This option requires
+             * `localeProvider` to be set to `icu`. Available from PostgreSQL 16.
+             */
+            icuRules: string;
+            /**
+             * Maps to the `IS_TEMPLATE` parameter of `CREATE DATABASE` and `ALTER
+             * DATABASE`. If true, this database is considered a template and can
+             * be cloned by any user with `CREATEDB` privileges.
+             */
+            isTemplate: boolean;
+            /**
+             * Maps to the `LOCALE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. Sets the default collation order and character
+             * classification in the new database.
+             */
+            locale: string;
+            /**
+             * Maps to the `LC_CTYPE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed.
+             */
+            localeCType: string;
+            /**
+             * Maps to the `LC_COLLATE` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed.
+             */
+            localeCollate: string;
+            /**
+             * Maps to the `LOCALE_PROVIDER` parameter of `CREATE DATABASE`. This
+             * setting cannot be changed. This option sets the locale provider for
+             * databases created in the new cluster. Available from PostgreSQL 16.
+             */
+            localeProvider: string;
+            /**
+             * The name of the database to create inside PostgreSQL. This setting cannot be changed.
+             */
+            name: string;
+            /**
+             * Maps to the `OWNER` parameter of `CREATE DATABASE`.
+             * Maps to the `OWNER TO` command of `ALTER DATABASE`.
+             * The role name of the user who owns the database inside PostgreSQL.
+             */
+            owner: string;
+            /**
+             * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
+             * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
+             * The name of the tablespace (in PostgreSQL) that will be associated
+             * with the new database. This tablespace will be the default
+             * tablespace used for objects created in this database.
+             */
+            tablespace: string;
+            /**
+             * Maps to the `TEMPLATE` parameter of `CREATE DATABASE`. This setting
+             * cannot be changed. The name of the template from which to create
+             * this database.
+             */
+            template: string;
+        }
+
+        /**
+         * Most recently observed status of the Database. This data may not be up to
+         * date. Populated by the system. Read-only.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseStatus {
+            /**
+             * Applied is true if the database was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
+        }
+
+        /**
+         * Most recently observed status of the Database. This data may not be up to
+         * date. Populated by the system. Read-only.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseStatusPatch {
+            /**
+             * Applied is true if the database was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
         }
 
         /**
@@ -13268,7 +14040,7 @@ export namespace postgresql {
              * not set, the implementation will apply its default routing strategy. If set
              * to "PreferClose", implementations should prioritize endpoints that are
              * topologically close (e.g., same zone).
-             * This is an alpha field and requires enabling ServiceTrafficDistribution feature.
+             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
              */
             trafficDistribution: string;
             /**
@@ -13505,7 +14277,7 @@ export namespace postgresql {
              * not set, the implementation will apply its default routing strategy. If set
              * to "PreferClose", implementations should prioritize endpoints that are
              * topologically close (e.g., same zone).
-             * This is an alpha field and requires enabling ServiceTrafficDistribution feature.
+             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
              */
             trafficDistribution: string;
             /**
@@ -13934,6 +14706,7 @@ export namespace postgresql {
              * This field is immutable.
              */
             resourceClaims: outputs.postgresql.v1.PoolerSpecTemplateSpecResourceClaims[];
+            resources: outputs.postgresql.v1.PoolerSpecTemplateSpecResources;
             /**
              * Restart policy for all containers within the pod.
              * One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
@@ -16110,7 +16883,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartExec {
             /**
@@ -16124,7 +16897,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartExecPatch {
             /**
@@ -16138,7 +16911,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartHttpGet {
             /**
@@ -16198,7 +16971,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartHttpGetPatch {
             /**
@@ -16241,7 +17014,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartSleep {
             /**
@@ -16251,7 +17024,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartSleepPatch {
             /**
@@ -16262,8 +17035,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartTcpSocket {
             /**
@@ -16280,8 +17053,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePostStartTcpSocketPatch {
             /**
@@ -16315,7 +17088,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopExec {
             /**
@@ -16329,7 +17102,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopExecPatch {
             /**
@@ -16343,7 +17116,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopHttpGet {
             /**
@@ -16403,7 +17176,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopHttpGetPatch {
             /**
@@ -16451,7 +17224,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopSleep {
             /**
@@ -16461,7 +17234,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopSleepPatch {
             /**
@@ -16472,8 +17245,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopTcpSocket {
             /**
@@ -16490,8 +17263,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecContainersLifecyclePreStopTcpSocketPatch {
             /**
@@ -16559,7 +17332,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeExec {
             /**
@@ -16573,7 +17346,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeExecPatch {
             /**
@@ -16587,7 +17360,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeGrpc {
             /**
@@ -16604,7 +17377,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeGrpcPatch {
             /**
@@ -16621,7 +17394,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeHttpGet {
             /**
@@ -16681,7 +17454,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeHttpGetPatch {
             /**
@@ -16763,7 +17536,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeTcpSocket {
             /**
@@ -16779,7 +17552,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersLivenessProbeTcpSocketPatch {
             /**
@@ -17071,7 +17844,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeExec {
             /**
@@ -17085,7 +17858,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeExecPatch {
             /**
@@ -17099,7 +17872,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeGrpc {
             /**
@@ -17116,7 +17889,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeGrpcPatch {
             /**
@@ -17133,7 +17906,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeHttpGet {
             /**
@@ -17193,7 +17966,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeHttpGetPatch {
             /**
@@ -17275,7 +18048,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeTcpSocket {
             /**
@@ -17291,7 +18064,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersReadinessProbeTcpSocketPatch {
             /**
@@ -17874,7 +18647,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeExec {
             /**
@@ -17888,7 +18661,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeExecPatch {
             /**
@@ -17902,7 +18675,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeGrpc {
             /**
@@ -17919,7 +18692,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeGrpcPatch {
             /**
@@ -17936,7 +18709,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeHttpGet {
             /**
@@ -17996,7 +18769,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeHttpGetPatch {
             /**
@@ -18081,7 +18854,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeTcpSocket {
             /**
@@ -18097,7 +18870,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecContainersStartupProbeTcpSocketPatch {
             /**
@@ -18292,9 +19065,13 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecDnsConfigOptions {
             /**
+             * Name is this DNS resolver option's name.
              * Required.
              */
             name: string;
+            /**
+             * Value is this DNS resolver option's value.
+             */
             value: string;
         }
 
@@ -18303,9 +19080,13 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecDnsConfigOptionsPatch {
             /**
+             * Name is this DNS resolver option's name.
              * Required.
              */
             name: string;
+            /**
+             * Value is this DNS resolver option's value.
+             */
             value: string;
         }
 
@@ -18838,7 +19619,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartExec {
             /**
@@ -18852,7 +19633,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartExecPatch {
             /**
@@ -18866,7 +19647,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartHttpGet {
             /**
@@ -18926,7 +19707,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartHttpGetPatch {
             /**
@@ -18969,7 +19750,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartSleep {
             /**
@@ -18979,7 +19760,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartSleepPatch {
             /**
@@ -18990,8 +19771,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartTcpSocket {
             /**
@@ -19008,8 +19789,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartTcpSocketPatch {
             /**
@@ -19043,7 +19824,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopExec {
             /**
@@ -19057,7 +19838,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopExecPatch {
             /**
@@ -19071,7 +19852,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopHttpGet {
             /**
@@ -19131,7 +19912,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopHttpGetPatch {
             /**
@@ -19179,7 +19960,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopSleep {
             /**
@@ -19189,7 +19970,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopSleepPatch {
             /**
@@ -19200,8 +19981,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopTcpSocket {
             /**
@@ -19218,8 +19999,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopTcpSocketPatch {
             /**
@@ -19284,7 +20065,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeExec {
             /**
@@ -19298,7 +20079,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeExecPatch {
             /**
@@ -19312,7 +20093,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeGrpc {
             /**
@@ -19329,7 +20110,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeGrpcPatch {
             /**
@@ -19346,7 +20127,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeHttpGet {
             /**
@@ -19406,7 +20187,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeHttpGetPatch {
             /**
@@ -19485,7 +20266,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeTcpSocket {
             /**
@@ -19501,7 +20282,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersLivenessProbeTcpSocketPatch {
             /**
@@ -19786,7 +20567,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeExec {
             /**
@@ -19800,7 +20581,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeExecPatch {
             /**
@@ -19814,7 +20595,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeGrpc {
             /**
@@ -19831,7 +20612,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeGrpcPatch {
             /**
@@ -19848,7 +20629,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeHttpGet {
             /**
@@ -19908,7 +20689,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeHttpGetPatch {
             /**
@@ -19987,7 +20768,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeTcpSocket {
             /**
@@ -20003,7 +20784,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersReadinessProbeTcpSocketPatch {
             /**
@@ -20576,7 +21357,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeExec {
             /**
@@ -20590,7 +21371,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeExecPatch {
             /**
@@ -20604,7 +21385,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeGrpc {
             /**
@@ -20621,7 +21402,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeGrpcPatch {
             /**
@@ -20638,7 +21419,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeHttpGet {
             /**
@@ -20698,7 +21479,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeHttpGetPatch {
             /**
@@ -20777,7 +21558,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeTcpSocket {
             /**
@@ -20793,7 +21574,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersStartupProbeTcpSocketPatch {
             /**
@@ -21524,7 +22305,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartExec {
             /**
@@ -21538,7 +22319,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartExecPatch {
             /**
@@ -21552,7 +22333,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartHttpGet {
             /**
@@ -21612,7 +22393,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartHttpGetPatch {
             /**
@@ -21655,7 +22436,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartSleep {
             /**
@@ -21665,7 +22446,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartSleepPatch {
             /**
@@ -21676,8 +22457,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartTcpSocket {
             /**
@@ -21694,8 +22475,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePostStartTcpSocketPatch {
             /**
@@ -21729,7 +22510,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopExec {
             /**
@@ -21743,7 +22524,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopExecPatch {
             /**
@@ -21757,7 +22538,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopHttpGet {
             /**
@@ -21817,7 +22598,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopHttpGetPatch {
             /**
@@ -21865,7 +22646,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopSleep {
             /**
@@ -21875,7 +22656,7 @@ export namespace postgresql {
         }
 
         /**
-         * Sleep represents the duration that the container should sleep before being terminated.
+         * Sleep represents a duration that the container should sleep.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopSleepPatch {
             /**
@@ -21886,8 +22667,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopTcpSocket {
             /**
@@ -21904,8 +22685,8 @@ export namespace postgresql {
 
         /**
          * Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept
-         * for the backward compatibility. There are no validation of this field and
-         * lifecycle hooks will fail in runtime when tcp handler is specified.
+         * for backward compatibility. There is no validation of this field and
+         * lifecycle hooks will fail at runtime when it is specified.
          */
         export interface PoolerSpecTemplateSpecInitContainersLifecyclePreStopTcpSocketPatch {
             /**
@@ -21973,7 +22754,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeExec {
             /**
@@ -21987,7 +22768,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeExecPatch {
             /**
@@ -22001,7 +22782,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeGrpc {
             /**
@@ -22018,7 +22799,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeGrpcPatch {
             /**
@@ -22035,7 +22816,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeHttpGet {
             /**
@@ -22095,7 +22876,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeHttpGetPatch {
             /**
@@ -22177,7 +22958,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeTcpSocket {
             /**
@@ -22193,7 +22974,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersLivenessProbeTcpSocketPatch {
             /**
@@ -22485,7 +23266,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeExec {
             /**
@@ -22499,7 +23280,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeExecPatch {
             /**
@@ -22513,7 +23294,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeGrpc {
             /**
@@ -22530,7 +23311,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeGrpcPatch {
             /**
@@ -22547,7 +23328,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeHttpGet {
             /**
@@ -22607,7 +23388,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeHttpGetPatch {
             /**
@@ -22689,7 +23470,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeTcpSocket {
             /**
@@ -22705,7 +23486,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersReadinessProbeTcpSocketPatch {
             /**
@@ -23288,7 +24069,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeExec {
             /**
@@ -23302,7 +24083,7 @@ export namespace postgresql {
         }
 
         /**
-         * Exec specifies the action to take.
+         * Exec specifies a command to execute in the container.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeExecPatch {
             /**
@@ -23316,7 +24097,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeGrpc {
             /**
@@ -23333,7 +24114,7 @@ export namespace postgresql {
         }
 
         /**
-         * GRPC specifies an action involving a GRPC port.
+         * GRPC specifies a GRPC HealthCheckRequest.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeGrpcPatch {
             /**
@@ -23350,7 +24131,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeHttpGet {
             /**
@@ -23410,7 +24191,7 @@ export namespace postgresql {
         }
 
         /**
-         * HTTPGet specifies the http request to perform.
+         * HTTPGet specifies an HTTP GET request to perform.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeHttpGetPatch {
             /**
@@ -23495,7 +24276,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeTcpSocket {
             /**
@@ -23511,7 +24292,7 @@ export namespace postgresql {
         }
 
         /**
-         * TCPSocket specifies an action involving a TCP port.
+         * TCPSocket specifies a connection to a TCP port.
          */
         export interface PoolerSpecTemplateSpecInitContainersStartupProbeTcpSocketPatch {
             /**
@@ -23933,6 +24714,7 @@ export namespace postgresql {
              * This field is immutable.
              */
             resourceClaims: outputs.postgresql.v1.PoolerSpecTemplateSpecResourceClaimsPatch[];
+            resources: outputs.postgresql.v1.PoolerSpecTemplateSpecResourcesPatch;
             /**
              * Restart policy for all containers within the pod.
              * One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
@@ -24126,6 +24908,114 @@ export namespace postgresql {
         }
 
         /**
+         * Resources is the total amount of CPU and Memory resources required by all
+         * containers in the pod. It supports specifying Requests and Limits for
+         * "cpu" and "memory" resource names only. ResourceClaims are not supported.
+         *
+         * This field enables fine-grained control over resource allocation for the
+         * entire pod, allowing resource sharing among containers in a pod.
+         *
+         * This is an alpha field and requires enabling the PodLevelResources feature
+         * gate.
+         */
+        export interface PoolerSpecTemplateSpecResources {
+            /**
+             * Claims lists the names of resources, defined in spec.resourceClaims,
+             * that are used by this container.
+             *
+             * This is an alpha field and requires enabling the
+             * DynamicResourceAllocation feature gate.
+             *
+             * This field is immutable. It can only be set for containers.
+             */
+            claims: outputs.postgresql.v1.PoolerSpecTemplateSpecResourcesClaims[];
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits: {[key: string]: number | string};
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to an implementation-defined value. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests: {[key: string]: number | string};
+        }
+
+        /**
+         * ResourceClaim references one entry in PodSpec.ResourceClaims.
+         */
+        export interface PoolerSpecTemplateSpecResourcesClaims {
+            /**
+             * Name must match the name of one entry in pod.spec.resourceClaims of
+             * the Pod where this field is used. It makes that resource available
+             * inside a container.
+             */
+            name: string;
+            /**
+             * Request is the name chosen for a request in the referenced claim.
+             * If empty, everything from the claim is made available, otherwise
+             * only the result of this request.
+             */
+            request: string;
+        }
+
+        /**
+         * ResourceClaim references one entry in PodSpec.ResourceClaims.
+         */
+        export interface PoolerSpecTemplateSpecResourcesClaimsPatch {
+            /**
+             * Name must match the name of one entry in pod.spec.resourceClaims of
+             * the Pod where this field is used. It makes that resource available
+             * inside a container.
+             */
+            name: string;
+            /**
+             * Request is the name chosen for a request in the referenced claim.
+             * If empty, everything from the claim is made available, otherwise
+             * only the result of this request.
+             */
+            request: string;
+        }
+
+        /**
+         * Resources is the total amount of CPU and Memory resources required by all
+         * containers in the pod. It supports specifying Requests and Limits for
+         * "cpu" and "memory" resource names only. ResourceClaims are not supported.
+         *
+         * This field enables fine-grained control over resource allocation for the
+         * entire pod, allowing resource sharing among containers in a pod.
+         *
+         * This is an alpha field and requires enabling the PodLevelResources feature
+         * gate.
+         */
+        export interface PoolerSpecTemplateSpecResourcesPatch {
+            /**
+             * Claims lists the names of resources, defined in spec.resourceClaims,
+             * that are used by this container.
+             *
+             * This is an alpha field and requires enabling the
+             * DynamicResourceAllocation feature gate.
+             *
+             * This field is immutable. It can only be set for containers.
+             */
+            claims: outputs.postgresql.v1.PoolerSpecTemplateSpecResourcesClaimsPatch[];
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits: {[key: string]: number | string};
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to an implementation-defined value. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests: {[key: string]: number | string};
+        }
+
+        /**
          * PodSchedulingGate is associated to a Pod to guard its scheduling.
          */
         export interface PoolerSpecTemplateSpecSchedulingGates {
@@ -24203,6 +25093,32 @@ export namespace postgresql {
              * Note that this field cannot be set when spec.os.name is windows.
              */
             runAsUser: number;
+            /**
+             * seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+             * It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+             * Valid values are "MountOption" and "Recursive".
+             *
+             * "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+             * This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+             *
+             * "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+             * This requires all Pods that share the same volume to use the same SELinux label.
+             * It is not possible to share the same volume among privileged and unprivileged Pods.
+             * Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+             * whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+             * CSIDriver instance. Other volumes are always re-labelled recursively.
+             * "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+             *
+             * If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+             * If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+             * and "Recursive" for all other volumes.
+             *
+             * This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+             *
+             * All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            seLinuxChangePolicy: string;
             seLinuxOptions: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContextSeLinuxOptions;
             seccompProfile: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContextSeccompProfile;
             /**
@@ -24334,6 +25250,32 @@ export namespace postgresql {
              * Note that this field cannot be set when spec.os.name is windows.
              */
             runAsUser: number;
+            /**
+             * seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+             * It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+             * Valid values are "MountOption" and "Recursive".
+             *
+             * "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+             * This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+             *
+             * "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+             * This requires all Pods that share the same volume to use the same SELinux label.
+             * It is not possible to share the same volume among privileged and unprivileged Pods.
+             * Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+             * whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+             * CSIDriver instance. Other volumes are always re-labelled recursively.
+             * "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+             *
+             * If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+             * If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+             * and "Recursive" for all other volumes.
+             *
+             * This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+             *
+             * All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            seLinuxChangePolicy: string;
             seLinuxOptions: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContextSeLinuxOptionsPatch;
             seccompProfile: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContextSeccompProfilePatch;
             /**
@@ -24992,6 +25934,8 @@ export namespace postgresql {
         /**
          * awsElasticBlockStore represents an AWS Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
+         * Deprecated: AWSElasticBlockStore is deprecated. All operations for the in-tree
+         * awsElasticBlockStore type are redirected to the ebs.csi.aws.com CSI driver.
          * More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
          */
         export interface PoolerSpecTemplateSpecVolumesAwsElasticBlockStore {
@@ -25024,6 +25968,8 @@ export namespace postgresql {
         /**
          * awsElasticBlockStore represents an AWS Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
+         * Deprecated: AWSElasticBlockStore is deprecated. All operations for the in-tree
+         * awsElasticBlockStore type are redirected to the ebs.csi.aws.com CSI driver.
          * More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
          */
         export interface PoolerSpecTemplateSpecVolumesAwsElasticBlockStorePatch {
@@ -25055,6 +26001,8 @@ export namespace postgresql {
 
         /**
          * azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+         * Deprecated: AzureDisk is deprecated. All operations for the in-tree azureDisk type
+         * are redirected to the disk.csi.azure.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesAzureDisk {
             /**
@@ -25088,6 +26036,8 @@ export namespace postgresql {
 
         /**
          * azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+         * Deprecated: AzureDisk is deprecated. All operations for the in-tree azureDisk type
+         * are redirected to the disk.csi.azure.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesAzureDiskPatch {
             /**
@@ -25121,6 +26071,8 @@ export namespace postgresql {
 
         /**
          * azureFile represents an Azure File Service mount on the host and bind mount to the pod.
+         * Deprecated: AzureFile is deprecated. All operations for the in-tree azureFile type
+         * are redirected to the file.csi.azure.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesAzureFile {
             /**
@@ -25140,6 +26092,8 @@ export namespace postgresql {
 
         /**
          * azureFile represents an Azure File Service mount on the host and bind mount to the pod.
+         * Deprecated: AzureFile is deprecated. All operations for the in-tree azureFile type
+         * are redirected to the file.csi.azure.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesAzureFilePatch {
             /**
@@ -25158,7 +26112,8 @@ export namespace postgresql {
         }
 
         /**
-         * cephFS represents a Ceph FS mount on the host that shares a pod's lifetime
+         * cephFS represents a Ceph FS mount on the host that shares a pod's lifetime.
+         * Deprecated: CephFS is deprecated and the in-tree cephfs type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesCephfs {
             /**
@@ -25190,7 +26145,8 @@ export namespace postgresql {
         }
 
         /**
-         * cephFS represents a Ceph FS mount on the host that shares a pod's lifetime
+         * cephFS represents a Ceph FS mount on the host that shares a pod's lifetime.
+         * Deprecated: CephFS is deprecated and the in-tree cephfs type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesCephfsPatch {
             /**
@@ -25253,6 +26209,8 @@ export namespace postgresql {
 
         /**
          * cinder represents a cinder volume attached and mounted on kubelets host machine.
+         * Deprecated: Cinder is deprecated. All operations for the in-tree cinder type
+         * are redirected to the cinder.csi.openstack.org CSI driver.
          * More info: https://examples.k8s.io/mysql-cinder-pd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesCinder {
@@ -25279,6 +26237,8 @@ export namespace postgresql {
 
         /**
          * cinder represents a cinder volume attached and mounted on kubelets host machine.
+         * Deprecated: Cinder is deprecated. All operations for the in-tree cinder type
+         * are redirected to the cinder.csi.openstack.org CSI driver.
          * More info: https://examples.k8s.io/mysql-cinder-pd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesCinderPatch {
@@ -25462,7 +26422,7 @@ export namespace postgresql {
         }
 
         /**
-         * csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature).
+         * csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers.
          */
         export interface PoolerSpecTemplateSpecVolumesCsi {
             /**
@@ -25526,7 +26486,7 @@ export namespace postgresql {
         }
 
         /**
-         * csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature).
+         * csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers.
          */
         export interface PoolerSpecTemplateSpecVolumesCsiPatch {
             /**
@@ -26304,6 +27264,7 @@ export namespace postgresql {
         /**
          * flexVolume represents a generic volume resource that is
          * provisioned/attached using an exec based plugin.
+         * Deprecated: FlexVolume is deprecated. Consider using a CSIDriver instead.
          */
         export interface PoolerSpecTemplateSpecVolumesFlexVolume {
             /**
@@ -26331,6 +27292,7 @@ export namespace postgresql {
         /**
          * flexVolume represents a generic volume resource that is
          * provisioned/attached using an exec based plugin.
+         * Deprecated: FlexVolume is deprecated. Consider using a CSIDriver instead.
          */
         export interface PoolerSpecTemplateSpecVolumesFlexVolumePatch {
             /**
@@ -26392,7 +27354,8 @@ export namespace postgresql {
         }
 
         /**
-         * flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running
+         * flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running.
+         * Deprecated: Flocker is deprecated and the in-tree flocker type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesFlocker {
             /**
@@ -26407,7 +27370,8 @@ export namespace postgresql {
         }
 
         /**
-         * flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running
+         * flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running.
+         * Deprecated: Flocker is deprecated and the in-tree flocker type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesFlockerPatch {
             /**
@@ -26424,6 +27388,8 @@ export namespace postgresql {
         /**
          * gcePersistentDisk represents a GCE Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
+         * Deprecated: GCEPersistentDisk is deprecated. All operations for the in-tree
+         * gcePersistentDisk type are redirected to the pd.csi.storage.gke.io CSI driver.
          * More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
          */
         export interface PoolerSpecTemplateSpecVolumesGcePersistentDisk {
@@ -26458,6 +27424,8 @@ export namespace postgresql {
         /**
          * gcePersistentDisk represents a GCE Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
+         * Deprecated: GCEPersistentDisk is deprecated. All operations for the in-tree
+         * gcePersistentDisk type are redirected to the pd.csi.storage.gke.io CSI driver.
          * More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
          */
         export interface PoolerSpecTemplateSpecVolumesGcePersistentDiskPatch {
@@ -26491,7 +27459,7 @@ export namespace postgresql {
 
         /**
          * gitRepo represents a git repository at a particular revision.
-         * DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an
+         * Deprecated: GitRepo is deprecated. To provision a container with a git repo, mount an
          * EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir
          * into the Pod's container.
          */
@@ -26515,7 +27483,7 @@ export namespace postgresql {
 
         /**
          * gitRepo represents a git repository at a particular revision.
-         * DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an
+         * Deprecated: GitRepo is deprecated. To provision a container with a git repo, mount an
          * EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir
          * into the Pod's container.
          */
@@ -26539,6 +27507,7 @@ export namespace postgresql {
 
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
+         * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
          * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesGlusterfs {
@@ -26562,6 +27531,7 @@ export namespace postgresql {
 
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
+         * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
          * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesGlusterfsPatch {
@@ -26968,7 +27938,8 @@ export namespace postgresql {
         }
 
         /**
-         * photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
+         * photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine.
+         * Deprecated: PhotonPersistentDisk is deprecated and the in-tree photonPersistentDisk type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesPhotonPersistentDisk {
             /**
@@ -26984,7 +27955,8 @@ export namespace postgresql {
         }
 
         /**
-         * photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
+         * photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine.
+         * Deprecated: PhotonPersistentDisk is deprecated and the in-tree photonPersistentDisk type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesPhotonPersistentDiskPatch {
             /**
@@ -27000,7 +27972,10 @@ export namespace postgresql {
         }
 
         /**
-         * portworxVolume represents a portworx volume attached and mounted on kubelets host machine
+         * portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
+         * Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
+         * are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
+         * is on.
          */
         export interface PoolerSpecTemplateSpecVolumesPortworxVolume {
             /**
@@ -27021,7 +27996,10 @@ export namespace postgresql {
         }
 
         /**
-         * portworxVolume represents a portworx volume attached and mounted on kubelets host machine
+         * portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
+         * Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
+         * are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
+         * is on.
          */
         export interface PoolerSpecTemplateSpecVolumesPortworxVolumePatch {
             /**
@@ -27672,7 +28650,8 @@ export namespace postgresql {
         }
 
         /**
-         * quobyte represents a Quobyte mount on the host that shares a pod's lifetime
+         * quobyte represents a Quobyte mount on the host that shares a pod's lifetime.
+         * Deprecated: Quobyte is deprecated and the in-tree quobyte type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesQuobyte {
             /**
@@ -27708,7 +28687,8 @@ export namespace postgresql {
         }
 
         /**
-         * quobyte represents a Quobyte mount on the host that shares a pod's lifetime
+         * quobyte represents a Quobyte mount on the host that shares a pod's lifetime.
+         * Deprecated: Quobyte is deprecated and the in-tree quobyte type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesQuobytePatch {
             /**
@@ -27745,6 +28725,7 @@ export namespace postgresql {
 
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
+         * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
          * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesRbd {
@@ -27794,6 +28775,7 @@ export namespace postgresql {
 
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
+         * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
          * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesRbdPatch {
@@ -27877,6 +28859,7 @@ export namespace postgresql {
 
         /**
          * scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes.
+         * Deprecated: ScaleIO is deprecated and the in-tree scaleIO type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesScaleIO {
             /**
@@ -27926,6 +28909,7 @@ export namespace postgresql {
 
         /**
          * scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes.
+         * Deprecated: ScaleIO is deprecated and the in-tree scaleIO type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesScaleIOPatch {
             /**
@@ -28129,6 +29113,7 @@ export namespace postgresql {
 
         /**
          * storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes.
+         * Deprecated: StorageOS is deprecated and the in-tree storageos type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesStorageos {
             /**
@@ -28161,6 +29146,7 @@ export namespace postgresql {
 
         /**
          * storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes.
+         * Deprecated: StorageOS is deprecated and the in-tree storageos type is no longer supported.
          */
         export interface PoolerSpecTemplateSpecVolumesStorageosPatch {
             /**
@@ -28222,7 +29208,9 @@ export namespace postgresql {
         }
 
         /**
-         * vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
+         * vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine.
+         * Deprecated: VsphereVolume is deprecated. All operations for the in-tree vsphereVolume type
+         * are redirected to the csi.vsphere.vmware.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesVsphereVolume {
             /**
@@ -28246,7 +29234,9 @@ export namespace postgresql {
         }
 
         /**
-         * vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
+         * vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine.
+         * Deprecated: VsphereVolume is deprecated. All operations for the in-tree vsphereVolume type
+         * are redirected to the csi.vsphere.vmware.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesVsphereVolumePatch {
             /**
@@ -28439,6 +29429,248 @@ export namespace postgresql {
              * The ResourceVersion of the secret
              */
             version: string;
+        }
+
+        /**
+         * Publication is the Schema for the publications API
+         */
+        export interface Publication {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "postgresql.cnpg.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "Publication";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.postgresql.v1.PublicationSpec;
+            status: outputs.postgresql.v1.PublicationStatus;
+        }
+
+        /**
+         * PublicationSpec defines the desired state of Publication
+         */
+        export interface PublicationSpec {
+            cluster: outputs.postgresql.v1.PublicationSpecCluster;
+            /**
+             * The name of the database where the publication will be installed in
+             * the "publisher" cluster
+             */
+            dbname: string;
+            /**
+             * The name of the publication inside PostgreSQL
+             */
+            name: string;
+            /**
+             * Publication parameters part of the `WITH` clause as expected by
+             * PostgreSQL `CREATE PUBLICATION` command
+             */
+            parameters: {[key: string]: string};
+            /**
+             * The policy for end-of-life maintenance of this publication
+             */
+            publicationReclaimPolicy: string;
+            target: outputs.postgresql.v1.PublicationSpecTarget;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster that identifies the "publisher"
+         */
+        export interface PublicationSpecCluster {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster that identifies the "publisher"
+         */
+        export interface PublicationSpecClusterPatch {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * PublicationSpec defines the desired state of Publication
+         */
+        export interface PublicationSpecPatch {
+            cluster: outputs.postgresql.v1.PublicationSpecClusterPatch;
+            /**
+             * The name of the database where the publication will be installed in
+             * the "publisher" cluster
+             */
+            dbname: string;
+            /**
+             * The name of the publication inside PostgreSQL
+             */
+            name: string;
+            /**
+             * Publication parameters part of the `WITH` clause as expected by
+             * PostgreSQL `CREATE PUBLICATION` command
+             */
+            parameters: {[key: string]: string};
+            /**
+             * The policy for end-of-life maintenance of this publication
+             */
+            publicationReclaimPolicy: string;
+            target: outputs.postgresql.v1.PublicationSpecTargetPatch;
+        }
+
+        /**
+         * Target of the publication as expected by PostgreSQL `CREATE PUBLICATION` command
+         */
+        export interface PublicationSpecTarget {
+            /**
+             * Marks the publication as one that replicates changes for all tables
+             * in the database, including tables created in the future.
+             * Corresponding to `FOR ALL TABLES` in PostgreSQL.
+             */
+            allTables: boolean;
+            /**
+             * Just the following schema objects
+             */
+            objects: outputs.postgresql.v1.PublicationSpecTargetObjects[];
+        }
+
+        /**
+         * PublicationTargetObject is an object to publish
+         */
+        export interface PublicationSpecTargetObjects {
+            table: outputs.postgresql.v1.PublicationSpecTargetObjectsTable;
+            /**
+             * Marks the publication as one that replicates changes for all tables
+             * in the specified list of schemas, including tables created in the
+             * future. Corresponding to `FOR TABLES IN SCHEMA` in PostgreSQL.
+             */
+            tablesInSchema: string;
+        }
+
+        /**
+         * PublicationTargetObject is an object to publish
+         */
+        export interface PublicationSpecTargetObjectsPatch {
+            table: outputs.postgresql.v1.PublicationSpecTargetObjectsTablePatch;
+            /**
+             * Marks the publication as one that replicates changes for all tables
+             * in the specified list of schemas, including tables created in the
+             * future. Corresponding to `FOR TABLES IN SCHEMA` in PostgreSQL.
+             */
+            tablesInSchema: string;
+        }
+
+        /**
+         * Specifies a list of tables to add to the publication. Corresponding
+         * to `FOR TABLE` in PostgreSQL.
+         */
+        export interface PublicationSpecTargetObjectsTable {
+            /**
+             * The columns to publish
+             */
+            columns: string[];
+            /**
+             * The table name
+             */
+            name: string;
+            /**
+             * Whether to limit to the table only or include all its descendants
+             */
+            only: boolean;
+            /**
+             * The schema name
+             */
+            schema: string;
+        }
+
+        /**
+         * Specifies a list of tables to add to the publication. Corresponding
+         * to `FOR TABLE` in PostgreSQL.
+         */
+        export interface PublicationSpecTargetObjectsTablePatch {
+            /**
+             * The columns to publish
+             */
+            columns: string[];
+            /**
+             * The table name
+             */
+            name: string;
+            /**
+             * Whether to limit to the table only or include all its descendants
+             */
+            only: boolean;
+            /**
+             * The schema name
+             */
+            schema: string;
+        }
+
+        /**
+         * Target of the publication as expected by PostgreSQL `CREATE PUBLICATION` command
+         */
+        export interface PublicationSpecTargetPatch {
+            /**
+             * Marks the publication as one that replicates changes for all tables
+             * in the database, including tables created in the future.
+             * Corresponding to `FOR ALL TABLES` in PostgreSQL.
+             */
+            allTables: boolean;
+            /**
+             * Just the following schema objects
+             */
+            objects: outputs.postgresql.v1.PublicationSpecTargetObjectsPatch[];
+        }
+
+        /**
+         * PublicationStatus defines the observed state of Publication
+         */
+        export interface PublicationStatus {
+            /**
+             * Applied is true if the publication was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
+        }
+
+        /**
+         * PublicationStatus defines the observed state of Publication
+         */
+        export interface PublicationStatusPatch {
+            /**
+             * Applied is true if the publication was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
         }
 
         /**
@@ -28705,6 +29937,170 @@ export namespace postgresql {
              * Next time we will run a backup
              */
             nextScheduleTime: string;
+        }
+
+        /**
+         * Subscription is the Schema for the subscriptions API
+         */
+        export interface Subscription {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "postgresql.cnpg.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "Subscription";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.postgresql.v1.SubscriptionSpec;
+            status: outputs.postgresql.v1.SubscriptionStatus;
+        }
+
+        /**
+         * SubscriptionSpec defines the desired state of Subscription
+         */
+        export interface SubscriptionSpec {
+            cluster: outputs.postgresql.v1.SubscriptionSpecCluster;
+            /**
+             * The name of the database where the publication will be installed in
+             * the "subscriber" cluster
+             */
+            dbname: string;
+            /**
+             * The name of the external cluster with the publication ("publisher")
+             */
+            externalClusterName: string;
+            /**
+             * The name of the subscription inside PostgreSQL
+             */
+            name: string;
+            /**
+             * Subscription parameters part of the `WITH` clause as expected by
+             * PostgreSQL `CREATE SUBSCRIPTION` command
+             */
+            parameters: {[key: string]: string};
+            /**
+             * The name of the database containing the publication on the external
+             * cluster. Defaults to the one in the external cluster definition.
+             */
+            publicationDBName: string;
+            /**
+             * The name of the publication inside the PostgreSQL database in the
+             * "publisher"
+             */
+            publicationName: string;
+            /**
+             * The policy for end-of-life maintenance of this subscription
+             */
+            subscriptionReclaimPolicy: string;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster that identifies the "subscriber"
+         */
+        export interface SubscriptionSpecCluster {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * The name of the PostgreSQL cluster that identifies the "subscriber"
+         */
+        export interface SubscriptionSpecClusterPatch {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * SubscriptionSpec defines the desired state of Subscription
+         */
+        export interface SubscriptionSpecPatch {
+            cluster: outputs.postgresql.v1.SubscriptionSpecClusterPatch;
+            /**
+             * The name of the database where the publication will be installed in
+             * the "subscriber" cluster
+             */
+            dbname: string;
+            /**
+             * The name of the external cluster with the publication ("publisher")
+             */
+            externalClusterName: string;
+            /**
+             * The name of the subscription inside PostgreSQL
+             */
+            name: string;
+            /**
+             * Subscription parameters part of the `WITH` clause as expected by
+             * PostgreSQL `CREATE SUBSCRIPTION` command
+             */
+            parameters: {[key: string]: string};
+            /**
+             * The name of the database containing the publication on the external
+             * cluster. Defaults to the one in the external cluster definition.
+             */
+            publicationDBName: string;
+            /**
+             * The name of the publication inside the PostgreSQL database in the
+             * "publisher"
+             */
+            publicationName: string;
+            /**
+             * The policy for end-of-life maintenance of this subscription
+             */
+            subscriptionReclaimPolicy: string;
+        }
+
+        /**
+         * SubscriptionStatus defines the observed state of Subscription
+         */
+        export interface SubscriptionStatus {
+            /**
+             * Applied is true if the subscription was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
+        }
+
+        /**
+         * SubscriptionStatus defines the observed state of Subscription
+         */
+        export interface SubscriptionStatusPatch {
+            /**
+             * Applied is true if the subscription was reconciled correctly
+             */
+            applied: boolean;
+            /**
+             * Message is the reconciliation output message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
         }
 
     }
