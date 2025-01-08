@@ -37,17 +37,22 @@ fi
 rm -rf tmp gen
 mkdir -p tmp gen
 
-CNPG_TAG="$(github_repo_latest_tag "cloudnative-pg/cloudnative-pg")"
-echo "${CNPG_TAG=}"
-git clone --depth 1 --branch "$CNPG_TAG" https://github.com/cloudnative-pg/cloudnative-pg.git tmp/cnpg
-crd2pulumi -v "$CNPG_TAG" --nodejsName cloudnative-pg --nodejsPath gen/cloudnative-pg tmp/cnpg/config/crd/bases/*.yaml
+# $1: github "org/repo"
+# $2: crd files glob
+# $3: js package name
+function gen() {
+    local repo="$1"
+    local glob="$2"
+    local packname="$3"
 
-RABBIT_TAG="$(github_repo_latest_tag "rabbitmq/cluster-operator")"
-echo "${RABBIT_TAG=}"
-git clone --depth 1 --branch "$RABBIT_TAG" https://github.com/rabbitmq/cluster-operator.git tmp/rabbitmq-operator
-crd2pulumi -v "$RABBIT_TAG" --nodejsName rabbitmq-operator --nodejsPath gen/rabbitmq-operator tmp/rabbitmq-operator/config/crd/bases/*.yaml
+    local tag="$(github_repo_latest_tag "$repo")"
+    echo "$repo: $tag"
+    git clone --depth 1 --branch "$tag" "https://github.com/$repo.git" "tmp/$packname"
+    crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$packname" $(echo "tmp/$packname/$glob")
+}
 
-CERTMAN_TAG="$(github_repo_latest_tag "cert-manager/cert-manager")"
-echo "${CERTMAN_TAG=}"
-git clone --depth 1 --branch "$CERTMAN_TAG" https://github.com/cert-manager/cert-manager.git tmp/certmanager
-crd2pulumi -v "$CERTMAN_TAG" --nodejsName certmanager --nodejsPath gen/certmanager tmp/certmanager/deploy/crds/*.yaml
+gen "cloudnative-pg/cloudnative-pg" "config/crd/bases/*.yaml" "cloudnative-pg"
+gen "rabbitmq/cluster-operator" "config/crd/bases/*.yaml" "rabbitmq-operator"
+gen "cert-manager/cert-manager" "deploy/crds/*.yaml" "certmanager"
+gen "prometheus-operator/prometheus-operator" "example/prometheus-operator-crd/*.yaml" "prometheus-operator"
+
