@@ -12,14 +12,14 @@ utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
 
 // Export sub-modules:
-import * as rabbitmq from "./rabbitmq";
+import * as karpenter from "./karpenter";
 import * as types from "./types";
 
 export {
-    rabbitmq,
+    karpenter,
     types,
 };
-pulumi.runtime.registerResourcePackage("rabbitmq-operator", {
+pulumi.runtime.registerResourcePackage("karpenter-aws", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {
         if (type !== "pulumi:providers:kubernetes") {

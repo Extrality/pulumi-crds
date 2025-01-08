@@ -1,6 +1,6 @@
 {
-    "name": "@pulumi/rabbitmq-operator",
-    "version": "2.12.0",
+    "name": "@pulumi/spicedb-operator",
+    "version": "1.17.0",
     "keywords": [
         "pulumi",
         "kubernetes",
@@ -34,7 +34,7 @@
     },
     "pulumi": {
         "resource": true,
-        "name": "rabbitmq-operator",
-        "version": "2.12.0"
+        "name": "spicedb-operator",
+        "version": "1.17.0"
     }
 }

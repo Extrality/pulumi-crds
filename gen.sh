@@ -52,7 +52,10 @@ function gen() {
 }
 
 gen "cloudnative-pg/cloudnative-pg" "config/crd/bases/*.yaml" "cloudnative-pg"
-gen "rabbitmq/cluster-operator" "config/crd/bases/*.yaml" "rabbitmq-operator"
+gen "rabbitmq/cluster-operator" "config/crd/bases/*.yaml" "rabbitmq-cluster-operator"
+gen "rabbitmq/messaging-topology-operator" "config/crd/bases/*.yaml" "rabbitmq-topology-operator"
 gen "cert-manager/cert-manager" "deploy/crds/*.yaml" "certmanager"
 gen "prometheus-operator/prometheus-operator" "example/prometheus-operator-crd/*.yaml" "prometheus-operator"
+gen "authzed/spicedb-operator" "config/crds/*.yaml" "spicedb-operator"
+gen "aws/karpenter-provider-aws" "pkg/apis/crds/*.yaml" "karpenter-aws"
 

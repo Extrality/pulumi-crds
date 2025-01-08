@@ -36,4 +36,4 @@ const _module = {
         }
     },
 };
-pulumi.runtime.registerResourceModule("rabbitmq-operator", "rabbitmq.com/v1beta1", _module)
+pulumi.runtime.registerResourceModule("rabbitmq-cluster-operator", "rabbitmq.com/v1beta1", _module)

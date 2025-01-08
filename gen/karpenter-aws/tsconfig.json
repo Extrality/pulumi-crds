@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "outDir": "bin",
+        "target": "es2016",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "declaration": true,
+        "sourceMap": true,
+        "stripInternal": true,
+        "experimentalDecorators": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true
+    },
+    "files": [
+        "index.ts",
+        "karpenter/index.ts",
+        "karpenter/v1/ec2nodeClass.ts",
+        "karpenter/v1/ec2nodeClassList.ts",
+        "karpenter/v1/ec2nodeClassPatch.ts",
+        "karpenter/v1/index.ts",
+        "karpenter/v1/nodeClaim.ts",
+        "karpenter/v1/nodeClaimList.ts",
+        "karpenter/v1/nodeClaimPatch.ts",
+        "karpenter/v1/nodePool.ts",
+        "karpenter/v1/nodePoolList.ts",
+        "karpenter/v1/nodePoolPatch.ts",
+        "provider.ts",
+        "types/index.ts",
+        "types/input.ts",
+        "types/output.ts",
+        "utilities.ts"
+    ]
+}
