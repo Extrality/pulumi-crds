@@ -34,6 +34,7 @@ if ! command -v crd2pulumi > /dev/null; then
     fi
 fi
 
+pnpm i
 rm -rf tmp gen
 mkdir -p tmp gen
 
@@ -49,6 +50,10 @@ function gen() {
     echo "$repo: $tag"
     git clone --depth 1 --branch "$tag" "https://github.com/$repo.git" "tmp/$packname"
     crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$packname" $(echo "tmp/$packname/$glob")
+    # pre-compile the package: allows removing the postinstall script
+    ./node_modules/typescript/bin/tsc -p "./gen/$packname"
+    cp "./gen/$packname/package.json" "./gen/$packname/bin/package.json"
+    jq 'del(.scripts.postinstall)' "./gen/$packname/package.json" > temp.json && mv temp.json "./gen/$packname/package.json"
 }
 
 gen "cloudnative-pg/cloudnative-pg" "config/crd/bases/*.yaml" "cloudnative-pg"
@@ -58,4 +63,3 @@ gen "cert-manager/cert-manager" "deploy/crds/*.yaml" "certmanager"
 gen "prometheus-operator/prometheus-operator" "example/prometheus-operator-crd/*.yaml" "prometheus-operator"
 gen "authzed/spicedb-operator" "config/crds/*.yaml" "spicedb-operator"
 gen "aws/karpenter-provider-aws" "pkg/apis/crds/*.yaml" "karpenter-aws"
-
