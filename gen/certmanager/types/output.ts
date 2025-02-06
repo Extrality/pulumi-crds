@@ -465,6 +465,10 @@ export namespace acme {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**
@@ -482,6 +486,10 @@ export namespace acme {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**
@@ -6880,7 +6888,7 @@ export namespace cert_manager {
              * Create enables JKS keystore creation for the Certificate.
              * If true, a file named `keystore.jks` will be created in the target
              * Secret resource, encrypted using the password stored in
-             * `passwordSecretRef`.
+             * `passwordSecretRef` or `password`.
              * The keystore file will be updated immediately.
              * If the issuer provided a CA certificate, a file named `truststore.jks`
              * will also be created in the target Secret resource, encrypted using the
@@ -6888,12 +6896,20 @@ export namespace cert_manager {
              * containing the issuing Certificate Authority
              */
             create: boolean;
+            /**
+             * Password provides a literal password used to encrypt the JKS keystore.
+             * Mutually exclusive with passwordSecretRef.
+             * One of password or passwordSecretRef must provide a password with a non-zero length.
+             */
+            password: string;
             passwordSecretRef: outputs.cert_manager.v1.CertificateSpecKeystoresJksPasswordSecretRef;
         }
 
         /**
-         * PasswordSecretRef is a reference to a key in a Secret resource
+         * PasswordSecretRef is a reference to a non-empty key in a Secret resource
          * containing the password used to encrypt the JKS keystore.
+         * Mutually exclusive with password.
+         * One of password or passwordSecretRef must provide a password with a non-zero length.
          */
         export interface CertificateSpecKeystoresJksPasswordSecretRef {
             /**
@@ -6910,8 +6926,10 @@ export namespace cert_manager {
         }
 
         /**
-         * PasswordSecretRef is a reference to a key in a Secret resource
+         * PasswordSecretRef is a reference to a non-empty key in a Secret resource
          * containing the password used to encrypt the JKS keystore.
+         * Mutually exclusive with password.
+         * One of password or passwordSecretRef must provide a password with a non-zero length.
          */
         export interface CertificateSpecKeystoresJksPasswordSecretRefPatch {
             /**
@@ -6941,7 +6959,7 @@ export namespace cert_manager {
              * Create enables JKS keystore creation for the Certificate.
              * If true, a file named `keystore.jks` will be created in the target
              * Secret resource, encrypted using the password stored in
-             * `passwordSecretRef`.
+             * `passwordSecretRef` or `password`.
              * The keystore file will be updated immediately.
              * If the issuer provided a CA certificate, a file named `truststore.jks`
              * will also be created in the target Secret resource, encrypted using the
@@ -6949,6 +6967,12 @@ export namespace cert_manager {
              * containing the issuing Certificate Authority
              */
             create: boolean;
+            /**
+             * Password provides a literal password used to encrypt the JKS keystore.
+             * Mutually exclusive with passwordSecretRef.
+             * One of password or passwordSecretRef must provide a password with a non-zero length.
+             */
+            password: string;
             passwordSecretRef: outputs.cert_manager.v1.CertificateSpecKeystoresJksPasswordSecretRefPatch;
         }
 
@@ -6969,7 +6993,7 @@ export namespace cert_manager {
              * Create enables PKCS12 keystore creation for the Certificate.
              * If true, a file named `keystore.p12` will be created in the target
              * Secret resource, encrypted using the password stored in
-             * `passwordSecretRef`.
+             * `passwordSecretRef` or in `password`.
              * The keystore file will be updated immediately.
              * If the issuer provided a CA certificate, a file named `truststore.p12` will
              * also be created in the target Secret resource, encrypted using the
@@ -6977,6 +7001,12 @@ export namespace cert_manager {
              * Authority
              */
             create: boolean;
+            /**
+             * Password provides a literal password used to encrypt the PKCS#12 keystore.
+             * Mutually exclusive with passwordSecretRef.
+             * One of password or passwordSecretRef must provide a password with a non-zero length.
+             */
+            password: string;
             passwordSecretRef: outputs.cert_manager.v1.CertificateSpecKeystoresPkcs12PasswordSecretRef;
             /**
              * Profile specifies the key and certificate encryption algorithms and the HMAC algorithm
@@ -6993,8 +7023,10 @@ export namespace cert_manager {
         }
 
         /**
-         * PasswordSecretRef is a reference to a key in a Secret resource
-         * containing the password used to encrypt the PKCS12 keystore.
+         * PasswordSecretRef is a reference to a non-empty key in a Secret resource
+         * containing the password used to encrypt the PKCS#12 keystore.
+         * Mutually exclusive with password.
+         * One of password or passwordSecretRef must provide a password with a non-zero length.
          */
         export interface CertificateSpecKeystoresPkcs12PasswordSecretRef {
             /**
@@ -7011,8 +7043,10 @@ export namespace cert_manager {
         }
 
         /**
-         * PasswordSecretRef is a reference to a key in a Secret resource
-         * containing the password used to encrypt the PKCS12 keystore.
+         * PasswordSecretRef is a reference to a non-empty key in a Secret resource
+         * containing the password used to encrypt the PKCS#12 keystore.
+         * Mutually exclusive with password.
+         * One of password or passwordSecretRef must provide a password with a non-zero length.
          */
         export interface CertificateSpecKeystoresPkcs12PasswordSecretRefPatch {
             /**
@@ -7037,7 +7071,7 @@ export namespace cert_manager {
              * Create enables PKCS12 keystore creation for the Certificate.
              * If true, a file named `keystore.p12` will be created in the target
              * Secret resource, encrypted using the password stored in
-             * `passwordSecretRef`.
+             * `passwordSecretRef` or in `password`.
              * The keystore file will be updated immediately.
              * If the issuer provided a CA certificate, a file named `truststore.p12` will
              * also be created in the target Secret resource, encrypted using the
@@ -7045,6 +7079,12 @@ export namespace cert_manager {
              * Authority
              */
             create: boolean;
+            /**
+             * Password provides a literal password used to encrypt the PKCS#12 keystore.
+             * Mutually exclusive with passwordSecretRef.
+             * One of password or passwordSecretRef must provide a password with a non-zero length.
+             */
+            password: string;
             passwordSecretRef: outputs.cert_manager.v1.CertificateSpecKeystoresPkcs12PasswordSecretRefPatch;
             /**
              * Profile specifies the key and certificate encryption algorithms and the HMAC algorithm
@@ -8443,6 +8483,10 @@ export namespace cert_manager {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**
@@ -8460,6 +8504,10 @@ export namespace cert_manager {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**
@@ -15392,6 +15440,10 @@ export namespace cert_manager {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**
@@ -15409,6 +15461,10 @@ export namespace cert_manager {
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID: string;
+            /**
+             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             */
+            tenantID: string;
         }
 
         /**

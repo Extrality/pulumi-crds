@@ -52,8 +52,9 @@ function gen() {
     crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$packname" $(echo "tmp/$packname/$glob")
     # pre-compile the package: allows removing the postinstall script
     ./node_modules/typescript/bin/tsc -p "./gen/$packname"
-    cp "./gen/$packname/package.json" "./gen/$packname/bin/package.json"
     jq 'del(.scripts.postinstall)' "./gen/$packname/package.json" > temp.json && mv temp.json "./gen/$packname/package.json"
+    rm "./gen/$packname/scripts/postinstall.js"
+    cp "./gen/$packname/package.json" "./gen/$packname/bin/package.json"
 }
 
 gen "cloudnative-pg/cloudnative-pg" "config/crd/bases/*.yaml" "cloudnative-pg"

@@ -2245,6 +2245,7 @@ export namespace rabbitmq {
             priorityClassName: string;
             readinessGates: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecReadinessGates[];
             resourceClaims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourceClaims[];
+            resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResources;
             restartPolicy: string;
             runtimeClassName: string;
             schedulerName: string;
@@ -4851,6 +4852,7 @@ export namespace rabbitmq {
             priorityClassName: string;
             readinessGates: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecReadinessGatesPatch[];
             resourceClaims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourceClaimsPatch[];
+            resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesPatch;
             restartPolicy: string;
             runtimeClassName: string;
             schedulerName: string;
@@ -4887,6 +4889,28 @@ export namespace rabbitmq {
             resourceClaimTemplateName: string;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResources {
+            claims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaims[];
+            limits: {[key: string]: number | string};
+            requests: {[key: string]: number | string};
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaims {
+            name: string;
+            request: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaimsPatch {
+            name: string;
+            request: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesPatch {
+            claims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaimsPatch[];
+            limits: {[key: string]: number | string};
+            requests: {[key: string]: number | string};
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSchedulingGates {
             name: string;
         }
@@ -4902,6 +4926,7 @@ export namespace rabbitmq {
             runAsGroup: number;
             runAsNonRoot: boolean;
             runAsUser: number;
+            seLinuxChangePolicy: string;
             seLinuxOptions: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeLinuxOptions;
             seccompProfile: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeccompProfile;
             supplementalGroups: number[];
@@ -4927,6 +4952,7 @@ export namespace rabbitmq {
             runAsGroup: number;
             runAsNonRoot: boolean;
             runAsUser: number;
+            seLinuxChangePolicy: string;
             seLinuxOptions: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeLinuxOptionsPatch;
             seccompProfile: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeccompProfilePatch;
             supplementalGroups: number[];
@@ -6504,7 +6530,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the Certificate Authority's public certificate for TLS.
              * The Secret must store this as ca.crt.
-             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.cert`
+             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.crt`
              * Used for mTLS, and TLS for rabbitmq_web_stomp and rabbitmq_web_mqtt.
              */
             caSecretName: string;
@@ -6516,7 +6542,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the server's private key & public certificate for TLS.
              * The Secret must store these as tls.key and tls.crt, respectively.
-             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key`
+             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.crt --key=path/to/tls.key`
              */
             secretName: string;
         }
@@ -6528,7 +6554,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the Certificate Authority's public certificate for TLS.
              * The Secret must store this as ca.crt.
-             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.cert`
+             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.crt`
              * Used for mTLS, and TLS for rabbitmq_web_stomp and rabbitmq_web_mqtt.
              */
             caSecretName: string;
@@ -6540,7 +6566,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the server's private key & public certificate for TLS.
              * The Secret must store these as tls.key and tls.crt, respectively.
-             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key`
+             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.crt --key=path/to/tls.key`
              */
             secretName: string;
         }

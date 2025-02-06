@@ -2245,6 +2245,7 @@ export namespace rabbitmq {
             priorityClassName?: pulumi.Input<string>;
             readinessGates?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecReadinessGates>[]>;
             resourceClaims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourceClaims>[]>;
+            resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResources>;
             restartPolicy?: pulumi.Input<string>;
             runtimeClassName?: pulumi.Input<string>;
             schedulerName?: pulumi.Input<string>;
@@ -4851,6 +4852,7 @@ export namespace rabbitmq {
             priorityClassName?: pulumi.Input<string>;
             readinessGates?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecReadinessGatesPatch>[]>;
             resourceClaims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourceClaimsPatch>[]>;
+            resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesPatch>;
             restartPolicy?: pulumi.Input<string>;
             runtimeClassName?: pulumi.Input<string>;
             schedulerName?: pulumi.Input<string>;
@@ -4887,6 +4889,28 @@ export namespace rabbitmq {
             resourceClaimTemplateName?: pulumi.Input<string>;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResources {
+            claims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaims>[]>;
+            limits?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+            requests?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaims {
+            name?: pulumi.Input<string>;
+            request?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaimsPatch {
+            name?: pulumi.Input<string>;
+            request?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesPatch {
+            claims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecResourcesClaimsPatch>[]>;
+            limits?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+            requests?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSchedulingGates {
             name?: pulumi.Input<string>;
         }
@@ -4902,6 +4926,7 @@ export namespace rabbitmq {
             runAsGroup?: pulumi.Input<number>;
             runAsNonRoot?: pulumi.Input<boolean>;
             runAsUser?: pulumi.Input<number>;
+            seLinuxChangePolicy?: pulumi.Input<string>;
             seLinuxOptions?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeLinuxOptions>;
             seccompProfile?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeccompProfile>;
             supplementalGroups?: pulumi.Input<pulumi.Input<number>[]>;
@@ -4927,6 +4952,7 @@ export namespace rabbitmq {
             runAsGroup?: pulumi.Input<number>;
             runAsNonRoot?: pulumi.Input<boolean>;
             runAsUser?: pulumi.Input<number>;
+            seLinuxChangePolicy?: pulumi.Input<string>;
             seLinuxOptions?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeLinuxOptionsPatch>;
             seccompProfile?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecSecurityContextSeccompProfilePatch>;
             supplementalGroups?: pulumi.Input<pulumi.Input<number>[]>;
@@ -6504,7 +6530,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the Certificate Authority's public certificate for TLS.
              * The Secret must store this as ca.crt.
-             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.cert`
+             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.crt`
              * Used for mTLS, and TLS for rabbitmq_web_stomp and rabbitmq_web_mqtt.
              */
             caSecretName?: pulumi.Input<string>;
@@ -6516,7 +6542,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the server's private key & public certificate for TLS.
              * The Secret must store these as tls.key and tls.crt, respectively.
-             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key`
+             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.crt --key=path/to/tls.key`
              */
             secretName?: pulumi.Input<string>;
         }
@@ -6528,7 +6554,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the Certificate Authority's public certificate for TLS.
              * The Secret must store this as ca.crt.
-             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.cert`
+             * This Secret can be created by running `kubectl create secret generic ca-secret --from-file=ca.crt=path/to/ca.crt`
              * Used for mTLS, and TLS for rabbitmq_web_stomp and rabbitmq_web_mqtt.
              */
             caSecretName?: pulumi.Input<string>;
@@ -6540,7 +6566,7 @@ export namespace rabbitmq {
             /**
              * Name of a Secret in the same Namespace as the RabbitmqCluster, containing the server's private key & public certificate for TLS.
              * The Secret must store these as tls.key and tls.crt, respectively.
-             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key`
+             * This Secret can be created by running `kubectl create secret tls tls-secret --cert=path/to/tls.crt --key=path/to/tls.key`
              */
             secretName?: pulumi.Input<string>;
         }
