@@ -28,9 +28,9 @@ export declare namespace acme {
              */
             authorizationURL?: pulumi.Input<string>;
             /**
-             * dnsName is the identifier that this challenge is for, e.g. example.com.
+             * dnsName is the identifier that this challenge is for, e.g., example.com.
              * If the requested DNSName is a 'wildcard', this field MUST be set to the
-             * non-wildcard domain, e.g. for `*.example.com`, it must be `example.com`.
+             * non-wildcard domain, e.g., for `*.example.com`, it must be `example.com`.
              */
             dnsName?: pulumi.Input<string>;
             issuerRef?: pulumi.Input<inputs.acme.v1.ChallengeSpecIssuerRef>;
@@ -115,9 +115,9 @@ export declare namespace acme {
              */
             authorizationURL?: pulumi.Input<string>;
             /**
-             * dnsName is the identifier that this challenge is for, e.g. example.com.
+             * dnsName is the identifier that this challenge is for, e.g., example.com.
              * If the requested DNSName is a 'wildcard', this field MUST be set to the
-             * non-wildcard domain, e.g. for `*.example.com`, it must be `example.com`.
+             * non-wildcard domain, e.g., for `*.example.com`, it must be `example.com`.
              */
             dnsName?: pulumi.Input<string>;
             issuerRef?: pulumi.Input<inputs.acme.v1.ChallengeSpecIssuerRefPatch>;
@@ -430,16 +430,16 @@ export declare namespace acme {
          */
         interface ChallengeSpecSolverDns01AzureDNSManagedIdentity {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -450,16 +450,16 @@ export declare namespace acme {
          */
         interface ChallengeSpecSolverDns01AzureDNSManagedIdentityPatch {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -1052,7 +1052,7 @@ export declare namespace acme {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -1070,7 +1070,7 @@ export declare namespace acme {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -1084,7 +1084,7 @@ export declare namespace acme {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -1102,7 +1102,7 @@ export declare namespace acme {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -1110,7 +1110,7 @@ export declare namespace acme {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface ChallengeSpecSolverHttp01 {
             gatewayHTTPRoute?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoute>;
@@ -5624,7 +5624,7 @@ export declare namespace acme {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface ChallengeSpecSolverHttp01Patch {
             gatewayHTTPRoute?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePatch>;
@@ -5790,6 +5790,11 @@ export declare namespace acme {
             ipAddresses?: pulumi.Input<pulumi.Input<string>[]>;
             issuerRef?: pulumi.Input<inputs.acme.v1.OrderSpecIssuerRef>;
             /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
+            /**
              * Certificate signing request bytes in DER encoding.
              * This will be used when finalizing the order.
              * This field must be set on the order.
@@ -5863,6 +5868,11 @@ export declare namespace acme {
              */
             ipAddresses?: pulumi.Input<pulumi.Input<string>[]>;
             issuerRef?: pulumi.Input<inputs.acme.v1.OrderSpecIssuerRefPatch>;
+            /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
             /**
              * Certificate signing request bytes in DER encoding.
              * This will be used when finalizing the order.
@@ -5965,7 +5975,7 @@ export declare namespace acme {
              */
             token?: pulumi.Input<string>;
             /**
-             * Type is the type of challenge being offered, e.g. 'http-01', 'dns-01',
+             * Type is the type of challenge being offered, e.g., 'http-01', 'dns-01',
              * 'tls-sni-01', etc.
              * This is the raw value retrieved from the ACME server.
              * Only 'http-01' and 'dns-01' are supported by cert-manager, other values
@@ -6283,10 +6293,6 @@ export declare namespace cert_manager {
             /**
              * Defines extra output formats of the private key and signed certificate chain
              * to be written to this Certificate's target Secret.
-             *
-             * This is a Beta Feature enabled by default. It can be disabled with the
-             * `--feature-gates=AdditionalCertificateOutputFormats=false` option set on both
-             * the controller and webhook components.
              */
             additionalOutputFormats?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.CertificateSpecAdditionalOutputFormats>[]>;
             /**
@@ -6404,8 +6410,7 @@ export declare namespace cert_manager {
              * revisions exceeds this number.
              *
              * If set, revisionHistoryLimit must be a value of `1` or greater.
-             * If unset (`nil`), revisions will not be garbage collected.
-             * Default value is `nil`.
+             * Default value is `1`.
              */
             revisionHistoryLimit?: pulumi.Input<number>;
             /**
@@ -6416,6 +6421,13 @@ export declare namespace cert_manager {
              */
             secretName?: pulumi.Input<string>;
             secretTemplate?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecSecretTemplate>;
+            /**
+             * Signature algorithm to use.
+             * Allowed values for RSA keys: SHA256WithRSA, SHA384WithRSA, SHA512WithRSA.
+             * Allowed values for ECDSA keys: ECDSAWithSHA256, ECDSAWithSHA384, ECDSAWithSHA512.
+             * Allowed values for Ed25519 keys: PureEd25519.
+             */
+            signatureAlgorithm?: pulumi.Input<string>;
             subject?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecSubject>;
             /**
              * Requested URI subject alternative names.
@@ -6643,7 +6655,7 @@ export declare namespace cert_manager {
              * `LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
              * `LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
              * `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
-             * (eg. because of company policy). Please note that the security of the algorithm is not that important
+             * (e.g., because of company policy). Please note that the security of the algorithm is not that important
              * in reality, because the unencrypted certificate and private key are also stored in the Secret.
              */
             profile?: pulumi.Input<string>;
@@ -6718,7 +6730,7 @@ export declare namespace cert_manager {
              * `LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
              * `LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
              * `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
-             * (eg. because of company policy). Please note that the security of the algorithm is not that important
+             * (e.g., because of company policy). Please note that the security of the algorithm is not that important
              * in reality, because the unencrypted certificate and private key are also stored in the Secret.
              */
             profile?: pulumi.Input<string>;
@@ -6881,10 +6893,6 @@ export declare namespace cert_manager {
             /**
              * Defines extra output formats of the private key and signed certificate chain
              * to be written to this Certificate's target Secret.
-             *
-             * This is a Beta Feature enabled by default. It can be disabled with the
-             * `--feature-gates=AdditionalCertificateOutputFormats=false` option set on both
-             * the controller and webhook components.
              */
             additionalOutputFormats?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.CertificateSpecAdditionalOutputFormatsPatch>[]>;
             /**
@@ -7002,8 +7010,7 @@ export declare namespace cert_manager {
              * revisions exceeds this number.
              *
              * If set, revisionHistoryLimit must be a value of `1` or greater.
-             * If unset (`nil`), revisions will not be garbage collected.
-             * Default value is `nil`.
+             * Default value is `1`.
              */
             revisionHistoryLimit?: pulumi.Input<number>;
             /**
@@ -7014,6 +7021,13 @@ export declare namespace cert_manager {
              */
             secretName?: pulumi.Input<string>;
             secretTemplate?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecSecretTemplatePatch>;
+            /**
+             * Signature algorithm to use.
+             * Allowed values for RSA keys: SHA256WithRSA, SHA384WithRSA, SHA512WithRSA.
+             * Allowed values for ECDSA keys: ECDSAWithSHA256, ECDSAWithSHA384, ECDSAWithSHA512.
+             * Allowed values for Ed25519 keys: PureEd25519.
+             */
+            signatureAlgorithm?: pulumi.Input<string>;
             subject?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecSubjectPatch>;
             /**
              * Requested URI subject alternative names.
@@ -7064,7 +7078,11 @@ export declare namespace cert_manager {
              * to await user intervention.
              * If set to `Always`, a private key matching the specified requirements
              * will be generated whenever a re-issuance occurs.
-             * Default is `Never` for backward compatibility.
+             * Default is `Always`.
+             * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
+             * The new default can be disabled by setting the
+             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
+             * the controller component.
              */
             rotationPolicy?: pulumi.Input<string>;
             /**
@@ -7114,7 +7132,11 @@ export declare namespace cert_manager {
              * to await user intervention.
              * If set to `Always`, a private key matching the specified requirements
              * will be generated whenever a re-issuance occurs.
-             * Default is `Never` for backward compatibility.
+             * Default is `Always`.
+             * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
+             * The new default can be disabled by setting the
+             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
+             * the controller component.
              */
             rotationPolicy?: pulumi.Input<string>;
             /**
@@ -7437,7 +7459,7 @@ export declare namespace cert_manager {
              * PreferredChain is the chain to use if the ACME server outputs multiple.
              * PreferredChain is no guarantee that this one gets delivered by the ACME
              * endpoint.
-             * For example, for Let's Encrypt's DST crosssign you would use:
+             * For example, for Let's Encrypt's DST cross-sign you would use:
              * "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
              * This value picks the first certificate bundle in the combined set of
              * ACME default and alternative chains that has a root-most certificate with
@@ -7445,6 +7467,11 @@ export declare namespace cert_manager {
              */
             preferredChain?: pulumi.Input<string>;
             privateKeySecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmePrivateKeySecretRef>;
+            /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
             /**
              * Server is the URL used to access the ACME server's 'directory' endpoint.
              * For example, for Let's Encrypt's staging endpoint, you would use:
@@ -7599,7 +7626,7 @@ export declare namespace cert_manager {
              * PreferredChain is the chain to use if the ACME server outputs multiple.
              * PreferredChain is no guarantee that this one gets delivered by the ACME
              * endpoint.
-             * For example, for Let's Encrypt's DST crosssign you would use:
+             * For example, for Let's Encrypt's DST cross-sign you would use:
              * "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
              * This value picks the first certificate bundle in the combined set of
              * ACME default and alternative chains that has a root-most certificate with
@@ -7607,6 +7634,11 @@ export declare namespace cert_manager {
              */
             preferredChain?: pulumi.Input<string>;
             privateKeySecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmePrivateKeySecretRefPatch>;
+            /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
             /**
              * Server is the URL used to access the ACME server's 'directory' endpoint.
              * For example, for Let's Encrypt's staging endpoint, you would use:
@@ -7953,16 +7985,16 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecAcmeSolversDns01AzureDNSManagedIdentity {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -7973,16 +8005,16 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecAcmeSolversDns01AzureDNSManagedIdentityPatch {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -8575,7 +8607,7 @@ export declare namespace cert_manager {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -8593,7 +8625,7 @@ export declare namespace cert_manager {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -8607,7 +8639,7 @@ export declare namespace cert_manager {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -8625,7 +8657,7 @@ export declare namespace cert_manager {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -8633,7 +8665,7 @@ export declare namespace cert_manager {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface ClusterIssuerSpecAcmeSolversHttp01 {
             gatewayHTTPRoute?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoute>;
@@ -13147,7 +13179,7 @@ export declare namespace cert_manager {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface ClusterIssuerSpecAcmeSolversHttp01Patch {
             gatewayHTTPRoute?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePatch>;
@@ -13369,6 +13401,11 @@ export declare namespace cert_manager {
              * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
              */
             server?: pulumi.Input<string>;
+            /**
+             * ServerName is used to verify the hostname on the returned certificates
+             * by the Vault server.
+             */
+            serverName?: pulumi.Input<string>;
         }
         /**
          * Auth configures how cert-manager authenticates with the Vault server.
@@ -13796,6 +13833,11 @@ export declare namespace cert_manager {
              * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
              */
             server?: pulumi.Input<string>;
+            /**
+             * ServerName is used to verify the hostname on the returned certificates
+             * by the Vault server.
+             */
+            serverName?: pulumi.Input<string>;
         }
         /**
          * Venafi configures this issuer to sign certificates using a Venafi TPP
@@ -13820,7 +13862,7 @@ export declare namespace cert_manager {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRef>;
             /**
              * URL is the base URL for Venafi Cloud.
-             * Defaults to "https://api.venafi.cloud/v1".
+             * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
@@ -13864,7 +13906,7 @@ export declare namespace cert_manager {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRefPatch>;
             /**
              * URL is the base URL for Venafi Cloud.
-             * Defaults to "https://api.venafi.cloud/v1".
+             * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
@@ -14134,7 +14176,7 @@ export declare namespace cert_manager {
              * PreferredChain is the chain to use if the ACME server outputs multiple.
              * PreferredChain is no guarantee that this one gets delivered by the ACME
              * endpoint.
-             * For example, for Let's Encrypt's DST crosssign you would use:
+             * For example, for Let's Encrypt's DST cross-sign you would use:
              * "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
              * This value picks the first certificate bundle in the combined set of
              * ACME default and alternative chains that has a root-most certificate with
@@ -14142,6 +14184,11 @@ export declare namespace cert_manager {
              */
             preferredChain?: pulumi.Input<string>;
             privateKeySecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmePrivateKeySecretRef>;
+            /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
             /**
              * Server is the URL used to access the ACME server's 'directory' endpoint.
              * For example, for Let's Encrypt's staging endpoint, you would use:
@@ -14296,7 +14343,7 @@ export declare namespace cert_manager {
              * PreferredChain is the chain to use if the ACME server outputs multiple.
              * PreferredChain is no guarantee that this one gets delivered by the ACME
              * endpoint.
-             * For example, for Let's Encrypt's DST crosssign you would use:
+             * For example, for Let's Encrypt's DST cross-sign you would use:
              * "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
              * This value picks the first certificate bundle in the combined set of
              * ACME default and alternative chains that has a root-most certificate with
@@ -14304,6 +14351,11 @@ export declare namespace cert_manager {
              */
             preferredChain?: pulumi.Input<string>;
             privateKeySecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmePrivateKeySecretRefPatch>;
+            /**
+             * Profile allows requesting a certificate profile from the ACME server.
+             * Supported profiles are listed by the server's ACME directory URL.
+             */
+            profile?: pulumi.Input<string>;
             /**
              * Server is the URL used to access the ACME server's 'directory' endpoint.
              * For example, for Let's Encrypt's staging endpoint, you would use:
@@ -14650,16 +14702,16 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecAcmeSolversDns01AzureDNSManagedIdentity {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -14670,16 +14722,16 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecAcmeSolversDns01AzureDNSManagedIdentityPatch {
             /**
-             * client ID of the managed identity, can not be used at the same time as resourceID
+             * client ID of the managed identity, cannot be used at the same time as resourceID
              */
             clientID?: pulumi.Input<string>;
             /**
-             * resource ID of the managed identity, can not be used at the same time as clientID
+             * resource ID of the managed identity, cannot be used at the same time as clientID
              * Cannot be used for Azure Managed Service Identity
              */
             resourceID?: pulumi.Input<string>;
             /**
-             * tenant ID of the managed identity, can not be used at the same time as resourceID
+             * tenant ID of the managed identity, cannot be used at the same time as resourceID
              */
             tenantID?: pulumi.Input<string>;
         }
@@ -15272,7 +15324,7 @@ export declare namespace cert_manager {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -15290,7 +15342,7 @@ export declare namespace cert_manager {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -15304,7 +15356,7 @@ export declare namespace cert_manager {
              * when challenges are processed.
              * This can contain arbitrary JSON data.
              * Secret values should not be specified in this stanza.
-             * If secret values are needed (e.g. credentials for a DNS service), you
+             * If secret values are needed (e.g., credentials for a DNS service), you
              * should use a SecretKeySelector to reference a Secret resource.
              * For details on the schema of this field, consult the webhook provider
              * implementation's documentation.
@@ -15322,7 +15374,7 @@ export declare namespace cert_manager {
             /**
              * The name of the solver to use, as defined in the webhook provider
              * implementation.
-             * This will typically be the name of the provider, e.g. 'cloudflare'.
+             * This will typically be the name of the provider, e.g., 'cloudflare'.
              */
             solverName?: pulumi.Input<string>;
         }
@@ -15330,7 +15382,7 @@ export declare namespace cert_manager {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface IssuerSpecAcmeSolversHttp01 {
             gatewayHTTPRoute?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoute>;
@@ -19844,7 +19896,7 @@ export declare namespace cert_manager {
          * Configures cert-manager to attempt to complete authorizations by
          * performing the HTTP01 challenge flow.
          * It is not possible to obtain certificates for wildcard domain names
-         * (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
+         * (e.g., `*.example.com`) using the HTTP01 challenge mechanism.
          */
         interface IssuerSpecAcmeSolversHttp01Patch {
             gatewayHTTPRoute?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePatch>;
@@ -20066,6 +20118,11 @@ export declare namespace cert_manager {
              * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
              */
             server?: pulumi.Input<string>;
+            /**
+             * ServerName is used to verify the hostname on the returned certificates
+             * by the Vault server.
+             */
+            serverName?: pulumi.Input<string>;
         }
         /**
          * Auth configures how cert-manager authenticates with the Vault server.
@@ -20493,6 +20550,11 @@ export declare namespace cert_manager {
              * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
              */
             server?: pulumi.Input<string>;
+            /**
+             * ServerName is used to verify the hostname on the returned certificates
+             * by the Vault server.
+             */
+            serverName?: pulumi.Input<string>;
         }
         /**
          * Venafi configures this issuer to sign certificates using a Venafi TPP
@@ -20517,7 +20579,7 @@ export declare namespace cert_manager {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRef>;
             /**
              * URL is the base URL for Venafi Cloud.
-             * Defaults to "https://api.venafi.cloud/v1".
+             * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
@@ -20561,7 +20623,7 @@ export declare namespace cert_manager {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRefPatch>;
             /**
              * URL is the base URL for Venafi Cloud.
-             * Defaults to "https://api.venafi.cloud/v1".
+             * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }

@@ -11,8 +11,23 @@ var rabbitmq;
         prefetch - count;
         number;
         queue: string;
+        /**
+         * The queue type of the internal upstream queue used by exchange federation.
+         * Defaults to classic (a single replica queue type). Set to quorum to use a replicated queue type.
+         * Changing the queue type will delete and recreate the upstream queue by default.
+         * This may lead to messages getting lost or not routed anywhere during the re-declaration.
+         * To avoid that, set resource-cleanup-mode key to never.
+         * This requires manually deleting the old upstream queue so that it can be recreated with the new type.
+         */
+        queueType: string;
         rabbitmqClusterReference: outputs.rabbitmq.v1beta1.FederationSpecRabbitmqClusterReference;
         reconnectDelay: number;
+        /**
+         * Whether to delete the internal upstream queue when federation links stop.
+         * By default, the internal upstream queue is deleted immediately when a federation link stops.
+         * Set to never to keep the upstream queue around and collect messages even when changing federation configuration.
+         */
+        resourceCleanupMode: string;
         trustUserId: boolean;
         uriSecret: outputs.rabbitmq.v1beta1.FederationSpecUriSecret;
         /**
@@ -23,8 +38,23 @@ var rabbitmq;
     prefetch - count;
     number;
     queue: string;
+    /**
+     * The queue type of the internal upstream queue used by exchange federation.
+     * Defaults to classic (a single replica queue type). Set to quorum to use a replicated queue type.
+     * Changing the queue type will delete and recreate the upstream queue by default.
+     * This may lead to messages getting lost or not routed anywhere during the re-declaration.
+     * To avoid that, set resource-cleanup-mode key to never.
+     * This requires manually deleting the old upstream queue so that it can be recreated with the new type.
+     */
+    queueType: string;
     rabbitmqClusterReference: outputs.rabbitmq.v1beta1.FederationSpecRabbitmqClusterReferencePatch;
     reconnectDelay: number;
+    /**
+     * Whether to delete the internal upstream queue when federation links stop.
+     * By default, the internal upstream queue is deleted immediately when a federation link stops.
+     * Set to never to keep the upstream queue around and collect messages even when changing federation configuration.
+     */
+    resourceCleanupMode: string;
     trustUserId: boolean;
     uriSecret: outputs.rabbitmq.v1beta1.FederationSpecUriSecretPatch;
     /**

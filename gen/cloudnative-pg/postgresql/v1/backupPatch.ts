@@ -13,7 +13,7 @@ import * as utilities from "../../utilities";
  * Conflicts will result in an error by default, but can be forced using the "pulumi.com/patchForce" annotation. See the
  * [Server-Side Apply Docs](https://www.pulumi.com/registry/packages/kubernetes/how-to-guides/managing-resources-with-server-side-apply/) for
  * additional information about using Server-Side Apply to manage Kubernetes resources with Pulumi.
- * Backup is the Schema for the backups API
+ * A Backup resource is a request for a PostgreSQL backup by the user.
  */
 export class BackupPatch extends pulumi.CustomResource {
     /**

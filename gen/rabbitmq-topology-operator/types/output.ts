@@ -421,9 +421,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -439,9 +437,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -656,9 +652,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -674,9 +668,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -874,9 +866,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -892,9 +882,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1013,6 +1001,11 @@ export namespace rabbitmq {
          */
         export interface FederationSpec {
             ackMode: string;
+            /**
+             * DeletionPolicy defines the behavior of federation in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
             exchange: string;
             expires: number;
             maxHops: number;
@@ -1023,8 +1016,23 @@ export namespace rabbitmq {
             name: string;
             prefetch-count: number;
             queue: string;
+            /**
+             * The queue type of the internal upstream queue used by exchange federation.
+             * Defaults to classic (a single replica queue type). Set to quorum to use a replicated queue type.
+             * Changing the queue type will delete and recreate the upstream queue by default.
+             * This may lead to messages getting lost or not routed anywhere during the re-declaration.
+             * To avoid that, set resource-cleanup-mode key to never.
+             * This requires manually deleting the old upstream queue so that it can be recreated with the new type.
+             */
+            queueType: string;
             rabbitmqClusterReference: outputs.rabbitmq.v1beta1.FederationSpecRabbitmqClusterReference;
             reconnectDelay: number;
+            /**
+             * Whether to delete the internal upstream queue when federation links stop.
+             * By default, the internal upstream queue is deleted immediately when a federation link stops.
+             * Set to never to keep the upstream queue around and collect messages even when changing federation configuration.
+             */
+            resourceCleanupMode: string;
             trustUserId: boolean;
             uriSecret: outputs.rabbitmq.v1beta1.FederationSpecUriSecret;
             /**
@@ -1039,6 +1047,11 @@ export namespace rabbitmq {
          */
         export interface FederationSpecPatch {
             ackMode: string;
+            /**
+             * DeletionPolicy defines the behavior of federation in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
             exchange: string;
             expires: number;
             maxHops: number;
@@ -1049,8 +1062,23 @@ export namespace rabbitmq {
             name: string;
             prefetch-count: number;
             queue: string;
+            /**
+             * The queue type of the internal upstream queue used by exchange federation.
+             * Defaults to classic (a single replica queue type). Set to quorum to use a replicated queue type.
+             * Changing the queue type will delete and recreate the upstream queue by default.
+             * This may lead to messages getting lost or not routed anywhere during the re-declaration.
+             * To avoid that, set resource-cleanup-mode key to never.
+             * This requires manually deleting the old upstream queue so that it can be recreated with the new type.
+             */
+            queueType: string;
             rabbitmqClusterReference: outputs.rabbitmq.v1beta1.FederationSpecRabbitmqClusterReferencePatch;
             reconnectDelay: number;
+            /**
+             * Whether to delete the internal upstream queue when federation links stop.
+             * By default, the internal upstream queue is deleted immediately when a federation link stops.
+             * Set to never to keep the upstream queue around and collect messages even when changing federation configuration.
+             */
+            resourceCleanupMode: string;
             trustUserId: boolean;
             uriSecret: outputs.rabbitmq.v1beta1.FederationSpecUriSecretPatch;
             /**
@@ -1088,9 +1116,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1106,9 +1132,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1143,9 +1167,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1162,9 +1184,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1358,9 +1378,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1376,9 +1394,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1574,9 +1590,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1592,9 +1606,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1626,9 +1638,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1642,9 +1652,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1838,9 +1846,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1856,9 +1862,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -1993,6 +1997,11 @@ export namespace rabbitmq {
              */
             deleteIfUnused: boolean;
             /**
+             * DeletionPolicy defines the behavior of queue in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
+            /**
              * When set to false queues does not survive server restart.
              */
             durable: boolean;
@@ -2029,6 +2038,11 @@ export namespace rabbitmq {
              * when set to true, queues are delete only if they have no consumer.
              */
             deleteIfUnused: boolean;
+            /**
+             * DeletionPolicy defines the behavior of queue in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
             /**
              * When set to false queues does not survive server restart.
              */
@@ -2074,9 +2088,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2092,9 +2104,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2269,9 +2279,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2287,9 +2295,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2356,9 +2362,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2374,9 +2378,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2479,6 +2481,11 @@ export namespace rabbitmq {
             ackMode: string;
             addForwardHeaders: boolean;
             deleteAfter: string;
+            /**
+             * DeletionPolicy defines the behavior of shovel in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
             destAddForwardHeaders: boolean;
             destAddTimestampHeader: boolean;
             /**
@@ -2514,6 +2521,7 @@ export namespace rabbitmq {
              * amqp091 configuration
              */
             destQueue: string;
+            destQueueArgs: {[key: string]: any};
             /**
              * Required property; cannot be updated
              */
@@ -2544,6 +2552,7 @@ export namespace rabbitmq {
              * amqp091 configuration
              */
             srcQueue: string;
+            srcQueueArgs: {[key: string]: any};
             uriSecret: outputs.rabbitmq.v1beta1.ShovelSpecUriSecret;
             /**
              * Default to vhost '/'; cannot be updated
@@ -2559,6 +2568,11 @@ export namespace rabbitmq {
             ackMode: string;
             addForwardHeaders: boolean;
             deleteAfter: string;
+            /**
+             * DeletionPolicy defines the behavior of shovel in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
             destAddForwardHeaders: boolean;
             destAddTimestampHeader: boolean;
             /**
@@ -2594,6 +2608,7 @@ export namespace rabbitmq {
              * amqp091 configuration
              */
             destQueue: string;
+            destQueueArgs: {[key: string]: any};
             /**
              * Required property; cannot be updated
              */
@@ -2624,6 +2639,7 @@ export namespace rabbitmq {
              * amqp091 configuration
              */
             srcQueue: string;
+            srcQueueArgs: {[key: string]: any};
             uriSecret: outputs.rabbitmq.v1beta1.ShovelSpecUriSecretPatch;
             /**
              * Default to vhost '/'; cannot be updated
@@ -2660,9 +2676,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2678,9 +2692,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2715,9 +2727,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2734,9 +2744,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2918,9 +2926,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2936,9 +2942,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2970,9 +2974,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -2986,9 +2988,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3088,6 +3088,7 @@ export namespace rabbitmq {
          */
         export interface UserSpec {
             importCredentialsSecret: outputs.rabbitmq.v1beta1.UserSpecImportCredentialsSecret;
+            limits: outputs.rabbitmq.v1beta1.UserSpecLimits;
             rabbitmqClusterReference: outputs.rabbitmq.v1beta1.UserSpecRabbitmqClusterReference;
             /**
              * List of permissions tags to associate with the user. This determines the level of
@@ -3103,12 +3104,10 @@ export namespace rabbitmq {
          * Defines a Secret containing the credentials for the User. If this field is omitted, random a username and
          * password will be generated. The Secret must have the following keys in its Data field:
          *
-         *
          *  * `username` – Must be present or the import will fail.
          *  * `passwordHash` – The SHA-512 hash of the password. If the hash is an empty string, a passwordless user
          *    will be created. For more information, see https://www.rabbitmq.com/docs/passwords.
          *  * `password` – Plain-text password. Will be used only if the `passwordHash` key is missing.
-         *
          *
          * Note that this import only occurs at creation time, and is ignored once a password has been set on a User.
          */
@@ -3118,9 +3117,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3129,12 +3126,10 @@ export namespace rabbitmq {
          * Defines a Secret containing the credentials for the User. If this field is omitted, random a username and
          * password will be generated. The Secret must have the following keys in its Data field:
          *
-         *
          *  * `username` – Must be present or the import will fail.
          *  * `passwordHash` – The SHA-512 hash of the password. If the hash is an empty string, a passwordless user
          *    will be created. For more information, see https://www.rabbitmq.com/docs/passwords.
          *  * `password` – Plain-text password. Will be used only if the `passwordHash` key is missing.
-         *
          *
          * Note that this import only occurs at creation time, and is ignored once a password has been set on a User.
          */
@@ -3144,11 +3139,43 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
+        }
+
+        /**
+         * Limits to apply to a user to restrict the number of connections and channels
+         * the user can create. These limits can be used as guard rails in environments
+         * where applications cannot be trusted and monitored in detail, for example,
+         * when RabbitMQ clusters are offered as a service. See https://www.rabbitmq.com/docs/user-limits.
+         */
+        export interface UserSpecLimits {
+            /**
+             * Limits how many AMQP 0.9.1 channels the user can open.
+             */
+            channels: number;
+            /**
+             * Limits how many connections the user can open.
+             */
+            connections: number;
+        }
+
+        /**
+         * Limits to apply to a user to restrict the number of connections and channels
+         * the user can create. These limits can be used as guard rails in environments
+         * where applications cannot be trusted and monitored in detail, for example,
+         * when RabbitMQ clusters are offered as a service. See https://www.rabbitmq.com/docs/user-limits.
+         */
+        export interface UserSpecLimitsPatch {
+            /**
+             * Limits how many AMQP 0.9.1 channels the user can open.
+             */
+            channels: number;
+            /**
+             * Limits how many connections the user can open.
+             */
+            connections: number;
         }
 
         /**
@@ -3156,6 +3183,7 @@ export namespace rabbitmq {
          */
         export interface UserSpecPatch {
             importCredentialsSecret: outputs.rabbitmq.v1beta1.UserSpecImportCredentialsSecretPatch;
+            limits: outputs.rabbitmq.v1beta1.UserSpecLimitsPatch;
             rabbitmqClusterReference: outputs.rabbitmq.v1beta1.UserSpecRabbitmqClusterReferencePatch;
             /**
              * List of permissions tags to associate with the user. This determines the level of
@@ -3196,9 +3224,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3214,9 +3240,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3311,9 +3335,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3327,9 +3349,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3381,12 +3401,38 @@ export namespace rabbitmq {
              */
             defaultQueueType: string;
             /**
+             * DeletionPolicy defines the behavior of vhost in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
+            limits: outputs.rabbitmq.v1beta1.VhostSpecLimits;
+            /**
              * Name of the vhost; see https://www.rabbitmq.com/vhosts.html.
              */
             name: string;
             rabbitmqClusterReference: outputs.rabbitmq.v1beta1.VhostSpecRabbitmqClusterReference;
             tags: string[];
             tracing: boolean;
+        }
+
+        /**
+         * Limits defines limits to be applied to the vhost.
+         * Supported limits include max-connections and max-queues.
+         * See https://www.rabbitmq.com/docs/vhosts#limits
+         */
+        export interface VhostSpecLimits {
+            connections: number;
+            queues: number;
+        }
+
+        /**
+         * Limits defines limits to be applied to the vhost.
+         * Supported limits include max-connections and max-queues.
+         * See https://www.rabbitmq.com/docs/vhosts#limits
+         */
+        export interface VhostSpecLimitsPatch {
+            connections: number;
+            queues: number;
         }
 
         /**
@@ -3398,6 +3444,12 @@ export namespace rabbitmq {
              * Supported in RabbitMQ 3.11.12 or above.
              */
             defaultQueueType: string;
+            /**
+             * DeletionPolicy defines the behavior of vhost in the RabbitMQ cluster when the corresponding custom resource is deleted.
+             * Can be set to 'delete' or 'retain'. Default is 'delete'.
+             */
+            deletionPolicy: string;
+            limits: outputs.rabbitmq.v1beta1.VhostSpecLimitsPatch;
             /**
              * Name of the vhost; see https://www.rabbitmq.com/vhosts.html.
              */
@@ -3436,9 +3488,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }
@@ -3454,9 +3504,7 @@ export namespace rabbitmq {
              * This field is effectively required, but due to backwards compatibility is
              * allowed to be empty. Instances of this type with an empty value here are
              * almost certainly wrong.
-             * TODO: Add other useful fields. apiVersion, kind, uid?
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-             * TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
              */
             name: string;
         }

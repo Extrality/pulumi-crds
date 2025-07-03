@@ -54,6 +54,11 @@ export namespace karpenter {
              */
             blockDeviceMappings?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecBlockDeviceMappings>[]>;
             /**
+             * CapacityReservationSelectorTerms is a list of capacity reservation selector terms. Each term is ORed together to
+             * determine the set of eligible capacity reservations.
+             */
+            capacityReservationSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecCapacityReservationSelectorTerms>[]>;
+            /**
              * Context is a Reserved field in EC2 APIs
              * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html
              */
@@ -84,11 +89,11 @@ export namespace karpenter {
              */
             role?: pulumi.Input<string>;
             /**
-             * SecurityGroupSelectorTerms is a list of or security group selector terms. The terms are ORed.
+             * SecurityGroupSelectorTerms is a list of security group selector terms. The terms are ORed.
              */
             securityGroupSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecSecurityGroupSelectorTerms>[]>;
             /**
-             * SubnetSelectorTerms is a list of or subnet selector terms. The terms are ORed.
+             * SubnetSelectorTerms is a list of subnet selector terms. The terms are ORed.
              */
             subnetSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecSubnetSelectorTerms>[]>;
             /**
@@ -132,6 +137,10 @@ export namespace karpenter {
              */
             owner?: pulumi.Input<string>;
             /**
+             * SSMParameter is the name (or ARN) of the SSM parameter containing the Image ID.
+             */
+            ssmParameter?: pulumi.Input<string>;
+            /**
              * Tags is a map of key/value tags used to select amis.
              * Specifying '*' for a value selects all values for a given tag key.
              */
@@ -166,6 +175,10 @@ export namespace karpenter {
              * You can specify a combination of AWS account IDs, "self", "amazon", and "aws-marketplace"
              */
             owner?: pulumi.Input<string>;
+            /**
+             * SSMParameter is the name (or ARN) of the SSM parameter containing the Image ID.
+             */
+            ssmParameter?: pulumi.Input<string>;
             /**
              * Tags is a map of key/value tags used to select amis.
              * Specifying '*' for a value selects all values for a given tag key.
@@ -223,7 +236,7 @@ export namespace karpenter {
              */
             iops?: pulumi.Input<number>;
             /**
-             * KMSKeyID (ARN) of the symmetric Key Management Service (KMS) CMK used for encryption.
+             * Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed KMS key to use for EBS encryption.
              */
             kmsKeyID?: pulumi.Input<string>;
             /**
@@ -235,6 +248,14 @@ export namespace karpenter {
              * Valid Range: Minimum value of 125. Maximum value of 1000.
              */
             throughput?: pulumi.Input<number>;
+            /**
+             * VolumeInitializationRate specifies the Amazon EBS Provisioned Rate for Volume Initialization,
+             * in MiB/s, at which to download the snapshot blocks from Amazon S3 to the volume. This is also known as volume
+             * initialization. Specifying a volume initialization rate ensures that the volume is initialized at a
+             * predictable and consistent rate after creation. Only allowed if SnapshotID is set.
+             * Valid Range: Minimum value of 100. Maximum value of 300.
+             */
+            volumeInitializationRate?: pulumi.Input<number>;
             /**
              * VolumeSize in `Gi`, `G`, `Ti`, or `T`. You must specify either a snapshot ID or
              * a volume size. The following are the supported volumes sizes for each volume
@@ -294,7 +315,7 @@ export namespace karpenter {
              */
             iops?: pulumi.Input<number>;
             /**
-             * KMSKeyID (ARN) of the symmetric Key Management Service (KMS) CMK used for encryption.
+             * Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed KMS key to use for EBS encryption.
              */
             kmsKeyID?: pulumi.Input<string>;
             /**
@@ -306,6 +327,14 @@ export namespace karpenter {
              * Valid Range: Minimum value of 125. Maximum value of 1000.
              */
             throughput?: pulumi.Input<number>;
+            /**
+             * VolumeInitializationRate specifies the Amazon EBS Provisioned Rate for Volume Initialization,
+             * in MiB/s, at which to download the snapshot blocks from Amazon S3 to the volume. This is also known as volume
+             * initialization. Specifying a volume initialization rate ensures that the volume is initialized at a
+             * predictable and consistent rate after creation. Only allowed if SnapshotID is set.
+             * Valid Range: Minimum value of 100. Maximum value of 300.
+             */
+            volumeInitializationRate?: pulumi.Input<number>;
             /**
              * VolumeSize in `Gi`, `G`, `Ti`, or `T`. You must specify either a snapshot ID or
              * a volume size. The following are the supported volumes sizes for each volume
@@ -339,6 +368,38 @@ export namespace karpenter {
              * configure at most one root volume in BlockDeviceMappings.
              */
             rootVolume?: pulumi.Input<boolean>;
+        }
+
+        export interface EC2NodeClassSpecCapacityReservationSelectorTerms {
+            /**
+             * ID is the capacity reservation id in EC2
+             */
+            id?: pulumi.Input<string>;
+            /**
+             * Owner is the owner id for the ami.
+             */
+            ownerID?: pulumi.Input<string>;
+            /**
+             * Tags is a map of key/value tags used to select capacity reservations.
+             * Specifying '*' for a value selects all values for a given tag key.
+             */
+            tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        }
+
+        export interface EC2NodeClassSpecCapacityReservationSelectorTermsPatch {
+            /**
+             * ID is the capacity reservation id in EC2
+             */
+            id?: pulumi.Input<string>;
+            /**
+             * Owner is the owner id for the ami.
+             */
+            ownerID?: pulumi.Input<string>;
+            /**
+             * Tags is a map of key/value tags used to select capacity reservations.
+             * Specifying '*' for a value selects all values for a given tag key.
+             */
+            tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -622,6 +683,11 @@ export namespace karpenter {
              */
             blockDeviceMappings?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecBlockDeviceMappingsPatch>[]>;
             /**
+             * CapacityReservationSelectorTerms is a list of capacity reservation selector terms. Each term is ORed together to
+             * determine the set of eligible capacity reservations.
+             */
+            capacityReservationSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecCapacityReservationSelectorTermsPatch>[]>;
+            /**
              * Context is a Reserved field in EC2 APIs
              * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html
              */
@@ -652,11 +718,11 @@ export namespace karpenter {
              */
             role?: pulumi.Input<string>;
             /**
-             * SecurityGroupSelectorTerms is a list of or security group selector terms. The terms are ORed.
+             * SecurityGroupSelectorTerms is a list of security group selector terms. The terms are ORed.
              */
             securityGroupSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecSecurityGroupSelectorTermsPatch>[]>;
             /**
-             * SubnetSelectorTerms is a list of or subnet selector terms. The terms are ORed.
+             * SubnetSelectorTerms is a list of subnet selector terms. The terms are ORed.
              */
             subnetSelectorTerms?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecSubnetSelectorTermsPatch>[]>;
             /**
@@ -755,6 +821,11 @@ export namespace karpenter {
              */
             amis?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassStatusAmis>[]>;
             /**
+             * CapacityReservations contains the current capacity reservation values that are available to this NodeClass under the
+             * CapacityReservation selectors.
+             */
+            capacityReservations?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassStatusCapacityReservations>[]>;
+            /**
              * Conditions contains signals for health and readiness
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassStatusConditions>[]>;
@@ -818,6 +889,34 @@ export namespace karpenter {
              * This array is replaced during a strategic merge patch.
              */
             values?: pulumi.Input<pulumi.Input<string>[]>;
+        }
+
+        export interface EC2NodeClassStatusCapacityReservations {
+            /**
+             * The availability zone the capacity reservation is available in.
+             */
+            availabilityZone?: pulumi.Input<string>;
+            /**
+             * The time at which the capacity reservation expires. Once expired, the reserved capacity is released and Karpenter
+             * will no longer be able to launch instances into that reservation.
+             */
+            endTime?: pulumi.Input<string>;
+            /**
+             * The id for the capacity reservation.
+             */
+            id?: pulumi.Input<string>;
+            /**
+             * Indicates the type of instance launches the capacity reservation accepts.
+             */
+            instanceMatchCriteria?: pulumi.Input<string>;
+            /**
+             * The instance type for the capacity reservation.
+             */
+            instanceType?: pulumi.Input<string>;
+            /**
+             * The ID of the AWS account that owns the capacity reservation.
+             */
+            ownerID?: pulumi.Input<string>;
         }
 
         /**
@@ -1836,6 +1935,11 @@ export namespace karpenter {
              * Conditions contains signals for health and readiness
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.NodePoolStatusConditions>[]>;
+            /**
+             * NodeClassObservedGeneration represents the observed nodeClass generation for referenced nodeClass. If this does not match
+             * the actual NodeClass Generation, NodeRegistrationHealthy status condition on the NodePool will be reset
+             */
+            nodeClassObservedGeneration?: pulumi.Input<number>;
             /**
              * Resources is the list of resources that have been provisioned.
              */

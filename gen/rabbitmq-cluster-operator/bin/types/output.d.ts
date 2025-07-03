@@ -342,6 +342,11 @@ export declare namespace rabbitmq {
         interface RabbitmqClusterSpec {
             affinity: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinity;
             /**
+             * Set to true to automatically enable all feature flags after each upgrade
+             * For more information, see https://www.rabbitmq.com/docs/feature-flags
+             */
+            autoEnableAllFeatureFlags: boolean;
+            /**
              * DelayStartSeconds is the time the init container (`setup-container`) will sleep before terminating.
              * This effectively delays the time between starting the Pod and starting the `rabbitmq` container.
              * RabbitMQ relies on up-to-date DNS entries early during peer discovery.
@@ -821,7 +826,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -833,7 +837,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -1033,7 +1036,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1045,7 +1047,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -1084,7 +1085,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1096,7 +1096,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -1301,7 +1300,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1313,7 +1311,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -1423,7 +1420,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1435,7 +1431,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -1635,7 +1630,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1647,7 +1641,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -1686,7 +1679,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1698,7 +1690,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -1903,7 +1894,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1915,7 +1905,6 @@ export declare namespace rabbitmq {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -2696,10 +2685,12 @@ export declare namespace rabbitmq {
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecycle {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePostStart;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePreStop;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePatch {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePostStartPatch;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePreStopPatch;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePostStart {
             exec: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersLifecyclePostStartExec;
@@ -3323,10 +3314,12 @@ export declare namespace rabbitmq {
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecycle {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePostStart;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePreStop;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePatch {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePostStartPatch;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePreStopPatch;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePostStart {
             exec: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersLifecyclePostStartExec;
@@ -3946,10 +3939,12 @@ export declare namespace rabbitmq {
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecycle {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePostStart;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePreStop;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePatch {
             postStart: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePostStartPatch;
             preStop: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePreStopPatch;
+            stopSignal: string;
         }
         interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePostStart {
             exec: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersLifecyclePostStartExec;
@@ -5577,6 +5572,11 @@ export declare namespace rabbitmq {
         interface RabbitmqClusterSpecPatch {
             affinity: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPatch;
             /**
+             * Set to true to automatically enable all feature flags after each upgrade
+             * For more information, see https://www.rabbitmq.com/docs/feature-flags
+             */
+            autoEnableAllFeatureFlags: boolean;
+            /**
              * DelayStartSeconds is the time the init container (`setup-container`) will sleep before terminating.
              * This effectively delays the time between starting the Pod and starting the `rabbitmq` container.
              * RabbitMQ relies on up-to-date DNS entries early during peer discovery.
@@ -5997,6 +5997,9 @@ export declare namespace rabbitmq {
              * See also: https://pkg.go.dev/k8s.io/api/core/v1#IPFamilyPolicy
              */
             ipFamilyPolicy: string;
+            labels: {
+                [key: string]: string;
+            };
             /**
              * Type of Service to create for the cluster. Must be one of: ClusterIP, LoadBalancer, NodePort.
              * For more info see https://pkg.go.dev/k8s.io/api/core/v1#ServiceType
@@ -6018,6 +6021,9 @@ export declare namespace rabbitmq {
              * See also: https://pkg.go.dev/k8s.io/api/core/v1#IPFamilyPolicy
              */
             ipFamilyPolicy: string;
+            labels: {
+                [key: string]: string;
+            };
             /**
              * Type of Service to create for the cluster. Must be one of: ClusterIP, LoadBalancer, NodePort.
              * For more info see https://pkg.go.dev/k8s.io/api/core/v1#ServiceType

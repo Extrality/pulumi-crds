@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../../types/input";
 import * as outputs from "../../types/output";
 /**
- * Backup is the Schema for the backups API
+ * A Backup resource is a request for a PostgreSQL backup by the user.
  */
 export declare class Backup extends pulumi.CustomResource {
     /**

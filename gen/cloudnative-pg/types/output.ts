@@ -328,7 +328,7 @@ export namespace meta {
 export namespace postgresql {
     export namespace v1 {
         /**
-         * Backup is the Schema for the backups API
+         * A Backup resource is a request for a PostgreSQL backup by the user.
          */
         export interface Backup {
             /**
@@ -3399,7 +3399,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2` or `snappy`.
+             * compression, default), `gzip`, `bzip2`, and `snappy`.
              */
             compression: string;
             /**
@@ -3451,7 +3451,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2` or `snappy`.
+             * compression, default), `gzip`, `bzip2`, and `snappy`.
              */
             compression: string;
             /**
@@ -3762,7 +3762,8 @@ export namespace postgresql {
             archiveAdditionalCommandArgs: string[];
             /**
              * Compress a WAL file before sending it to the object store. Available
-             * options are empty string (no compression, default), `gzip`, `bzip2` or `snappy`.
+             * options are empty string (no compression, default), `gzip`, `bzip2`,
+             * `lz4`, `snappy`, `xz`, and `zstd`.
              */
             compression: string;
             /**
@@ -3823,7 +3824,8 @@ export namespace postgresql {
             archiveAdditionalCommandArgs: string[];
             /**
              * Compress a WAL file before sending it to the object store. Available
-             * options are empty string (no compression, default), `gzip`, `bzip2` or `snappy`.
+             * options are empty string (no compression, default), `gzip`, `bzip2`,
+             * `lz4`, `snappy`, `xz`, and `zstd`.
              */
             compression: string;
             /**
@@ -6185,7 +6187,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2` or `snappy`.
+             * compression, default), `gzip`, `bzip2`, and `snappy`.
              */
             compression: string;
             /**
@@ -6237,7 +6239,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2` or `snappy`.
+             * compression, default), `gzip`, `bzip2`, and `snappy`.
              */
             compression: string;
             /**
@@ -6548,7 +6550,8 @@ export namespace postgresql {
             archiveAdditionalCommandArgs: string[];
             /**
              * Compress a WAL file before sending it to the object store. Available
-             * options are empty string (no compression, default), `gzip`, `bzip2` or `snappy`.
+             * options are empty string (no compression, default), `gzip`, `bzip2`,
+             * `lz4`, `snappy`, `xz`, and `zstd`.
              */
             compression: string;
             /**
@@ -6609,7 +6612,8 @@ export namespace postgresql {
             archiveAdditionalCommandArgs: string[];
             /**
              * Compress a WAL file before sending it to the object store. Available
-             * options are empty string (no compression, default), `gzip`, `bzip2` or `snappy`.
+             * options are empty string (no compression, default), `gzip`, `bzip2`,
+             * `lz4`, `snappy`, `xz`, and `zstd`.
              */
             compression: string;
             /**
@@ -6733,6 +6737,11 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
+             * Only one plugin can be declared as WALArchiver.
+             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             */
+            isWALArchiver: boolean;
+            /**
              * Name is the plugin name
              */
             name: string;
@@ -6751,6 +6760,11 @@ export namespace postgresql {
              * Enabled is true if this plugin will be used
              */
             enabled: boolean;
+            /**
+             * Only one plugin can be declared as WALArchiver.
+             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             */
+            isWALArchiver: boolean;
             /**
              * Name is the plugin name
              */
@@ -8574,6 +8588,11 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
+             * Only one plugin can be declared as WALArchiver.
+             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             */
+            isWALArchiver: boolean;
+            /**
              * Name is the plugin name
              */
             name: string;
@@ -8592,6 +8611,11 @@ export namespace postgresql {
              * Enabled is true if this plugin will be used
              */
             enabled: boolean;
+            /**
+             * Only one plugin can be declared as WALArchiver.
+             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             */
+            isWALArchiver: boolean;
             /**
              * Name is the plugin name
              */
@@ -9095,6 +9119,10 @@ export namespace postgresql {
              */
             initialDelaySeconds: number;
             /**
+             * Lag limit. Used only for `streaming` strategy
+             */
+            maximumLag: number | string;
+            /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
              */
@@ -9123,6 +9151,10 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             timeoutSeconds: number;
+            /**
+             * The probe strategy
+             */
+            type: string;
         }
 
         /**
@@ -9140,6 +9172,10 @@ export namespace postgresql {
              */
             initialDelaySeconds: number;
             /**
+             * Lag limit. Used only for `streaming` strategy
+             */
+            maximumLag: number | string;
+            /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
              */
@@ -9168,6 +9204,10 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             timeoutSeconds: number;
+            /**
+             * The probe strategy
+             */
+            type: string;
         }
 
         /**
@@ -9185,6 +9225,10 @@ export namespace postgresql {
              */
             initialDelaySeconds: number;
             /**
+             * Lag limit. Used only for `streaming` strategy
+             */
+            maximumLag: number | string;
+            /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
              */
@@ -9213,6 +9257,10 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             timeoutSeconds: number;
+            /**
+             * The probe strategy
+             */
+            type: string;
         }
 
         /**
@@ -9230,6 +9278,10 @@ export namespace postgresql {
              */
             initialDelaySeconds: number;
             /**
+             * Lag limit. Used only for `streaming` strategy
+             */
+            maximumLag: number | string;
+            /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
              */
@@ -9258,6 +9310,10 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             timeoutSeconds: number;
+            /**
+             * The probe strategy
+             */
+            type: string;
         }
 
         /**
@@ -11902,10 +11958,6 @@ export namespace postgresql {
              * AvailableArchitectures reports the available architectures of a cluster
              */
             availableArchitectures: outputs.postgresql.v1.ClusterStatusAvailableArchitectures[];
-            /**
-             * AzurePVCUpdateEnabled shows if the PVC online upgrade is enabled for this cluster
-             */
-            azurePVCUpdateEnabled: boolean;
             certificates: outputs.postgresql.v1.ClusterStatusCertificates;
             /**
              * The commit hash number of which this operator running
@@ -12013,6 +12065,7 @@ export namespace postgresql {
              * OnlineUpdateEnabled shows if the online upgrade is enabled inside the cluster
              */
             onlineUpdateEnabled: boolean;
+            pgDataImageInfo: outputs.postgresql.v1.ClusterStatusPgDataImageInfo;
             /**
              * Current phase of the cluster
              */
@@ -12356,10 +12409,6 @@ export namespace postgresql {
              * AvailableArchitectures reports the available architectures of a cluster
              */
             availableArchitectures: outputs.postgresql.v1.ClusterStatusAvailableArchitecturesPatch[];
-            /**
-             * AzurePVCUpdateEnabled shows if the PVC online upgrade is enabled for this cluster
-             */
-            azurePVCUpdateEnabled: boolean;
             certificates: outputs.postgresql.v1.ClusterStatusCertificatesPatch;
             /**
              * The commit hash number of which this operator running
@@ -12467,6 +12516,7 @@ export namespace postgresql {
              * OnlineUpdateEnabled shows if the online upgrade is enabled inside the cluster
              */
             onlineUpdateEnabled: boolean;
+            pgDataImageInfo: outputs.postgresql.v1.ClusterStatusPgDataImageInfoPatch;
             /**
              * Current phase of the cluster
              */
@@ -12524,6 +12574,34 @@ export namespace postgresql {
              * Current write pod
              */
             writeService: string;
+        }
+
+        /**
+         * PGDataImageInfo contains the details of the latest image that has run on the current data directory.
+         */
+        export interface ClusterStatusPgDataImageInfo {
+            /**
+             * Image is the image name
+             */
+            image: string;
+            /**
+             * MajorVersion is the major version of the image
+             */
+            majorVersion: number;
+        }
+
+        /**
+         * PGDataImageInfo contains the details of the latest image that has run on the current data directory.
+         */
+        export interface ClusterStatusPgDataImageInfoPatch {
+            /**
+             * Image is the image name
+             */
+            image: string;
+            /**
+             * MajorVersion is the major version of the image
+             */
+            majorVersion: number;
         }
 
         /**
@@ -12923,6 +13001,10 @@ export namespace postgresql {
              */
             ensure: string;
             /**
+             * The list of extensions to be managed in the database
+             */
+            extensions: outputs.postgresql.v1.DatabaseSpecExtensions[];
+            /**
              * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
              * setting cannot be changed. Specifies the ICU locale when the ICU
              * provider is used. This option requires `localeProvider` to be set to
@@ -12974,6 +13056,10 @@ export namespace postgresql {
              * The role name of the user who owns the database inside PostgreSQL.
              */
             owner: string;
+            /**
+             * The list of schemas to be managed in the database
+             */
+            schemas: outputs.postgresql.v1.DatabaseSpecSchemas[];
             /**
              * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
              * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
@@ -13019,6 +13105,68 @@ export namespace postgresql {
         }
 
         /**
+         * ExtensionSpec configures an extension in a database
+         */
+        export interface DatabaseSpecExtensions {
+            /**
+             * Specifies whether an extension/schema should be present or absent in
+             * the database. If set to `present`, the extension/schema will be
+             * created if it does not exist. If set to `absent`, the
+             * extension/schema will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the extension/schema
+             */
+            name: string;
+            /**
+             * The name of the schema in which to install the extension's objects,
+             * in case the extension allows its contents to be relocated. If not
+             * specified (default), and the extension's control file does not
+             * specify a schema either, the current default object creation schema
+             * is used.
+             */
+            schema: string;
+            /**
+             * The version of the extension to install. If empty, the operator will
+             * install the default version (whatever is specified in the
+             * extension's control file)
+             */
+            version: string;
+        }
+
+        /**
+         * ExtensionSpec configures an extension in a database
+         */
+        export interface DatabaseSpecExtensionsPatch {
+            /**
+             * Specifies whether an extension/schema should be present or absent in
+             * the database. If set to `present`, the extension/schema will be
+             * created if it does not exist. If set to `absent`, the
+             * extension/schema will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the extension/schema
+             */
+            name: string;
+            /**
+             * The name of the schema in which to install the extension's objects,
+             * in case the extension allows its contents to be relocated. If not
+             * specified (default), and the extension's control file does not
+             * specify a schema either, the current default object creation schema
+             * is used.
+             */
+            schema: string;
+            /**
+             * The version of the extension to install. If empty, the operator will
+             * install the default version (whatever is specified in the
+             * extension's control file)
+             */
+            version: string;
+        }
+
+        /**
          * Specification of the desired Database.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
@@ -13060,6 +13208,10 @@ export namespace postgresql {
              * Ensure the PostgreSQL database is `present` or `absent` - defaults to "present".
              */
             ensure: string;
+            /**
+             * The list of extensions to be managed in the database
+             */
+            extensions: outputs.postgresql.v1.DatabaseSpecExtensionsPatch[];
             /**
              * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
              * setting cannot be changed. Specifies the ICU locale when the ICU
@@ -13113,6 +13265,10 @@ export namespace postgresql {
              */
             owner: string;
             /**
+             * The list of schemas to be managed in the database
+             */
+            schemas: outputs.postgresql.v1.DatabaseSpecSchemasPatch[];
+            /**
              * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
              * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
              * The name of the tablespace (in PostgreSQL) that will be associated
@@ -13129,6 +13285,52 @@ export namespace postgresql {
         }
 
         /**
+         * SchemaSpec configures a schema in a database
+         */
+        export interface DatabaseSpecSchemas {
+            /**
+             * Specifies whether an extension/schema should be present or absent in
+             * the database. If set to `present`, the extension/schema will be
+             * created if it does not exist. If set to `absent`, the
+             * extension/schema will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the extension/schema
+             */
+            name: string;
+            /**
+             * The role name of the user who owns the schema inside PostgreSQL.
+             * It maps to the `AUTHORIZATION` parameter of `CREATE SCHEMA` and the
+             * `OWNER TO` command of `ALTER SCHEMA`.
+             */
+            owner: string;
+        }
+
+        /**
+         * SchemaSpec configures a schema in a database
+         */
+        export interface DatabaseSpecSchemasPatch {
+            /**
+             * Specifies whether an extension/schema should be present or absent in
+             * the database. If set to `present`, the extension/schema will be
+             * created if it does not exist. If set to `absent`, the
+             * extension/schema will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the extension/schema
+             */
+            name: string;
+            /**
+             * The role name of the user who owns the schema inside PostgreSQL.
+             * It maps to the `AUTHORIZATION` parameter of `CREATE SCHEMA` and the
+             * `OWNER TO` command of `ALTER SCHEMA`.
+             */
+            owner: string;
+        }
+
+        /**
          * Most recently observed status of the Database. This data may not be up to
          * date. Populated by the system. Read-only.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
@@ -13139,6 +13341,10 @@ export namespace postgresql {
              */
             applied: boolean;
             /**
+             * Extensions is the status of the managed extensions
+             */
+            extensions: outputs.postgresql.v1.DatabaseStatusExtensions[];
+            /**
              * Message is the reconciliation output message
              */
             message: string;
@@ -13147,6 +13353,48 @@ export namespace postgresql {
              * desired state that was synchronized
              */
             observedGeneration: number;
+            /**
+             * Schemas is the status of the managed schemas
+             */
+            schemas: outputs.postgresql.v1.DatabaseStatusSchemas[];
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusExtensions {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusExtensionsPatch {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
         }
 
         /**
@@ -13160,6 +13408,10 @@ export namespace postgresql {
              */
             applied: boolean;
             /**
+             * Extensions is the status of the managed extensions
+             */
+            extensions: outputs.postgresql.v1.DatabaseStatusExtensionsPatch[];
+            /**
              * Message is the reconciliation output message
              */
             message: string;
@@ -13168,6 +13420,48 @@ export namespace postgresql {
              * desired state that was synchronized
              */
             observedGeneration: number;
+            /**
+             * Schemas is the status of the managed schemas
+             */
+            schemas: outputs.postgresql.v1.DatabaseStatusSchemasPatch[];
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusSchemas {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusSchemasPatch {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
         }
 
         /**

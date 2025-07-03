@@ -6,7 +6,7 @@ exports.Backup = void 0;
 const pulumi = require("@pulumi/pulumi");
 const utilities = require("../../utilities");
 /**
- * Backup is the Schema for the backups API
+ * A Backup resource is a request for a PostgreSQL backup by the user.
  */
 class Backup extends pulumi.CustomResource {
     /**
