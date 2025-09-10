@@ -1531,7 +1531,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1543,7 +1542,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -1743,7 +1741,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1755,7 +1752,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -1794,7 +1790,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -1806,7 +1801,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -2011,7 +2005,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -2023,7 +2016,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -2135,7 +2127,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -2147,7 +2138,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -2347,7 +2337,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -2359,7 +2348,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -2398,7 +2386,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -2410,7 +2397,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -2615,7 +2601,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -2627,7 +2612,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -5043,12 +5027,12 @@ export declare namespace postgresql {
             valueFrom: outputs.postgresql.v1.ClusterSpecEnvValueFrom;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface ClusterSpecEnvFrom {
             configMapRef: outputs.postgresql.v1.ClusterSpecEnvFromConfigMapRef;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.ClusterSpecEnvFromSecretRef;
@@ -5088,12 +5072,12 @@ export declare namespace postgresql {
             optional: boolean;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface ClusterSpecEnvFromPatch {
             configMapRef: outputs.postgresql.v1.ClusterSpecEnvFromConfigMapRefPatch;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.ClusterSpecEnvFromSecretRefPatch;
@@ -7351,13 +7335,12 @@ export declare namespace postgresql {
             sessionAffinity: string;
             sessionAffinityConfig: outputs.postgresql.v1.ClusterSpecManagedServicesAdditionalServiceTemplateSpecSessionAffinityConfig;
             /**
-             * TrafficDistribution offers a way to express preferences for how traffic is
-             * distributed to Service endpoints. Implementations can use this field as a
-             * hint, but are not required to guarantee strict adherence. If the field is
-             * not set, the implementation will apply its default routing strategy. If set
-             * to "PreferClose", implementations should prioritize endpoints that are
-             * topologically close (e.g., same zone).
-             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
+             * TrafficDistribution offers a way to express preferences for how traffic
+             * is distributed to Service endpoints. Implementations can use this field
+             * as a hint, but are not required to guarantee strict adherence. If the
+             * field is not set, the implementation will apply its default routing
+             * strategy. If set to "PreferClose", implementations should prioritize
+             * endpoints that are in the same zone.
              */
             trafficDistribution: string;
             /**
@@ -7589,13 +7572,12 @@ export declare namespace postgresql {
             sessionAffinity: string;
             sessionAffinityConfig: outputs.postgresql.v1.ClusterSpecManagedServicesAdditionalServiceTemplateSpecSessionAffinityConfigPatch;
             /**
-             * TrafficDistribution offers a way to express preferences for how traffic is
-             * distributed to Service endpoints. Implementations can use this field as a
-             * hint, but are not required to guarantee strict adherence. If the field is
-             * not set, the implementation will apply its default routing strategy. If set
-             * to "PreferClose", implementations should prioritize endpoints that are
-             * topologically close (e.g., same zone).
-             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
+             * TrafficDistribution offers a way to express preferences for how traffic
+             * is distributed to Service endpoints. Implementations can use this field
+             * as a hint, but are not required to guarantee strict adherence. If the
+             * field is not set, the implementation will apply its default routing
+             * strategy. If set to "PreferClose", implementations should prioritize
+             * endpoints that are in the same zone.
              */
             trafficDistribution: string;
             /**
@@ -8425,6 +8407,10 @@ export declare namespace postgresql {
              * Defaults to false.
              */
             enableAlterSystem: boolean;
+            /**
+             * The configuration of the extensions to be added
+             */
+            extensions: outputs.postgresql.v1.ClusterSpecPostgresqlExtensions[];
             ldap: outputs.postgresql.v1.ClusterSpecPostgresqlLdap;
             /**
              * PostgreSQL configuration options (postgresql.conf)
@@ -8454,6 +8440,100 @@ export declare namespace postgresql {
             shared_preload_libraries: string[];
             syncReplicaElectionConstraint: outputs.postgresql.v1.ClusterSpecPostgresqlSyncReplicaElectionConstraint;
             synchronous: outputs.postgresql.v1.ClusterSpecPostgresqlSynchronous;
+        }
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ClusterSpecPostgresqlExtensions {
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path: string[];
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path: string[];
+            image: outputs.postgresql.v1.ClusterSpecPostgresqlExtensionsImage;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path: string[];
+            /**
+             * The name of the extension, required
+             */
+            name: string;
+        }
+        /**
+         * The image containing the extension, required
+         */
+        interface ClusterSpecPostgresqlExtensionsImage {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy: string;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference: string;
+        }
+        /**
+         * The image containing the extension, required
+         */
+        interface ClusterSpecPostgresqlExtensionsImagePatch {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy: string;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference: string;
+        }
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ClusterSpecPostgresqlExtensionsPatch {
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path: string[];
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path: string[];
+            image: outputs.postgresql.v1.ClusterSpecPostgresqlExtensionsImagePatch;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path: string[];
+            /**
+             * The name of the extension, required
+             */
+            name: string;
         }
         /**
          * Options to specify LDAP configuration
@@ -8624,6 +8704,10 @@ export declare namespace postgresql {
              * Defaults to false.
              */
             enableAlterSystem: boolean;
+            /**
+             * The configuration of the extensions to be added
+             */
+            extensions: outputs.postgresql.v1.ClusterSpecPostgresqlExtensionsPatch[];
             ldap: outputs.postgresql.v1.ClusterSpecPostgresqlLdapPatch;
             /**
              * PostgreSQL configuration options (postgresql.conf)
@@ -8795,6 +8879,7 @@ export declare namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             initialDelaySeconds: number;
+            isolationCheck: outputs.postgresql.v1.ClusterSpecProbesLivenessIsolationCheck;
             /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
@@ -8826,6 +8911,48 @@ export declare namespace postgresql {
             timeoutSeconds: number;
         }
         /**
+         * Configure the feature that extends the liveness probe for a primary
+         * instance. In addition to the basic checks, this verifies whether the
+         * primary is isolated from the Kubernetes API server and from its
+         * replicas, ensuring that it can be safely shut down if network
+         * partition or API unavailability is detected. Enabled by default.
+         */
+        interface ClusterSpecProbesLivenessIsolationCheck {
+            /**
+             * Timeout in milliseconds for connections during the primary isolation check
+             */
+            connectionTimeout: number;
+            /**
+             * Whether primary isolation checking is enabled for the liveness probe
+             */
+            enabled: boolean;
+            /**
+             * Timeout in milliseconds for requests during the primary isolation check
+             */
+            requestTimeout: number;
+        }
+        /**
+         * Configure the feature that extends the liveness probe for a primary
+         * instance. In addition to the basic checks, this verifies whether the
+         * primary is isolated from the Kubernetes API server and from its
+         * replicas, ensuring that it can be safely shut down if network
+         * partition or API unavailability is detected. Enabled by default.
+         */
+        interface ClusterSpecProbesLivenessIsolationCheckPatch {
+            /**
+             * Timeout in milliseconds for connections during the primary isolation check
+             */
+            connectionTimeout: number;
+            /**
+             * Whether primary isolation checking is enabled for the liveness probe
+             */
+            enabled: boolean;
+            /**
+             * Timeout in milliseconds for requests during the primary isolation check
+             */
+            requestTimeout: number;
+        }
+        /**
          * The liveness probe configuration
          */
         interface ClusterSpecProbesLivenessPatch {
@@ -8839,6 +8966,7 @@ export declare namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
              */
             initialDelaySeconds: number;
+            isolationCheck: outputs.postgresql.v1.ClusterSpecProbesLivenessIsolationCheckPatch;
             /**
              * How often (in seconds) to perform the probe.
              * Default to 10 seconds. Minimum value is 1.
@@ -9804,6 +9932,15 @@ export declare namespace postgresql {
              * This can only be set at creation time. By default set to `_cnpg_`.
              */
             slotPrefix: string;
+            /**
+             * When enabled, the operator automatically manages synchronization of logical
+             * decoding (replication) slots across high-availability clusters.
+             *
+             * Requires one of the following conditions:
+             * - PostgreSQL version 17 or later
+             * - PostgreSQL version < 17 with pg_failover_slots extension enabled
+             */
+            synchronizeLogicalDecoding: boolean;
         }
         /**
          * Replication slots for high availability configuration
@@ -9825,6 +9962,15 @@ export declare namespace postgresql {
              * This can only be set at creation time. By default set to `_cnpg_`.
              */
             slotPrefix: string;
+            /**
+             * When enabled, the operator automatically manages synchronization of logical
+             * decoding (replication) slots across high-availability clusters.
+             *
+             * Requires one of the following conditions:
+             * - PostgreSQL version 17 or later
+             * - PostgreSQL version < 17 with pg_failover_slots extension enabled
+             */
+            synchronizeLogicalDecoding: boolean;
         }
         /**
          * Replication slots management configuration
@@ -11025,7 +11171,6 @@ export declare namespace postgresql {
              * - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
              *
              * If this value is nil, the behavior is equivalent to the Honor policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeAffinityPolicy: string;
             /**
@@ -11036,7 +11181,6 @@ export declare namespace postgresql {
              * - Ignore: node taints are ignored. All nodes are included.
              *
              * If this value is nil, the behavior is equivalent to the Ignore policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeTaintsPolicy: string;
             /**
@@ -11223,7 +11367,6 @@ export declare namespace postgresql {
              * - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
              *
              * If this value is nil, the behavior is equivalent to the Honor policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeAffinityPolicy: string;
             /**
@@ -11234,7 +11377,6 @@ export declare namespace postgresql {
              * - Ignore: node taints are ignored. All nodes are included.
              *
              * If this value is nil, the behavior is equivalent to the Ignore policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeTaintsPolicy: string;
             /**
@@ -11729,11 +11871,15 @@ export declare namespace postgresql {
             demotionToken: string;
             /**
              * The first recoverability point, stored as a date in RFC3339 format.
-             * This field is calculated from the content of FirstRecoverabilityPointByMethod
+             * This field is calculated from the content of FirstRecoverabilityPointByMethod.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             firstRecoverabilityPoint: string;
             /**
-             * The first recoverability point, stored as a date in RFC3339 format, per backup method type
+             * The first recoverability point, stored as a date in RFC3339 format, per backup method type.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             firstRecoverabilityPointByMethod: {
                 [key: string]: string;
@@ -11777,7 +11923,9 @@ export declare namespace postgresql {
              */
             jobCount: number;
             /**
-             * Stored as a date in RFC3339 format
+             * Last failed backup, stored as a date in RFC3339 format.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastFailedBackup: string;
             /**
@@ -11786,12 +11934,16 @@ export declare namespace postgresql {
              */
             lastPromotionToken: string;
             /**
-             * Last successful backup, stored as a date in RFC3339 format
-             * This field is calculated from the content of LastSuccessfulBackupByMethod
+             * Last successful backup, stored as a date in RFC3339 format.
+             * This field is calculated from the content of LastSuccessfulBackupByMethod.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastSuccessfulBackup: string;
             /**
-             * Last successful backup, stored as a date in RFC3339 format, per backup method type
+             * Last successful backup, stored as a date in RFC3339 format, per backup method type.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastSuccessfulBackupByMethod: {
                 [key: string]: string;
@@ -11837,6 +11989,10 @@ export declare namespace postgresql {
             resizingPVC: string[];
             secretsResourceVersion: outputs.postgresql.v1.ClusterStatusSecretsResourceVersion;
             switchReplicaClusterStatus: outputs.postgresql.v1.ClusterStatusSwitchReplicaClusterStatus;
+            /**
+             * SystemID is the latest detected PostgreSQL SystemID
+             */
+            systemID: string;
             /**
              * TablespacesStatus reports the state of the declarative tablespaces in the cluster
              */
@@ -12203,11 +12359,15 @@ export declare namespace postgresql {
             demotionToken: string;
             /**
              * The first recoverability point, stored as a date in RFC3339 format.
-             * This field is calculated from the content of FirstRecoverabilityPointByMethod
+             * This field is calculated from the content of FirstRecoverabilityPointByMethod.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             firstRecoverabilityPoint: string;
             /**
-             * The first recoverability point, stored as a date in RFC3339 format, per backup method type
+             * The first recoverability point, stored as a date in RFC3339 format, per backup method type.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             firstRecoverabilityPointByMethod: {
                 [key: string]: string;
@@ -12251,7 +12411,9 @@ export declare namespace postgresql {
              */
             jobCount: number;
             /**
-             * Stored as a date in RFC3339 format
+             * Last failed backup, stored as a date in RFC3339 format.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastFailedBackup: string;
             /**
@@ -12260,12 +12422,16 @@ export declare namespace postgresql {
              */
             lastPromotionToken: string;
             /**
-             * Last successful backup, stored as a date in RFC3339 format
-             * This field is calculated from the content of LastSuccessfulBackupByMethod
+             * Last successful backup, stored as a date in RFC3339 format.
+             * This field is calculated from the content of LastSuccessfulBackupByMethod.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastSuccessfulBackup: string;
             /**
-             * Last successful backup, stored as a date in RFC3339 format, per backup method type
+             * Last successful backup, stored as a date in RFC3339 format, per backup method type.
+             *
+             * Deprecated: the field is not set for backup plugins.
              */
             lastSuccessfulBackupByMethod: {
                 [key: string]: string;
@@ -12311,6 +12477,10 @@ export declare namespace postgresql {
             resizingPVC: string[];
             secretsResourceVersion: outputs.postgresql.v1.ClusterStatusSecretsResourceVersionPatch;
             switchReplicaClusterStatus: outputs.postgresql.v1.ClusterStatusSwitchReplicaClusterStatusPatch;
+            /**
+             * SystemID is the latest detected PostgreSQL SystemID
+             */
+            systemID: string;
             /**
              * TablespacesStatus reports the state of the declarative tablespaces in the cluster
              */
@@ -13216,6 +13386,75 @@ export declare namespace postgresql {
             name: string;
         }
         /**
+         * FailoverQuorum contains the information about the current failover
+         * quorum status of a PG cluster. It is updated by the instance manager
+         * of the primary node and reset to zero by the operator to trigger
+         * an update.
+         */
+        interface FailoverQuorum {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "postgresql.cnpg.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "FailoverQuorum";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            status: outputs.postgresql.v1.FailoverQuorumStatus;
+        }
+        /**
+         * Most recently observed status of the failover quorum.
+         */
+        interface FailoverQuorumStatus {
+            /**
+             * Contains the latest reported Method value.
+             */
+            method: string;
+            /**
+             * Primary is the name of the primary instance that updated
+             * this object the latest time.
+             */
+            primary: string;
+            /**
+             * StandbyNames is the list of potentially synchronous
+             * instance names.
+             */
+            standbyNames: string[];
+            /**
+             * StandbyNumber is the number of synchronous standbys that transactions
+             * need to wait for replies from.
+             */
+            standbyNumber: number;
+        }
+        /**
+         * Most recently observed status of the failover quorum.
+         */
+        interface FailoverQuorumStatusPatch {
+            /**
+             * Contains the latest reported Method value.
+             */
+            method: string;
+            /**
+             * Primary is the name of the primary instance that updated
+             * this object the latest time.
+             */
+            primary: string;
+            /**
+             * StandbyNames is the list of potentially synchronous
+             * instance names.
+             */
+            standbyNames: string[];
+            /**
+             * StandbyNumber is the number of synchronous standbys that transactions
+             * need to wait for replies from.
+             */
+            standbyNumber: number;
+        }
+        /**
          * ImageCatalog is the Schema for the imagecatalogs API
          */
         interface ImageCatalog {
@@ -14065,13 +14304,12 @@ export declare namespace postgresql {
             sessionAffinity: string;
             sessionAffinityConfig: outputs.postgresql.v1.PoolerSpecServiceTemplateSpecSessionAffinityConfig;
             /**
-             * TrafficDistribution offers a way to express preferences for how traffic is
-             * distributed to Service endpoints. Implementations can use this field as a
-             * hint, but are not required to guarantee strict adherence. If the field is
-             * not set, the implementation will apply its default routing strategy. If set
-             * to "PreferClose", implementations should prioritize endpoints that are
-             * topologically close (e.g., same zone).
-             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
+             * TrafficDistribution offers a way to express preferences for how traffic
+             * is distributed to Service endpoints. Implementations can use this field
+             * as a hint, but are not required to guarantee strict adherence. If the
+             * field is not set, the implementation will apply its default routing
+             * strategy. If set to "PreferClose", implementations should prioritize
+             * endpoints that are in the same zone.
              */
             trafficDistribution: string;
             /**
@@ -14303,13 +14541,12 @@ export declare namespace postgresql {
             sessionAffinity: string;
             sessionAffinityConfig: outputs.postgresql.v1.PoolerSpecServiceTemplateSpecSessionAffinityConfigPatch;
             /**
-             * TrafficDistribution offers a way to express preferences for how traffic is
-             * distributed to Service endpoints. Implementations can use this field as a
-             * hint, but are not required to guarantee strict adherence. If the field is
-             * not set, the implementation will apply its default routing strategy. If set
-             * to "PreferClose", implementations should prioritize endpoints that are
-             * topologically close (e.g., same zone).
-             * This is a beta field and requires enabling ServiceTrafficDistribution feature.
+             * TrafficDistribution offers a way to express preferences for how traffic
+             * is distributed to Service endpoints. Implementations can use this field
+             * as a hint, but are not required to guarantee strict adherence. If the
+             * field is not set, the implementation will apply its default routing
+             * strategy. If set to "PreferClose", implementations should prioritize
+             * endpoints that are in the same zone.
              */
             trafficDistribution: string;
             /**
@@ -14661,7 +14898,7 @@ export declare namespace postgresql {
              * Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes.
              * The resourceRequirements of an init container are taken into account during scheduling
              * by finding the highest request/limit for each resource type, and then using the max of
-             * of that value or the sum of the normal containers. Limits are applied to init containers
+             * that value or the sum of the normal containers. Limits are applied to init containers
              * in a similar fashion.
              * Init containers cannot currently be added or removed.
              * Cannot be updated.
@@ -15257,7 +15494,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -15269,7 +15505,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -15469,7 +15704,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -15481,7 +15715,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -15520,7 +15753,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -15532,7 +15764,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -15737,7 +15968,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -15749,7 +15979,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -15859,7 +16088,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -15871,7 +16099,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector;
@@ -16071,7 +16298,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -16083,7 +16309,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch;
@@ -16122,7 +16347,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -16134,7 +16358,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector;
@@ -16339,7 +16562,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys: string[];
             /**
@@ -16351,7 +16573,6 @@ export declare namespace postgresql {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys: string[];
             namespaceSelector: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch;
@@ -16551,12 +16772,12 @@ export declare namespace postgresql {
             valueFrom: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFrom;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromConfigMapRef;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromSecretRef;
@@ -16596,12 +16817,12 @@ export declare namespace postgresql {
             optional: boolean;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromConfigMapRefPatch;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromSecretRefPatch;
@@ -16835,6 +17056,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecContainersLifecycle {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersLifecyclePostStart;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersLifecyclePreStop;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * Actions that the management system should take in response to container lifecycle events.
@@ -16843,6 +17070,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecContainersLifecyclePatch {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersLifecyclePostStartPatch;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersLifecyclePreStopPatch;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * PostStart is called immediately after a container is created. If the handler fails,
@@ -19187,12 +19420,12 @@ export declare namespace postgresql {
             valueFrom: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFrom;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecEphemeralContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromConfigMapRef;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromSecretRef;
@@ -19232,12 +19465,12 @@ export declare namespace postgresql {
             optional: boolean;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecEphemeralContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromConfigMapRefPatch;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromSecretRefPatch;
@@ -19470,6 +19703,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecEphemeralContainersLifecycle {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStart;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStop;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * Lifecycle is not allowed for ephemeral containers.
@@ -19477,6 +19716,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecEphemeralContainersLifecyclePatch {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersLifecyclePostStartPatch;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersLifecyclePreStopPatch;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * PostStart is called immediately after a container is created. If the handler fails,
@@ -21769,12 +22014,12 @@ export declare namespace postgresql {
             valueFrom: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFrom;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecInitContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromConfigMapRef;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromSecretRef;
@@ -21814,12 +22059,12 @@ export declare namespace postgresql {
             optional: boolean;
         }
         /**
-         * EnvFromSource represents the source of a set of ConfigMaps
+         * EnvFromSource represents the source of a set of ConfigMaps or Secrets
          */
         interface PoolerSpecTemplateSpecInitContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromConfigMapRefPatch;
             /**
-             * An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromSecretRefPatch;
@@ -22053,6 +22298,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecInitContainersLifecycle {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersLifecyclePostStart;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersLifecyclePreStop;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * Actions that the management system should take in response to container lifecycle events.
@@ -22061,6 +22312,12 @@ export declare namespace postgresql {
         interface PoolerSpecTemplateSpecInitContainersLifecyclePatch {
             postStart: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersLifecyclePostStartPatch;
             preStop: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersLifecyclePreStopPatch;
+            /**
+             * StopSignal defines which signal will be sent to a container when it is being stopped.
+             * If not specified, the default is defined by the container runtime in use.
+             * StopSignal can only be set for Pods with a non-empty .spec.os.name
+             */
+            stopSignal: string;
         }
         /**
          * PostStart is called immediately after a container is created. If the handler fails,
@@ -24332,7 +24589,7 @@ export declare namespace postgresql {
              * Init containers may not have Lifecycle actions, Readiness probes, Liveness probes, or Startup probes.
              * The resourceRequirements of an init container are taken into account during scheduling
              * by finding the highest request/limit for each resource type, and then using the max of
-             * of that value or the sum of the normal containers. Limits are applied to init containers
+             * that value or the sum of the normal containers. Limits are applied to init containers
              * in a similar fashion.
              * Init containers cannot currently be added or removed.
              * Cannot be updated.
@@ -25319,7 +25576,6 @@ export declare namespace postgresql {
              * - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
              *
              * If this value is nil, the behavior is equivalent to the Honor policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeAffinityPolicy: string;
             /**
@@ -25330,7 +25586,6 @@ export declare namespace postgresql {
              * - Ignore: node taints are ignored. All nodes are included.
              *
              * If this value is nil, the behavior is equivalent to the Ignore policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeTaintsPolicy: string;
             /**
@@ -25517,7 +25772,6 @@ export declare namespace postgresql {
              * - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
              *
              * If this value is nil, the behavior is equivalent to the Honor policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeAffinityPolicy: string;
             /**
@@ -25528,7 +25782,6 @@ export declare namespace postgresql {
              * - Ignore: node taints are ignored. All nodes are included.
              *
              * If this value is nil, the behavior is equivalent to the Ignore policy.
-             * This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
              */
             nodeTaintsPolicy: string;
             /**
@@ -27246,7 +27499,7 @@ export declare namespace postgresql {
          * The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
          * The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
          * The volume will be mounted read-only (ro) and non-executable files (noexec).
-         * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath).
+         * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
          * The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
          */
         interface PoolerSpecTemplateSpecVolumesImage {
@@ -27281,7 +27534,7 @@ export declare namespace postgresql {
          * The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
          * The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
          * The volume will be mounted read-only (ro) and non-executable files (noexec).
-         * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath).
+         * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
          * The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
          */
         interface PoolerSpecTemplateSpecVolumesImagePatch {
@@ -29524,8 +29777,11 @@ export declare namespace postgresql {
              */
             name: string;
             /**
-             * Subscription parameters part of the `WITH` clause as expected by
-             * PostgreSQL `CREATE SUBSCRIPTION` command
+             * Subscription parameters included in the `WITH` clause of the PostgreSQL
+             * `CREATE SUBSCRIPTION` command. Most parameters cannot be changed
+             * after the subscription is created and will be ignored if modified
+             * later, except for a limited set documented at:
+             * https://www.postgresql.org/docs/current/sql-altersubscription.html#SQL-ALTERSUBSCRIPTION-PARAMS-SET
              */
             parameters: {
                 [key: string]: string;
@@ -29590,8 +29846,11 @@ export declare namespace postgresql {
              */
             name: string;
             /**
-             * Subscription parameters part of the `WITH` clause as expected by
-             * PostgreSQL `CREATE SUBSCRIPTION` command
+             * Subscription parameters included in the `WITH` clause of the PostgreSQL
+             * `CREATE SUBSCRIPTION` command. Most parameters cannot be changed
+             * after the subscription is created and will be ignored if modified
+             * later, except for a limited set documented at:
+             * https://www.postgresql.org/docs/current/sql-altersubscription.html#SQL-ALTERSUBSCRIPTION-PARAMS-SET
              */
             parameters: {
                 [key: string]: string;

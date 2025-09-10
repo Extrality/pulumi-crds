@@ -45,6 +45,7 @@ export declare class ServiceMonitorPatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.ServiceMonitorSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.ServiceMonitorStatusPatch>;
     /**
      * Create a ServiceMonitorPatch resource with the given unique name, arguments, and options.
      *

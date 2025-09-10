@@ -963,6 +963,15 @@ export namespace karpenter {
              * The ID of the AWS account that owns the capacity reservation.
              */
             ownerID: string;
+            /**
+             * The type of capacity reservation.
+             */
+            reservationType: string;
+            /**
+             * The state of the capacity reservation. A capacity reservation is considered to be expiring if it is within the EC2
+             * reclaimation window. Only capacity-block reservations may be in this state.
+             */
+            state: string;
         }
 
         export interface EC2NodeClassStatusCapacityReservationsPatch {
@@ -991,6 +1000,15 @@ export namespace karpenter {
              * The ID of the AWS account that owns the capacity reservation.
              */
             ownerID: string;
+            /**
+             * The type of capacity reservation.
+             */
+            reservationType: string;
+            /**
+             * The state of the capacity reservation. A capacity reservation is considered to be expiring if it is within the EC2
+             * reclaimation window. Only capacity-block reservations may be in this state.
+             */
+            state: string;
         }
 
         /**

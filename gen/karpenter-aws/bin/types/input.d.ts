@@ -930,6 +930,15 @@ export declare namespace karpenter {
              * The ID of the AWS account that owns the capacity reservation.
              */
             ownerID?: pulumi.Input<string>;
+            /**
+             * The type of capacity reservation.
+             */
+            reservationType?: pulumi.Input<string>;
+            /**
+             * The state of the capacity reservation. A capacity reservation is considered to be expiring if it is within the EC2
+             * reclaimation window. Only capacity-block reservations may be in this state.
+             */
+            state?: pulumi.Input<string>;
         }
         /**
          * Condition aliases the upstream type and adds additional helper methods
