@@ -81,11 +81,8 @@ export namespace karpenter {
             kubelet: outputs.karpenter.v1.EC2NodeClassSpecKubelet;
             metadataOptions: outputs.karpenter.v1.EC2NodeClassSpecMetadataOptions;
             /**
-             * Role is the AWS identity that nodes use. This field is immutable.
+             * Role is the AWS identity that nodes use.
              * This field is mutually exclusive from instanceProfile.
-             * Marking this field as immutable avoids concerns around terminating managed instance profiles from running instances.
-             * This field may be made mutable in the future, assuming the correct garbage collection and drift handling is implemented
-             * for the old instance profiles on an update.
              */
             role: string;
             /**
@@ -710,11 +707,8 @@ export namespace karpenter {
             kubelet: outputs.karpenter.v1.EC2NodeClassSpecKubeletPatch;
             metadataOptions: outputs.karpenter.v1.EC2NodeClassSpecMetadataOptionsPatch;
             /**
-             * Role is the AWS identity that nodes use. This field is immutable.
+             * Role is the AWS identity that nodes use.
              * This field is mutually exclusive from instanceProfile.
-             * Marking this field as immutable avoids concerns around terminating managed instance profiles from running instances.
-             * This field may be made mutable in the future, assuming the correct garbage collection and drift handling is implemented
-             * for the old instance profiles on an update.
              */
             role: string;
             /**
@@ -1428,7 +1422,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -1454,7 +1447,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -1480,7 +1472,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -1506,7 +1497,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -2110,7 +2100,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -2136,7 +2125,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -2162,7 +2150,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -2188,7 +2175,6 @@ export namespace karpenter {
             key: string;
             /**
              * TimeAdded represents the time at which the taint was added.
-             * It is only written for NoExecute taints.
              */
             timeAdded: string;
             /**
@@ -2309,6 +2295,236 @@ export namespace karpenter {
              * Resources is the list of resources that have been provisioned.
              */
             resources: {[key: string]: number | string};
+        }
+
+    }
+
+    export namespace v1alpha1 {
+        export interface NodeOverlay {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "karpenter.sh/v1alpha1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "NodeOverlay";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.karpenter.v1alpha1.NodeOverlaySpec;
+            status: outputs.karpenter.v1alpha1.NodeOverlayStatus;
+        }
+
+        export interface NodeOverlaySpec {
+            /**
+             * Capacity adds extended resources only, and does not replace any existing resources.
+             * These extended resources are appended to the node's existing resource list.
+             * Note: This field does not modify or override standard resources like cpu, memory, ephemeral-storage, or pods.
+             */
+            capacity: {[key: string]: number | string};
+            /**
+             * Price specifies amount for an instance types that match the specified labels. Users can override prices using a signed float representing the price override
+             */
+            price: string;
+            /**
+             * PriceAdjustment specifies the price change for matching instance types. Accepts either:
+             * - A fixed price modifier (e.g., -0.5, 1.2)
+             * - A percentage modifier (e.g., +10% for increase, -15% for decrees)
+             */
+            priceAdjustment: string;
+            /**
+             * Requirements constrain when this NodeOverlay is applied during scheduling simulations.
+             * These requirements can match:
+             * - Well-known labels (e.g., node.kubernetes.io/instance-type, karpenter.sh/nodepool)
+             * - Custom labels from NodePool's spec.template.labels
+             */
+            requirements: outputs.karpenter.v1alpha1.NodeOverlaySpecRequirements[];
+            /**
+             * Weight defines the priority of this NodeOverlay when overriding node attributes.
+             * NodeOverlays with higher numerical weights take precedence over those with lower weights.
+             * If no weight is specified, the NodeOverlay is treated as having a weight of 0.
+             * When multiple NodeOverlays have identical weights, they are merged in alphabetical order.
+             */
+            weight: number;
+        }
+
+        export interface NodeOverlaySpecPatch {
+            /**
+             * Capacity adds extended resources only, and does not replace any existing resources.
+             * These extended resources are appended to the node's existing resource list.
+             * Note: This field does not modify or override standard resources like cpu, memory, ephemeral-storage, or pods.
+             */
+            capacity: {[key: string]: number | string};
+            /**
+             * Price specifies amount for an instance types that match the specified labels. Users can override prices using a signed float representing the price override
+             */
+            price: string;
+            /**
+             * PriceAdjustment specifies the price change for matching instance types. Accepts either:
+             * - A fixed price modifier (e.g., -0.5, 1.2)
+             * - A percentage modifier (e.g., +10% for increase, -15% for decrees)
+             */
+            priceAdjustment: string;
+            /**
+             * Requirements constrain when this NodeOverlay is applied during scheduling simulations.
+             * These requirements can match:
+             * - Well-known labels (e.g., node.kubernetes.io/instance-type, karpenter.sh/nodepool)
+             * - Custom labels from NodePool's spec.template.labels
+             */
+            requirements: outputs.karpenter.v1alpha1.NodeOverlaySpecRequirementsPatch[];
+            /**
+             * Weight defines the priority of this NodeOverlay when overriding node attributes.
+             * NodeOverlays with higher numerical weights take precedence over those with lower weights.
+             * If no weight is specified, the NodeOverlay is treated as having a weight of 0.
+             * When multiple NodeOverlays have identical weights, they are merged in alphabetical order.
+             */
+            weight: number;
+        }
+
+        /**
+         * A node selector requirement is a selector that contains values, a key, and an operator
+         * that relates the key and values.
+         */
+        export interface NodeOverlaySpecRequirements {
+            /**
+             * The label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * Represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             */
+            operator: string;
+            /**
+             * An array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. If the operator is Gt or Lt, the values
+             * array must have a single element, which will be interpreted as an integer.
+             * This array is replaced during a strategic merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * A node selector requirement is a selector that contains values, a key, and an operator
+         * that relates the key and values.
+         */
+        export interface NodeOverlaySpecRequirementsPatch {
+            /**
+             * The label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * Represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             */
+            operator: string;
+            /**
+             * An array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. If the operator is Gt or Lt, the values
+             * array must have a single element, which will be interpreted as an integer.
+             * This array is replaced during a strategic merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * NodeOverlayStatus defines the observed state of NodeOverlay
+         */
+        export interface NodeOverlayStatus {
+            /**
+             * Conditions contains signals for health and readiness
+             */
+            conditions: outputs.karpenter.v1alpha1.NodeOverlayStatusConditions[];
+        }
+
+        /**
+         * Condition aliases the upstream type and adds additional helper methods
+         */
+        export interface NodeOverlayStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+
+        /**
+         * Condition aliases the upstream type and adds additional helper methods
+         */
+        export interface NodeOverlayStatusConditionsPatch {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+
+        /**
+         * NodeOverlayStatus defines the observed state of NodeOverlay
+         */
+        export interface NodeOverlayStatusPatch {
+            /**
+             * Conditions contains signals for health and readiness
+             */
+            conditions: outputs.karpenter.v1alpha1.NodeOverlayStatusConditionsPatch[];
         }
 
     }
