@@ -25,6 +25,12 @@ export declare namespace authzed {
          */
         interface SpiceDBClusterSpec {
             /**
+             * BaseImage specifies the base container image to use for SpiceDB.
+             * If not specified, will fall back to the operator's --base-image flag,
+             * then to the imageName defined in the update graph.
+             */
+            baseImage: string;
+            /**
              * Channel is a defined series of updates that operator should follow.
              * The operator is configured with a datasource that configures available
              * channels and update paths.
@@ -67,6 +73,12 @@ export declare namespace authzed {
          * ClusterSpec holds the desired state of the cluster.
          */
         interface SpiceDBClusterSpecPatch {
+            /**
+             * BaseImage specifies the base container image to use for SpiceDB.
+             * If not specified, will fall back to the operator's --base-image flag,
+             * then to the imageName defined in the update graph.
+             */
+            baseImage: string;
             /**
              * Channel is a defined series of updates that operator should follow.
              * The operator is configured with a datasource that configures available
