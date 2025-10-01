@@ -49,6 +49,31 @@ function gen() {
     local tag="$(github_repo_latest_tag "$repo")"
     echo "$repo: $tag"
     git clone --depth 1 --branch "$tag" "https://github.com/$repo.git" "tmp/$packname"
+    # for envoy-gateway, strip Helm templating guards and leading document separators
+    if [ "$packname" = "envoy-proxy" ]; then
+        local crd_dir="tmp/$packname/charts/gateway-crds-helm/templates/generated"
+        if [ -d "$crd_dir" ]; then
+            find "$crd_dir" -type f -name '*.yaml' -print0 | \
+              while IFS= read -r -d '' f; do
+                if sed --version >/dev/null 2>&1; then
+                  sed -i '/{{- if .Values.crds.envoyGateway.enabled }}/d;/^{{- end }}$/d;/^---$/d' "$f"
+                else
+                  sed -i '' '/{{- if .Values.crds.envoyGateway.enabled }}/d;/^{{- end }}$/d;/^---$/d' "$f"
+                fi
+              done
+        fi
+    fi 
+
+    if [ "$packname" = "envoy-gatewayapi" ]; then
+        local std_file="tmp/$packname/charts/gateway-crds-helm/templates/standard-gatewayapi-crds.yaml"
+        if [ -f "$std_file" ]; then
+            if sed --version >/dev/null 2>&1; then
+              sed -i '/{{- if and .Values.crds.gatewayAPI.enabled (eq .Values.crds.gatewayAPI.channel "standard") }}/d;/^{{- end }}$/d;/^---$/d' "$std_file"
+            else
+              sed -i '' '/{{- if and .Values.crds.gatewayAPI.enabled (eq .Values.crds.gatewayAPI.channel "standard") }}/d;/^{{- end }}$/d;/^---$/d' "$std_file"
+            fi
+        fi
+    fi
     crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$packname" $(echo "tmp/$packname/$glob")
     # pre-compile the package: allows removing the postinstall script
     ./node_modules/typescript/bin/tsc -p "./gen/$packname"
@@ -65,3 +90,5 @@ gen "prometheus-operator/prometheus-operator" "example/prometheus-operator-crd/*
 gen "authzed/spicedb-operator" "config/crds/*.yaml" "spicedb-operator"
 gen "aws/karpenter-provider-aws" "pkg/apis/crds/*.yaml" "karpenter-aws"
 gen "actions/actions-runner-controller" "charts/gha-runner-scale-set-controller/crds/*.yaml" "github-actions-scale-set"
+gen "envoyproxy/gateway" "charts/gateway-crds-helm/templates/generated/*.yaml" "envoy-proxy"
+gen "envoyproxy/gateway" "charts/gateway-crds-helm/templates/standard-gatewayapi-crds.yaml" "envoy-gatewayapi"
