@@ -5,6 +5,21 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../../utilities";
 
 // Export members:
+export { BackendTLSPolicyArgs } from "./backendTLSPolicy";
+export type BackendTLSPolicy = import("./backendTLSPolicy").BackendTLSPolicy;
+export const BackendTLSPolicy: typeof import("./backendTLSPolicy").BackendTLSPolicy = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicy"], () => require("./backendTLSPolicy"));
+
+export { BackendTLSPolicyListArgs } from "./backendTLSPolicyList";
+export type BackendTLSPolicyList = import("./backendTLSPolicyList").BackendTLSPolicyList;
+export const BackendTLSPolicyList: typeof import("./backendTLSPolicyList").BackendTLSPolicyList = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicyList"], () => require("./backendTLSPolicyList"));
+
+export { BackendTLSPolicyPatchArgs } from "./backendTLSPolicyPatch";
+export type BackendTLSPolicyPatch = import("./backendTLSPolicyPatch").BackendTLSPolicyPatch;
+export const BackendTLSPolicyPatch: typeof import("./backendTLSPolicyPatch").BackendTLSPolicyPatch = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicyPatch"], () => require("./backendTLSPolicyPatch"));
+
 export { GatewayArgs } from "./gateway";
 export type Gateway = import("./gateway").Gateway;
 export const Gateway: typeof import("./gateway").Gateway = null as any;
@@ -35,6 +50,21 @@ export type GatewayPatch = import("./gatewayPatch").GatewayPatch;
 export const GatewayPatch: typeof import("./gatewayPatch").GatewayPatch = null as any;
 utilities.lazyLoad(exports, ["GatewayPatch"], () => require("./gatewayPatch"));
 
+export { GRPCRouteArgs } from "./grpcroute";
+export type GRPCRoute = import("./grpcroute").GRPCRoute;
+export const GRPCRoute: typeof import("./grpcroute").GRPCRoute = null as any;
+utilities.lazyLoad(exports, ["GRPCRoute"], () => require("./grpcroute"));
+
+export { GRPCRouteListArgs } from "./grpcrouteList";
+export type GRPCRouteList = import("./grpcrouteList").GRPCRouteList;
+export const GRPCRouteList: typeof import("./grpcrouteList").GRPCRouteList = null as any;
+utilities.lazyLoad(exports, ["GRPCRouteList"], () => require("./grpcrouteList"));
+
+export { GRPCRoutePatchArgs } from "./grpcroutePatch";
+export type GRPCRoutePatch = import("./grpcroutePatch").GRPCRoutePatch;
+export const GRPCRoutePatch: typeof import("./grpcroutePatch").GRPCRoutePatch = null as any;
+utilities.lazyLoad(exports, ["GRPCRoutePatch"], () => require("./grpcroutePatch"));
+
 export { HTTPRouteArgs } from "./httproute";
 export type HTTPRoute = import("./httproute").HTTPRoute;
 export const HTTPRoute: typeof import("./httproute").HTTPRoute = null as any;
@@ -50,53 +80,44 @@ export type HTTPRoutePatch = import("./httproutePatch").HTTPRoutePatch;
 export const HTTPRoutePatch: typeof import("./httproutePatch").HTTPRoutePatch = null as any;
 utilities.lazyLoad(exports, ["HTTPRoutePatch"], () => require("./httproutePatch"));
 
-export { ReferenceGrantArgs } from "./referenceGrant";
-export type ReferenceGrant = import("./referenceGrant").ReferenceGrant;
-export const ReferenceGrant: typeof import("./referenceGrant").ReferenceGrant = null as any;
-utilities.lazyLoad(exports, ["ReferenceGrant"], () => require("./referenceGrant"));
-
-export { ReferenceGrantListArgs } from "./referenceGrantList";
-export type ReferenceGrantList = import("./referenceGrantList").ReferenceGrantList;
-export const ReferenceGrantList: typeof import("./referenceGrantList").ReferenceGrantList = null as any;
-utilities.lazyLoad(exports, ["ReferenceGrantList"], () => require("./referenceGrantList"));
-
-export { ReferenceGrantPatchArgs } from "./referenceGrantPatch";
-export type ReferenceGrantPatch = import("./referenceGrantPatch").ReferenceGrantPatch;
-export const ReferenceGrantPatch: typeof import("./referenceGrantPatch").ReferenceGrantPatch = null as any;
-utilities.lazyLoad(exports, ["ReferenceGrantPatch"], () => require("./referenceGrantPatch"));
-
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:Gateway":
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicy":
+                return new BackendTLSPolicy(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicyList":
+                return new BackendTLSPolicyList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicyPatch":
+                return new BackendTLSPolicyPatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:GRPCRoute":
+                return new GRPCRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:GRPCRouteList":
+                return new GRPCRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:GRPCRoutePatch":
+                return new GRPCRoutePatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:Gateway":
                 return new Gateway(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayClass":
+            case "kubernetes:gateway.networking.k8s.io/v1:GatewayClass":
                 return new GatewayClass(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayClassList":
+            case "kubernetes:gateway.networking.k8s.io/v1:GatewayClassList":
                 return new GatewayClassList(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayClassPatch":
+            case "kubernetes:gateway.networking.k8s.io/v1:GatewayClassPatch":
                 return new GatewayClassPatch(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayList":
+            case "kubernetes:gateway.networking.k8s.io/v1:GatewayList":
                 return new GatewayList(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayPatch":
+            case "kubernetes:gateway.networking.k8s.io/v1:GatewayPatch":
                 return new GatewayPatch(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:HTTPRoute":
+            case "kubernetes:gateway.networking.k8s.io/v1:HTTPRoute":
                 return new HTTPRoute(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:HTTPRouteList":
+            case "kubernetes:gateway.networking.k8s.io/v1:HTTPRouteList":
                 return new HTTPRouteList(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:HTTPRoutePatch":
+            case "kubernetes:gateway.networking.k8s.io/v1:HTTPRoutePatch":
                 return new HTTPRoutePatch(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrant":
-                return new ReferenceGrant(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrantList":
-                return new ReferenceGrantList(name, <any>undefined, { urn })
-            case "kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrantPatch":
-                return new ReferenceGrantPatch(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }
     },
 };
-pulumi.runtime.registerResourceModule("envoy-gatewayapi", "gateway.networking.k8s.io/v1beta1", _module)
+pulumi.runtime.registerResourceModule("k8s-gateway-api", "gateway.networking.k8s.io/v1", _module)

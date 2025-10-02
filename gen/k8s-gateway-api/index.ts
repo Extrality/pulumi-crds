@@ -19,7 +19,7 @@ export {
     gateway,
     types,
 };
-pulumi.runtime.registerResourcePackage("envoy-gatewayapi", {
+pulumi.runtime.registerResourcePackage("k8s-gateway-api", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {
         if (type !== "pulumi:providers:kubernetes") {
