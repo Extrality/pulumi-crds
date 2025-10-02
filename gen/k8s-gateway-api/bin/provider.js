@@ -34,5 +34,5 @@ class Provider extends pulumi.ProviderResource {
 }
 exports.Provider = Provider;
 /** @internal */
-Provider.__pulumiType = 'envoy-gatewayapi';
+Provider.__pulumiType = 'k8s-gateway-api';
 //# sourceMappingURL=provider.js.map

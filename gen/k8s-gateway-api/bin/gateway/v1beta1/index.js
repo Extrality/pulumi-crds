@@ -62,5 +62,5 @@ const _module = {
         }
     },
 };
-pulumi.runtime.registerResourceModule("envoy-gatewayapi", "gateway.networking.k8s.io/v1beta1", _module);
+pulumi.runtime.registerResourceModule("k8s-gateway-api", "gateway.networking.k8s.io/v1beta1", _module);
 //# sourceMappingURL=index.js.map

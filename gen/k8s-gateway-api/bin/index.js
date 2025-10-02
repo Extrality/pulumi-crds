@@ -12,7 +12,7 @@ const gateway = require("./gateway");
 exports.gateway = gateway;
 const types = require("./types");
 exports.types = types;
-pulumi.runtime.registerResourcePackage("envoy-gatewayapi", {
+pulumi.runtime.registerResourcePackage("k8s-gateway-api", {
     version: utilities.getVersion(),
     constructProvider: (name, type, urn) => {
         if (type !== "pulumi:providers:kubernetes") {
