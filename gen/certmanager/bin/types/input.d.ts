@@ -75,15 +75,15 @@ export declare namespace acme {
          */
         interface ChallengeSpecIssuerRef {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -96,15 +96,15 @@ export declare namespace acme {
          */
         interface ChallengeSpecIssuerRefPatch {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -727,6 +727,10 @@ export declare namespace acme {
              */
             nameserver?: pulumi.Input<string>;
             /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
+            /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
              * Supported values are (case-insensitive): ``HMACMD5`` (default),
@@ -752,6 +756,10 @@ export declare namespace acme {
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
+            /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
             /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
@@ -1505,6 +1513,7 @@ export declare namespace acme {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -1945,7 +1954,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -1957,7 +1965,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -2157,7 +2164,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2169,7 +2175,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -2208,7 +2213,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2220,7 +2224,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -2425,7 +2428,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2437,7 +2439,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -2468,8 +2469,8 @@ export declare namespace acme {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -2495,8 +2496,8 @@ export declare namespace acme {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -2547,7 +2548,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2559,7 +2559,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -2759,7 +2758,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2771,7 +2769,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -2810,7 +2807,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -2822,7 +2818,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -3027,7 +3022,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -3039,7 +3033,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -3110,6 +3103,7 @@ export declare namespace acme {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -3119,6 +3113,58 @@ export declare namespace acme {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ChallengeSpecSolverHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
@@ -3667,6 +3713,7 @@ export declare namespace acme {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -4107,7 +4154,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4119,7 +4165,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -4319,7 +4364,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4331,7 +4375,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -4370,7 +4413,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4382,7 +4424,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -4587,7 +4628,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4599,7 +4639,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -4630,8 +4669,8 @@ export declare namespace acme {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -4657,8 +4696,8 @@ export declare namespace acme {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -4709,7 +4748,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4721,7 +4759,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -4921,7 +4958,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4933,7 +4969,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -4972,7 +5007,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -4984,7 +5018,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -5189,7 +5222,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -5201,7 +5233,6 @@ export declare namespace acme {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -5272,6 +5303,7 @@ export declare namespace acme {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -5281,6 +5313,58 @@ export declare namespace acme {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.acme.v1.ChallengeSpecSolverHttp01IngressPodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ChallengeSpecSolverHttp01IngressPodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ChallengeSpecSolverHttp01IngressPodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
@@ -5810,15 +5894,15 @@ export declare namespace acme {
          */
         interface OrderSpecIssuerRef {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -5831,15 +5915,15 @@ export declare namespace acme {
          */
         interface OrderSpecIssuerRefPatch {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -6120,15 +6204,15 @@ export declare namespace cert_manager {
          */
         interface CertificateRequestSpecIssuerRef {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -6142,15 +6226,15 @@ export declare namespace cert_manager {
          */
         interface CertificateRequestSpecIssuerRefPatch {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -6477,15 +6561,15 @@ export declare namespace cert_manager {
          */
         interface CertificateSpecIssuerRef {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -6499,15 +6583,15 @@ export declare namespace cert_manager {
          */
         interface CertificateSpecIssuerRefPatch {
             /**
-             * Group of the resource being referred to.
+             * Group of the issuer being referred to.
              */
             group?: pulumi.Input<string>;
             /**
-             * Kind of the resource being referred to.
+             * Kind of the issuer being referred to.
              */
             kind?: pulumi.Input<string>;
             /**
-             * Name of the resource being referred to.
+             * Name of the issuer being referred to.
              */
             name?: pulumi.Input<string>;
         }
@@ -8282,6 +8366,10 @@ export declare namespace cert_manager {
              */
             nameserver?: pulumi.Input<string>;
             /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
+            /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
              * Supported values are (case-insensitive): ``HMACMD5`` (default),
@@ -8307,6 +8395,10 @@ export declare namespace cert_manager {
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
+            /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
             /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
@@ -9060,6 +9152,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -9500,7 +9593,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -9512,7 +9604,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -9712,7 +9803,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -9724,7 +9814,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -9763,7 +9852,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -9775,7 +9863,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -9980,7 +10067,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -9992,7 +10078,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -10023,8 +10108,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -10050,8 +10135,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -10102,7 +10187,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -10114,7 +10198,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -10314,7 +10397,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -10326,7 +10408,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -10365,7 +10446,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -10377,7 +10457,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -10582,7 +10661,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -10594,7 +10672,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -10665,6 +10742,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -10674,6 +10752,58 @@ export declare namespace cert_manager {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ClusterIssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
@@ -11222,6 +11352,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -11662,7 +11793,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -11674,7 +11804,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -11874,7 +12003,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -11886,7 +12014,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -11925,7 +12052,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -11937,7 +12063,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -12142,7 +12267,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12154,7 +12278,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -12185,8 +12308,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -12212,8 +12335,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -12264,7 +12387,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12276,7 +12398,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -12476,7 +12597,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12488,7 +12608,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -12527,7 +12646,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12539,7 +12657,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -12744,7 +12861,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12756,7 +12872,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -12827,6 +12942,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -12836,6 +12952,58 @@ export declare namespace cert_manager {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
@@ -14999,6 +15167,10 @@ export declare namespace cert_manager {
              */
             nameserver?: pulumi.Input<string>;
             /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
+            /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
              * Supported values are (case-insensitive): ``HMACMD5`` (default),
@@ -15024,6 +15196,10 @@ export declare namespace cert_manager {
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
+            /**
+             * Protocol to use for dynamic DNS update queries. Valid values are (case-sensitive) ``TCP`` and ``UDP``; ``UDP`` (default).
+             */
+            protocol?: pulumi.Input<string>;
             /**
              * The TSIG Algorithm configured in the DNS supporting RFC2136. Used only
              * when ``tsigSecretSecretRef`` and ``tsigKeyName`` are defined.
@@ -15777,6 +15953,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -16217,7 +16394,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -16229,7 +16405,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -16429,7 +16604,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -16441,7 +16615,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -16480,7 +16653,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -16492,7 +16664,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -16697,7 +16868,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -16709,7 +16879,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -16740,8 +16909,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -16767,8 +16936,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -16819,7 +16988,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -16831,7 +16999,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -17031,7 +17198,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -17043,7 +17209,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -17082,7 +17247,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -17094,7 +17258,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -17299,7 +17462,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -17311,7 +17473,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -17382,6 +17543,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -17391,6 +17553,58 @@ export declare namespace cert_manager {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface IssuerSpecAcmeSolversHttp01GatewayHTTPRoutePodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
@@ -17939,6 +18153,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResources>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecSecurityContext>;
             /**
              * If specified, the pod's service account
@@ -18379,7 +18594,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -18391,7 +18605,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -18591,7 +18804,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -18603,7 +18815,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -18642,7 +18853,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -18654,7 +18864,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -18859,7 +19068,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -18871,7 +19079,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -18902,8 +19109,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -18929,8 +19136,8 @@ export declare namespace cert_manager {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -18981,7 +19188,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -18993,7 +19199,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelector>;
@@ -19193,7 +19398,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -19205,7 +19409,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermNamespaceSelectorPatch>;
@@ -19244,7 +19447,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -19256,7 +19458,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelector>;
@@ -19461,7 +19662,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both matchLabelKeys and labelSelector.
              * Also, matchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             matchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -19473,7 +19673,6 @@ export declare namespace cert_manager {
              * pod labels will be ignored. The default value is empty.
              * The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
              * Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-             * This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
              */
             mismatchLabelKeys?: pulumi.Input<pulumi.Input<string>[]>;
             namespaceSelector?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionNamespaceSelectorPatch>;
@@ -19544,6 +19743,7 @@ export declare namespace cert_manager {
              * If specified, the pod's priorityClassName.
              */
             priorityClassName?: pulumi.Input<string>;
+            resources?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResourcesPatch>;
             securityContext?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecSecurityContextPatch>;
             /**
              * If specified, the pod's service account
@@ -19553,6 +19753,58 @@ export declare namespace cert_manager {
              * If specified, the pod's tolerations.
              */
             tolerations?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecTolerationsPatch>[]>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResources {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+        }
+        /**
+         * If specified, the pod's resource requirements.
+         * These values override the global resource configuration flags.
+         * Note that when only specifying resource limits, ensure they are greater than or equal
+         * to the corresponding global resource requests configured via controller flags
+         * (--acme-http01-solver-resource-request-cpu, --acme-http01-solver-resource-request-memory).
+         * Kubernetes will reject pod creation if limits are lower than requests, causing challenge failures.
+         */
+        interface IssuerSpecAcmeSolversHttp01IngressPodTemplateSpecResourcesPatch {
+            /**
+             * Limits describes the maximum amount of compute resources allowed.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            limits?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
+            /**
+             * Requests describes the minimum amount of compute resources required.
+             * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+             * otherwise to the global values configured via controller flags. Requests cannot exceed Limits.
+             * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+             */
+            requests?: pulumi.Input<{
+                [key: string]: pulumi.Input<number | string>;
+            }>;
         }
         /**
          * If specified, the pod's security context
