@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
+if sed --version >/dev/null 2>&1; then
+    # GNU sed
+    SED_INPLACE="-i"
+else
+    # BSD sed
+    SED_INPLACE="-i ''"
+fi
+
+###
+
 # $1: <repository>, example: "pulumi/crd2pulumi"
 github_repo_latest_tag() {
     local repo=$1
@@ -21,6 +33,36 @@ github_repo_latest_tag() {
     echo "$latest_tag"
 }
 
+# $1: github "org/repo"
+# $2: crd files glob
+# $3: js package name
+function gen() {
+    local repo="$1"
+    local glob="$2"
+    local packname="$3"
+    local foldername=${packname//[^a-zA-Z0-9]/-}
+
+    local tag="$(github_repo_latest_tag "$repo")"
+    echo "$repo: $tag"
+    git clone --depth 1 --branch "$tag" "https://github.com/$repo.git" "tmp/$foldername"
+
+    if [ "$repo" = "envoyproxy/gateway" ]; then
+        # Strip Helm templating guards and leading document separators
+        for f in $(echo "tmp/$foldername/$glob"); do
+            sed $SED_INPLACE '/{{- if .Values.crds.envoyGateway.enabled }}/d;/^{{- end }}$/d;/^---$/d' "$f"
+        done
+    fi
+
+    crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$foldername" $(echo "tmp/$foldername/$glob")
+    # pre-compile the package: allows removing the postinstall script
+    ./node_modules/typescript/bin/tsc -p "./gen/$foldername" || true
+    jq 'del(.scripts.postinstall)' "./gen/$foldername/package.json" > temp.json && mv temp.json "./gen/$foldername/package.json"
+    rm "./gen/$foldername/scripts/postinstall.js"
+    cp "./gen/$foldername/package.json" "./gen/$foldername/bin/package.json"
+}
+
+###
+
 if ! command -v crd2pulumi > /dev/null; then
     if [ "$1" = "setup" ]; then
         version="$(github_repo_latest_tag "pulumi/crd2pulumi")"
@@ -38,51 +80,8 @@ pnpm i
 rm -rf tmp gen
 mkdir -p tmp gen
 
-# $1: github "org/repo"
-# $2: crd files glob
-# $3: js package name
-function gen() {
-    local repo="$1"
-    local glob="$2"
-    local packname="$3"
-
-    local tag="$(github_repo_latest_tag "$repo")"
-    echo "$repo: $tag"
-    git clone --depth 1 --branch "$tag" "https://github.com/$repo.git" "tmp/$packname"
-    # for envoy-gateway, strip Helm templating guards and leading document separators
-    if [ "$packname" = "envoy-proxy" ]; then
-        local crd_dir="tmp/$packname/charts/gateway-crds-helm/templates/generated"
-        if [ -d "$crd_dir" ]; then
-            find "$crd_dir" -type f -name '*.yaml' -print0 | \
-              while IFS= read -r -d '' f; do
-                if sed --version >/dev/null 2>&1; then
-                  sed -i '/{{- if .Values.crds.envoyGateway.enabled }}/d;/^{{- end }}$/d;/^---$/d' "$f"
-                else
-                  sed -i '' '/{{- if .Values.crds.envoyGateway.enabled }}/d;/^{{- end }}$/d;/^---$/d' "$f"
-                fi
-              done
-        fi
-    fi 
-
-    if [ "$packname" = "envoy-gatewayapi" ]; then
-        local std_file="tmp/$packname/charts/gateway-crds-helm/templates/standard-gatewayapi-crds.yaml"
-        if [ -f "$std_file" ]; then
-            if sed --version >/dev/null 2>&1; then
-              sed -i '/{{- if and .Values.crds.gatewayAPI.enabled (eq .Values.crds.gatewayAPI.channel "standard") }}/d;/^{{- end }}$/d;/^---$/d' "$std_file"
-            else
-              sed -i '' '/{{- if and .Values.crds.gatewayAPI.enabled (eq .Values.crds.gatewayAPI.channel "standard") }}/d;/^{{- end }}$/d;/^---$/d' "$std_file"
-            fi
-        fi
-    fi
-    crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$packname" $(echo "tmp/$packname/$glob")
-    # pre-compile the package: allows removing the postinstall script
-    ./node_modules/typescript/bin/tsc -p "./gen/$packname"
-    jq 'del(.scripts.postinstall)' "./gen/$packname/package.json" > temp.json && mv temp.json "./gen/$packname/package.json"
-    rm "./gen/$packname/scripts/postinstall.js"
-    cp "./gen/$packname/package.json" "./gen/$packname/bin/package.json"
-}
-
 gen "cloudnative-pg/cloudnative-pg" "config/crd/bases/*.yaml" "cloudnative-pg"
+gen "cloudnative-pg/plugin-barman-cloud" "config/crd/bases/*.yaml" "barman-cloudnative-pg"
 gen "rabbitmq/cluster-operator" "config/crd/bases/*.yaml" "rabbitmq-cluster-operator"
 gen "rabbitmq/messaging-topology-operator" "config/crd/bases/*.yaml" "rabbitmq-topology-operator"
 gen "cert-manager/cert-manager" "deploy/crds/*.yaml" "certmanager"
