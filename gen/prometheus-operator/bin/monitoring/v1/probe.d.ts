@@ -38,6 +38,7 @@ export declare class Probe extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.ProbeSpec>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.ProbeStatus>;
     /**
      * Create a Probe resource with the given unique name, arguments, and options.
      *

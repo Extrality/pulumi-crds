@@ -57,12 +57,14 @@ class ProbePatch extends pulumi.CustomResource {
             resourceInputs["kind"] = "Probe";
             resourceInputs["metadata"] = args ? args.metadata : undefined;
             resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["status"] = undefined /*out*/;
         }
         else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["spec"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(ProbePatch.__pulumiType, name, resourceInputs, opts);

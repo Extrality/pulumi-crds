@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/k8s-gateway-api",
-  "version": "1.4.0-rc.2",
+  "version": "1.4.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -34,6 +34,6 @@
   "pulumi": {
     "resource": true,
     "name": "k8s-gateway-api",
-    "version": "1.4.0-rc.2"
+    "version": "1.4.0"
   }
 }

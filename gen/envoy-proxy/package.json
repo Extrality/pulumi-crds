@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/envoy-proxy",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -34,6 +34,6 @@
   "pulumi": {
     "resource": true,
     "name": "envoy-proxy",
-    "version": "1.5.1"
+    "version": "1.5.2"
   }
 }

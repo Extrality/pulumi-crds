@@ -33,6 +33,7 @@ export declare class ScrapeConfig extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
     readonly spec: pulumi.Output<outputs.monitoring.v1alpha1.ScrapeConfigSpec>;
+    readonly status: pulumi.Output<outputs.monitoring.v1alpha1.ScrapeConfigStatus>;
     /**
      * Create a ScrapeConfig resource with the given unique name, arguments, and options.
      *

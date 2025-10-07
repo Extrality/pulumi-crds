@@ -44,6 +44,7 @@ export declare class ProbePatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.ProbeSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.ProbeStatusPatch>;
     /**
      * Create a ProbePatch resource with the given unique name, arguments, and options.
      *

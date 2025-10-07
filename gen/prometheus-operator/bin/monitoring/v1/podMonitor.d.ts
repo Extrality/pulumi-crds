@@ -39,6 +39,7 @@ export declare class PodMonitor extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.PodMonitorSpec>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.PodMonitorStatus>;
     /**
      * Create a PodMonitor resource with the given unique name, arguments, and options.
      *

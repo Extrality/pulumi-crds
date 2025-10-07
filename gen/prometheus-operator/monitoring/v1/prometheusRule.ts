@@ -51,6 +51,7 @@ export class PrometheusRule extends pulumi.CustomResource {
      */
     public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
     public readonly spec!: pulumi.Output<outputs.monitoring.v1.PrometheusRuleSpec>;
+    public /*out*/ readonly status!: pulumi.Output<outputs.monitoring.v1.PrometheusRuleStatus>;
 
     /**
      * Create a PrometheusRule resource with the given unique name, arguments, and options.
@@ -67,11 +68,13 @@ export class PrometheusRule extends pulumi.CustomResource {
             resourceInputs["kind"] = "PrometheusRule";
             resourceInputs["metadata"] = args ? args.metadata : undefined;
             resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["spec"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(PrometheusRule.__pulumiType, name, resourceInputs, opts);

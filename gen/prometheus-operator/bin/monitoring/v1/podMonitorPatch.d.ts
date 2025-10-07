@@ -45,6 +45,7 @@ export declare class PodMonitorPatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.PodMonitorSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.PodMonitorStatusPatch>;
     /**
      * Create a PodMonitorPatch resource with the given unique name, arguments, and options.
      *

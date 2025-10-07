@@ -34,6 +34,7 @@ export declare class PrometheusRule extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.PrometheusRuleSpec>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.PrometheusRuleStatus>;
     /**
      * Create a PrometheusRule resource with the given unique name, arguments, and options.
      *

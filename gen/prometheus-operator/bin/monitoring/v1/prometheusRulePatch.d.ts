@@ -40,6 +40,7 @@ export declare class PrometheusRulePatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1.PrometheusRuleSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1.PrometheusRuleStatusPatch>;
     /**
      * Create a PrometheusRulePatch resource with the given unique name, arguments, and options.
      *

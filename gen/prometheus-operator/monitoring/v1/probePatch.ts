@@ -61,6 +61,7 @@ export class ProbePatch extends pulumi.CustomResource {
      */
     public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     public readonly spec!: pulumi.Output<outputs.monitoring.v1.ProbeSpecPatch>;
+    public /*out*/ readonly status!: pulumi.Output<outputs.monitoring.v1.ProbeStatusPatch>;
 
     /**
      * Create a ProbePatch resource with the given unique name, arguments, and options.
@@ -77,11 +78,13 @@ export class ProbePatch extends pulumi.CustomResource {
             resourceInputs["kind"] = "Probe";
             resourceInputs["metadata"] = args ? args.metadata : undefined;
             resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["spec"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(ProbePatch.__pulumiType, name, resourceInputs, opts);

@@ -39,6 +39,7 @@ export declare class ScrapeConfigPatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1alpha1.ScrapeConfigSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1alpha1.ScrapeConfigStatusPatch>;
     /**
      * Create a ScrapeConfigPatch resource with the given unique name, arguments, and options.
      *
