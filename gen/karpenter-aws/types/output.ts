@@ -5,6 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 
+export namespace autoscaling {
+    export namespace v1 {
+    }
+}
+
 export namespace karpenter {
     export namespace v1 {
         /**
@@ -78,6 +83,10 @@ export namespace karpenter {
              * InstanceStorePolicy specifies how to handle instance-store disks.
              */
             instanceStorePolicy: string;
+            /**
+             * IPPrefixCount sets the number of IPv4 prefixes to be automatically assigned to the network interface.
+             */
+            ipPrefixCount: number;
             kubelet: outputs.karpenter.v1.EC2NodeClassSpecKubelet;
             metadataOptions: outputs.karpenter.v1.EC2NodeClassSpecMetadataOptions;
             /**
@@ -373,6 +382,10 @@ export namespace karpenter {
              */
             id: string;
             /**
+             * InstanceMatchCriteria specifies how instances are matched to capacity reservations.
+             */
+            instanceMatchCriteria: string;
+            /**
              * Owner is the owner id for the ami.
              */
             ownerID: string;
@@ -388,6 +401,10 @@ export namespace karpenter {
              * ID is the capacity reservation id in EC2
              */
             id: string;
+            /**
+             * InstanceMatchCriteria specifies how instances are matched to capacity reservations.
+             */
+            instanceMatchCriteria: string;
             /**
              * Owner is the owner id for the ami.
              */
@@ -704,6 +721,10 @@ export namespace karpenter {
              * InstanceStorePolicy specifies how to handle instance-store disks.
              */
             instanceStorePolicy: string;
+            /**
+             * IPPrefixCount sets the number of IPv4 prefixes to be automatically assigned to the network interface.
+             */
+            ipPrefixCount: number;
             kubelet: outputs.karpenter.v1.EC2NodeClassSpecKubeletPatch;
             metadataOptions: outputs.karpenter.v1.EC2NodeClassSpecMetadataOptionsPatch;
             /**
@@ -1683,14 +1704,28 @@ export namespace karpenter {
             disruption: outputs.karpenter.v1.NodePoolSpecDisruption;
             /**
              * Limits define a set of bounds for provisioning capacity.
+             * Limits other than limits.nodes is not supported when replicas is set.
              */
             limits: {[key: string]: number | string};
+            /**
+             * Replicas is the desired number of nodes for the NodePool. When specified, the NodePool will
+             * maintain this fixed number of replicas rather than scaling based on pod demand.
+             * When replicas is set:
+             *   - The following fields are ignored:
+             *       * disruption.consolidationPolicy
+             *       * disruption.consolidateAfter
+             *   - Only limits.nodes is supported; other resource limits (e.g., CPU, memory) must not be specified.
+             *   - Weight is not supported.
+             * Note: This field is alpha.
+             */
+            replicas: number;
             template: outputs.karpenter.v1.NodePoolSpecTemplate;
             /**
              * Weight is the priority given to the nodepool during scheduling. A higher
              * numerical weight indicates that this nodepool will be ordered
              * ahead of other nodepools with lower weights. A nodepool with no weight
              * will be treated as if it is a nodepool with a weight of 0.
+             * Weight is not supported when replicas is set.
              */
             weight: number;
         }
@@ -1710,11 +1745,13 @@ export namespace karpenter {
              * ConsolidateAfter is the duration the controller will wait
              * before attempting to terminate nodes that are underutilized.
              * Refer to ConsolidationPolicy for how underutilization is considered.
+             * When replicas is set, ConsolidateAfter is simply ignored
              */
             consolidateAfter: string;
             /**
              * ConsolidationPolicy describes which nodes Karpenter can disrupt through its consolidation
              * algorithm. This policy defaults to "WhenEmptyOrUnderutilized" if not specified
+             * When replicas is set, ConsolidationPolicy is simply ignored
              */
             consolidationPolicy: string;
         }
@@ -1812,11 +1849,13 @@ export namespace karpenter {
              * ConsolidateAfter is the duration the controller will wait
              * before attempting to terminate nodes that are underutilized.
              * Refer to ConsolidationPolicy for how underutilization is considered.
+             * When replicas is set, ConsolidateAfter is simply ignored
              */
             consolidateAfter: string;
             /**
              * ConsolidationPolicy describes which nodes Karpenter can disrupt through its consolidation
              * algorithm. This policy defaults to "WhenEmptyOrUnderutilized" if not specified
+             * When replicas is set, ConsolidationPolicy is simply ignored
              */
             consolidationPolicy: string;
         }
@@ -1831,14 +1870,28 @@ export namespace karpenter {
             disruption: outputs.karpenter.v1.NodePoolSpecDisruptionPatch;
             /**
              * Limits define a set of bounds for provisioning capacity.
+             * Limits other than limits.nodes is not supported when replicas is set.
              */
             limits: {[key: string]: number | string};
+            /**
+             * Replicas is the desired number of nodes for the NodePool. When specified, the NodePool will
+             * maintain this fixed number of replicas rather than scaling based on pod demand.
+             * When replicas is set:
+             *   - The following fields are ignored:
+             *       * disruption.consolidationPolicy
+             *       * disruption.consolidateAfter
+             *   - Only limits.nodes is supported; other resource limits (e.g., CPU, memory) must not be specified.
+             *   - Weight is not supported.
+             * Note: This field is alpha.
+             */
+            replicas: number;
             template: outputs.karpenter.v1.NodePoolSpecTemplatePatch;
             /**
              * Weight is the priority given to the nodepool during scheduling. A higher
              * numerical weight indicates that this nodepool will be ordered
              * ahead of other nodepools with lower weights. A nodepool with no weight
              * will be treated as if it is a nodepool with a weight of 0.
+             * Weight is not supported when replicas is set.
              */
             weight: number;
         }
@@ -2197,6 +2250,10 @@ export namespace karpenter {
              */
             nodeClassObservedGeneration: number;
             /**
+             * Nodes is the count of nodes associated with this NodePool
+             */
+            nodes: number;
+            /**
              * Resources is the list of resources that have been provisioned.
              */
             resources: {[key: string]: number | string};
@@ -2291,6 +2348,10 @@ export namespace karpenter {
              * the actual NodeClass Generation, NodeRegistrationHealthy status condition on the NodePool will be reset
              */
             nodeClassObservedGeneration: number;
+            /**
+             * Nodes is the count of nodes associated with this NodePool
+             */
+            nodes: number;
             /**
              * Resources is the list of resources that have been provisioned.
              */

@@ -76,10 +76,12 @@ export declare namespace acme {
         interface ChallengeSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -97,10 +99,12 @@ export declare namespace acme {
         interface ChallengeSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -5895,10 +5899,12 @@ export declare namespace acme {
         interface OrderSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -5916,10 +5922,12 @@ export declare namespace acme {
         interface OrderSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -6205,10 +6213,12 @@ export declare namespace cert_manager {
         interface CertificateRequestSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -6227,10 +6237,12 @@ export declare namespace cert_manager {
         interface CertificateRequestSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -6562,10 +6574,12 @@ export declare namespace cert_manager {
         interface CertificateSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**
@@ -6584,10 +6598,12 @@ export declare namespace cert_manager {
         interface CertificateSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group?: pulumi.Input<string>;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind?: pulumi.Input<string>;
             /**

@@ -206,6 +206,23 @@ export namespace gateway {
          */
         export interface BackendSpecTls {
             /**
+             * ALPNProtocols supplies the list of ALPN protocols that should be
+             * exposed by the listener or used by the proxy to connect to the backend.
+             * Defaults:
+             * 1. HTTPS Routes: h2 and http/1.1 are enabled in listener context.
+             * 2. Other Routes: ALPN is disabled.
+             * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
+             * When an empty list is provided, the ALPN TLS extension is disabled.
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
+             * - http/1.0
+             * - http/1.1
+             * - h2
+             */
+            alpnProtocols: string[];
+            /**
              * CACertificateRefs contains one or more references to Kubernetes objects that
              * contain TLS certificates of the Certificate Authorities that can be used
              * as a trust anchor to validate the certificates presented by the backend.
@@ -219,10 +236,61 @@ export namespace gateway {
              */
             caCertificateRefs: outputs.gateway.v1alpha1.BackendSpecTlsCaCertificateRefs[];
             /**
+             * Ciphers specifies the set of cipher suites supported when
+             * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * In non-FIPS Envoy Proxy builds the default cipher list is:
+             * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
+             * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
+             * - ECDHE-ECDSA-AES256-GCM-SHA384
+             * - ECDHE-RSA-AES256-GCM-SHA384
+             * In builds using BoringSSL FIPS the default cipher list is:
+             * - ECDHE-ECDSA-AES128-GCM-SHA256
+             * - ECDHE-RSA-AES128-GCM-SHA256
+             * - ECDHE-ECDSA-AES256-GCM-SHA384
+             * - ECDHE-RSA-AES256-GCM-SHA384
+             */
+            ciphers: string[];
+            clientCertificateRef: outputs.gateway.v1alpha1.BackendSpecTlsClientCertificateRef;
+            /**
+             * ECDHCurves specifies the set of supported ECDH curves.
+             * In non-FIPS Envoy Proxy builds the default curves are:
+             * - X25519
+             * - P-256
+             * In builds using BoringSSL FIPS the default curve is:
+             * - P-256
+             */
+            ecdhCurves: string[];
+            /**
              * InsecureSkipVerify indicates whether the upstream's certificate verification
              * should be skipped. Defaults to "false".
              */
             insecureSkipVerify: boolean;
+            /**
+             * Max specifies the maximal TLS protocol version to allow
+             * The default is TLS 1.3 if this is not specified.
+             */
+            maxVersion: string;
+            /**
+             * Min specifies the minimal TLS protocol version to allow.
+             * The default is TLS 1.2 if this is not specified.
+             */
+            minVersion: string;
+            /**
+             * SignatureAlgorithms specifies which signature algorithms the listener should
+             * support.
+             */
+            signatureAlgorithms: string[];
+            /**
+             * SNI is specifies the SNI value used when establishing an upstream TLS connection to the backend.
+             *
+             * Envoy Gateway will use the HTTP host header value for SNI, when all resources referenced in BackendRefs are:
+             * 1. Backend resources that do not set SNI, or
+             * 2. Service/ServiceImport resources that do not have a BackendTLSPolicy attached to them
+             *
+             * When a BackendTLSPolicy attaches to a Backend resource, the BackendTLSPolicy's Hostname value takes precedence
+             * over this value.
+             */
+            sni: string;
             /**
              * WellKnownCACertificates specifies whether system CA certificates may be used in
              * the TLS handshake between the gateway and backend pod.
@@ -287,12 +355,97 @@ export namespace gateway {
         }
 
         /**
+         * ClientCertificateRef defines the reference to a Kubernetes Secret that contains
+         * the client certificate and private key for Envoy to use when connecting to
+         * backend services and external services, such as ExtAuth, ALS, OpenTelemetry, etc.
+         * This secret should be located within the same namespace as the Envoy proxy resource that references it.
+         */
+        export interface BackendSpecTlsClientCertificateRef {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+
+        /**
+         * ClientCertificateRef defines the reference to a Kubernetes Secret that contains
+         * the client certificate and private key for Envoy to use when connecting to
+         * backend services and external services, such as ExtAuth, ALS, OpenTelemetry, etc.
+         * This secret should be located within the same namespace as the Envoy proxy resource that references it.
+         */
+        export interface BackendSpecTlsClientCertificateRefPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+
+        /**
          * TLS defines the TLS settings for the backend.
          * If TLS is specified here and a BackendTLSPolicy is also configured for the backend, the final TLS settings will
          * be a merge of both configurations. In case of overlapping fields, the values defined in the BackendTLSPolicy will
          * take precedence.
          */
         export interface BackendSpecTlsPatch {
+            /**
+             * ALPNProtocols supplies the list of ALPN protocols that should be
+             * exposed by the listener or used by the proxy to connect to the backend.
+             * Defaults:
+             * 1. HTTPS Routes: h2 and http/1.1 are enabled in listener context.
+             * 2. Other Routes: ALPN is disabled.
+             * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
+             * When an empty list is provided, the ALPN TLS extension is disabled.
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
+             * - http/1.0
+             * - http/1.1
+             * - h2
+             */
+            alpnProtocols: string[];
             /**
              * CACertificateRefs contains one or more references to Kubernetes objects that
              * contain TLS certificates of the Certificate Authorities that can be used
@@ -307,10 +460,61 @@ export namespace gateway {
              */
             caCertificateRefs: outputs.gateway.v1alpha1.BackendSpecTlsCaCertificateRefsPatch[];
             /**
+             * Ciphers specifies the set of cipher suites supported when
+             * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * In non-FIPS Envoy Proxy builds the default cipher list is:
+             * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
+             * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
+             * - ECDHE-ECDSA-AES256-GCM-SHA384
+             * - ECDHE-RSA-AES256-GCM-SHA384
+             * In builds using BoringSSL FIPS the default cipher list is:
+             * - ECDHE-ECDSA-AES128-GCM-SHA256
+             * - ECDHE-RSA-AES128-GCM-SHA256
+             * - ECDHE-ECDSA-AES256-GCM-SHA384
+             * - ECDHE-RSA-AES256-GCM-SHA384
+             */
+            ciphers: string[];
+            clientCertificateRef: outputs.gateway.v1alpha1.BackendSpecTlsClientCertificateRefPatch;
+            /**
+             * ECDHCurves specifies the set of supported ECDH curves.
+             * In non-FIPS Envoy Proxy builds the default curves are:
+             * - X25519
+             * - P-256
+             * In builds using BoringSSL FIPS the default curve is:
+             * - P-256
+             */
+            ecdhCurves: string[];
+            /**
              * InsecureSkipVerify indicates whether the upstream's certificate verification
              * should be skipped. Defaults to "false".
              */
             insecureSkipVerify: boolean;
+            /**
+             * Max specifies the maximal TLS protocol version to allow
+             * The default is TLS 1.3 if this is not specified.
+             */
+            maxVersion: string;
+            /**
+             * Min specifies the minimal TLS protocol version to allow.
+             * The default is TLS 1.2 if this is not specified.
+             */
+            minVersion: string;
+            /**
+             * SignatureAlgorithms specifies which signature algorithms the listener should
+             * support.
+             */
+            signatureAlgorithms: string[];
+            /**
+             * SNI is specifies the SNI value used when establishing an upstream TLS connection to the backend.
+             *
+             * Envoy Gateway will use the HTTP host header value for SNI, when all resources referenced in BackendRefs are:
+             * 1. Backend resources that do not set SNI, or
+             * 2. Service/ServiceImport resources that do not have a BackendTLSPolicy attached to them
+             *
+             * When a BackendTLSPolicy attaches to a Backend resource, the BackendTLSPolicy's Hostname value takes precedence
+             * over this value.
+             */
+            sni: string;
             /**
              * WellKnownCACertificates specifies whether system CA certificates may be used in
              * the TLS handshake between the gateway and backend pod.
@@ -446,8 +650,14 @@ export namespace gateway {
             circuitBreaker: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreaker;
             /**
              * The compression config for the http streams.
+             * Deprecated: Use Compressor instead.
              */
             compression: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompression[];
+            /**
+             * The compressor config for the http streams.
+             * This provides more granular control over compression configuration.
+             */
+            compressor: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressor[];
             connection: outputs.gateway.v1alpha1.BackendTrafficPolicySpecConnection;
             dns: outputs.gateway.v1alpha1.BackendTrafficPolicySpecDns;
             faultInjection: outputs.gateway.v1alpha1.BackendTrafficPolicySpecFaultInjection;
@@ -592,6 +802,10 @@ export namespace gateway {
              * CompressorType defines the compressor type to use for compression.
              */
             type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
         }
 
         /**
@@ -611,6 +825,56 @@ export namespace gateway {
              * CompressorType defines the compressor type to use for compression.
              */
             type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
+        }
+
+        /**
+         * Compression defines the config of enabling compression.
+         * This can help reduce the bandwidth at the expense of higher CPU.
+         */
+        export interface BackendTrafficPolicySpecCompressor {
+            /**
+             * The configuration for Brotli compressor.
+             */
+            brotli: {[key: string]: string};
+            /**
+             * The configuration for GZIP compressor.
+             */
+            gzip: {[key: string]: string};
+            /**
+             * CompressorType defines the compressor type to use for compression.
+             */
+            type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
+        }
+
+        /**
+         * Compression defines the config of enabling compression.
+         * This can help reduce the bandwidth at the expense of higher CPU.
+         */
+        export interface BackendTrafficPolicySpecCompressorPatch {
+            /**
+             * The configuration for Brotli compressor.
+             */
+            brotli: {[key: string]: string};
+            /**
+             * The configuration for GZIP compressor.
+             */
+            gzip: {[key: string]: string};
+            /**
+             * CompressorType defines the compressor type to use for compression.
+             */
+            type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
         }
 
         /**
@@ -625,6 +889,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.BackendTrafficPolicySpecConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -647,6 +912,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.BackendTrafficPolicySpecConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -655,6 +921,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface BackendTrafficPolicySpecConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface BackendTrafficPolicySpecConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -1094,6 +1422,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -1128,6 +1462,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -1287,6 +1627,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -1294,6 +1638,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -1347,6 +1692,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface BackendTrafficPolicySpecLoadBalancerConsistentHashHeader {
             /**
@@ -1357,8 +1704,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface BackendTrafficPolicySpecLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface BackendTrafficPolicySpecLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface BackendTrafficPolicySpecLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -1373,6 +1744,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -1380,6 +1755,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -1510,6 +1886,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -1545,6 +1925,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -1554,8 +1938,14 @@ export namespace gateway {
             circuitBreaker: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerPatch;
             /**
              * The compression config for the http streams.
+             * Deprecated: Use Compressor instead.
              */
             compression: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressionPatch[];
+            /**
+             * The compressor config for the http streams.
+             * This provides more granular control over compression configuration.
+             */
+            compressor: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressorPatch[];
             connection: outputs.gateway.v1alpha1.BackendTrafficPolicySpecConnectionPatch;
             dns: outputs.gateway.v1alpha1.BackendTrafficPolicySpecDnsPatch;
             faultInjection: outputs.gateway.v1alpha1.BackendTrafficPolicySpecFaultInjectionPatch;
@@ -1641,6 +2031,8 @@ export namespace gateway {
             /**
              * Type decides the scope for the RateLimits.
              * Valid RateLimitType values are "Global" or "Local".
+             *
+             * Deprecated: Use Global and/or Local fields directly instead. Both can be specified simultaneously for combined rate limiting.
              */
             type: string;
         }
@@ -1713,14 +2105,20 @@ export namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
+         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectors {
             /**
              * Headers is a list of request headers to match. Multiple header values are ANDed together,
              * meaning, a request MUST match all the specified headers.
-             * At least one of headers or sourceCIDR condition must be specified.
              */
             headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsHeaders[];
+            /**
+             * Methods is a list of request methods to match. Multiple method values are ORed together,
+             * meaning, a request can match any one of the specified methods. If not specified, it matches all methods.
+             */
+            methods: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethods[];
+            path: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPath;
             sourceCIDR: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDR;
         }
 
@@ -1781,23 +2179,94 @@ export namespace gateway {
         }
 
         /**
+         * MethodMatch defines the matching criteria for the HTTP method of a request.
+         */
+        export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethods {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Value specifies the HTTP method.
+             */
+            value: string;
+        }
+
+        /**
+         * MethodMatch defines the matching criteria for the HTTP method of a request.
+         */
+        export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethodsPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Value specifies the HTTP method.
+             */
+            value: string;
+        }
+
+        /**
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
+         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPatch {
             /**
              * Headers is a list of request headers to match. Multiple header values are ANDed together,
              * meaning, a request MUST match all the specified headers.
-             * At least one of headers or sourceCIDR condition must be specified.
              */
             headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsHeadersPatch[];
+            /**
+             * Methods is a list of request methods to match. Multiple method values are ORed together,
+             * meaning, a request can match any one of the specified methods. If not specified, it matches all methods.
+             */
+            methods: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethodsPatch[];
+            path: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPathPatch;
             sourceCIDR: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDRPatch;
         }
 
         /**
+         * Path is the request path to match.
+         * Support Exact, PathPrefix and RegularExpression match types.
+         */
+        export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPath {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Type specifies how to match against the value of the path.
+             */
+            type: string;
+            /**
+             * Value specifies the HTTP path.
+             */
+            value: string;
+        }
+
+        /**
+         * Path is the request path to match.
+         * Support Exact, PathPrefix and RegularExpression match types.
+         */
+        export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPathPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Type specifies how to match against the value of the path.
+             */
+            type: string;
+            /**
+             * Value specifies the HTTP path.
+             */
+            value: string;
+        }
+
+        /**
          * SourceCIDR is the client IP Address range to match on.
-         * At least one of headers or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDR {
             type: string;
@@ -1811,7 +2280,6 @@ export namespace gateway {
 
         /**
          * SourceCIDR is the client IP Address range to match on.
-         * At least one of headers or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDRPatch {
             type: string;
@@ -2121,14 +2589,20 @@ export namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
+         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectors {
             /**
              * Headers is a list of request headers to match. Multiple header values are ANDed together,
              * meaning, a request MUST match all the specified headers.
-             * At least one of headers or sourceCIDR condition must be specified.
              */
             headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsHeaders[];
+            /**
+             * Methods is a list of request methods to match. Multiple method values are ORed together,
+             * meaning, a request can match any one of the specified methods. If not specified, it matches all methods.
+             */
+            methods: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethods[];
+            path: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPath;
             sourceCIDR: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDR;
         }
 
@@ -2189,23 +2663,94 @@ export namespace gateway {
         }
 
         /**
+         * MethodMatch defines the matching criteria for the HTTP method of a request.
+         */
+        export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethods {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Value specifies the HTTP method.
+             */
+            value: string;
+        }
+
+        /**
+         * MethodMatch defines the matching criteria for the HTTP method of a request.
+         */
+        export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethodsPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Value specifies the HTTP method.
+             */
+            value: string;
+        }
+
+        /**
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
+         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPatch {
             /**
              * Headers is a list of request headers to match. Multiple header values are ANDed together,
              * meaning, a request MUST match all the specified headers.
-             * At least one of headers or sourceCIDR condition must be specified.
              */
             headers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsHeadersPatch[];
+            /**
+             * Methods is a list of request methods to match. Multiple method values are ORed together,
+             * meaning, a request can match any one of the specified methods. If not specified, it matches all methods.
+             */
+            methods: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethodsPatch[];
+            path: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPathPatch;
             sourceCIDR: outputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDRPatch;
         }
 
         /**
+         * Path is the request path to match.
+         * Support Exact, PathPrefix and RegularExpression match types.
+         */
+        export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPath {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Type specifies how to match against the value of the path.
+             */
+            type: string;
+            /**
+             * Value specifies the HTTP path.
+             */
+            value: string;
+        }
+
+        /**
+         * Path is the request path to match.
+         * Support Exact, PathPrefix and RegularExpression match types.
+         */
+        export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPathPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             */
+            invert: boolean;
+            /**
+             * Type specifies how to match against the value of the path.
+             */
+            type: string;
+            /**
+             * Value specifies the HTTP path.
+             */
+            value: string;
+        }
+
+        /**
          * SourceCIDR is the client IP Address range to match on.
-         * At least one of headers or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDR {
             type: string;
@@ -2219,7 +2764,6 @@ export namespace gateway {
 
         /**
          * SourceCIDR is the client IP Address range to match on.
-         * At least one of headers or sourceCIDR condition must be specified.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDRPatch {
             type: string;
@@ -2479,6 +3023,8 @@ export namespace gateway {
             /**
              * Type decides the scope for the RateLimits.
              * Valid RateLimitType values are "Global" or "Local".
+             *
+             * Deprecated: Use Global and/or Local fields directly instead. Both can be specified simultaneously for combined rate limiting.
              */
             type: string;
         }
@@ -2788,6 +3334,7 @@ export namespace gateway {
              * Content Type of the response. This will be set in the Content-Type header.
              */
             contentType: string;
+            header: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeader;
             /**
              * Status Code of the Custom Response
              * If unset, does not override the status of response.
@@ -2878,6 +3425,222 @@ export namespace gateway {
         }
 
         /**
+         * Header defines headers to add, set or remove from the response.
+         * This allows the response policy to append, add or override headers
+         * of the final response before it is sent to a downstream client.
+         * Note: Header removal is not supported for responseOverride.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeader {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeaderAdd[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeaderSet[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeaderAdd {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeaderAddPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * Header defines headers to add, set or remove from the response.
+         * This allows the response policy to append, add or override headers
+         * of the final response before it is sent to a downstream client.
+         * Note: Header removal is not supported for responseOverride.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeaderPatch {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeaderAddPatch[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeaderSetPatch[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeaderSet {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface BackendTrafficPolicySpecResponseOverrideResponseHeaderSetPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
          * Response configuration.
          */
         export interface BackendTrafficPolicySpecResponseOverrideResponsePatch {
@@ -2886,6 +3649,7 @@ export namespace gateway {
              * Content Type of the response. This will be set in the Content-Type header.
              */
             contentType: string;
+            header: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponseHeaderPatch;
             /**
              * Status Code of the Custom Response
              * If unset, does not override the status of response.
@@ -3392,6 +4156,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -3411,6 +4182,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -3521,6 +4299,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.BackendTrafficPolicyStatusAncestorsAncestorRef;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.BackendTrafficPolicyStatusAncestorsConditions[];
             /**
@@ -3889,6 +4697,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.BackendTrafficPolicyStatusAncestorsAncestorRefPatch;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.BackendTrafficPolicyStatusAncestorsConditionsPatch[];
             /**
@@ -4067,9 +4905,18 @@ export namespace gateway {
          */
         export interface ClientTrafficPolicySpecClientIPDetectionXForwardedFor {
             /**
-             * NumTrustedHops controls the number of additional ingress proxy hops from the right side of XFF HTTP
-             * headers to trust when determining the origin client's IP address.
-             * Only one of NumTrustedHops and TrustedCIDRs must be set.
+             * NumTrustedHops specifies how many trusted hops to count from the rightmost side of
+             * the X-Forwarded-For (XFF) header when determining the original client’s IP address.
+             *
+             * If NumTrustedHops is set to N, the client IP is taken from the Nth address from the
+             * right end of the XFF header.
+             *
+             * Example:
+             *   XFF = "203.0.113.128, 203.0.113.10, 203.0.113.1"
+             *   NumTrustedHops = 2
+             *   → Trusted client address = 203.0.113.10
+             *
+             * Only one of NumTrustedHops or TrustedCIDRs should be configured.
              */
             numTrustedHops: number;
             /**
@@ -4089,9 +4936,18 @@ export namespace gateway {
          */
         export interface ClientTrafficPolicySpecClientIPDetectionXForwardedForPatch {
             /**
-             * NumTrustedHops controls the number of additional ingress proxy hops from the right side of XFF HTTP
-             * headers to trust when determining the origin client's IP address.
-             * Only one of NumTrustedHops and TrustedCIDRs must be set.
+             * NumTrustedHops specifies how many trusted hops to count from the rightmost side of
+             * the X-Forwarded-For (XFF) header when determining the original client’s IP address.
+             *
+             * If NumTrustedHops is set to N, the client IP is taken from the Nth address from the
+             * right end of the XFF header.
+             *
+             * Example:
+             *   XFF = "203.0.113.128, 203.0.113.10, 203.0.113.1"
+             *   NumTrustedHops = 2
+             *   → Trusted client address = 203.0.113.10
+             *
+             * Only one of NumTrustedHops or TrustedCIDRs should be configured.
              */
             numTrustedHops: number;
             /**
@@ -4146,6 +5002,22 @@ export namespace gateway {
              */
             closeDelay: string;
             /**
+             * MaxConnectionDuration is the maximum amount of time a connection can remain established
+             * (usually via TCP/HTTP Keepalive packets) before being drained and/or closed.
+             * If not specified, there is no limit.
+             */
+            maxConnectionDuration: string;
+            /**
+             * MaxRequestsPerConnection defines the maximum number of requests allowed over a single connection.
+             * If not specified, there is no limit. Setting this parameter to 1 will effectively disable keep alive.
+             */
+            maxRequestsPerConnection: number;
+            /**
+             * MaxStreamDuration is the maximum amount of time to keep alive an http stream. When the limit is reached
+             * the stream will be reset independent of any other timeouts. If not specified, no value is set.
+             */
+            maxStreamDuration: string;
+            /**
              * Value of the maximum concurrent connections limit.
              * When the limit is reached, incoming connections will be closed after the CloseDelay duration.
              */
@@ -4162,6 +5034,22 @@ export namespace gateway {
              * Default: none.
              */
             closeDelay: string;
+            /**
+             * MaxConnectionDuration is the maximum amount of time a connection can remain established
+             * (usually via TCP/HTTP Keepalive packets) before being drained and/or closed.
+             * If not specified, there is no limit.
+             */
+            maxConnectionDuration: string;
+            /**
+             * MaxRequestsPerConnection defines the maximum number of requests allowed over a single connection.
+             * If not specified, there is no limit. Setting this parameter to 1 will effectively disable keep alive.
+             */
+            maxRequestsPerConnection: number;
+            /**
+             * MaxStreamDuration is the maximum amount of time to keep alive an http stream. When the limit is reached
+             * the stream will be reset independent of any other timeouts. If not specified, no value is set.
+             */
+            maxStreamDuration: string;
             /**
              * Value of the maximum concurrent connections limit.
              * When the limit is reached, incoming connections will be closed after the CloseDelay duration.
@@ -4213,16 +5101,18 @@ export namespace gateway {
              * and responses.
              */
             enableEnvoyHeaders: boolean;
+            lateResponseHeaders: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeaders;
             /**
              * PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
              * (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
              * Defaults to false and cannot be combined with RequestID.
-             * Deprecated: use RequestID=Preserve instead
+             * Deprecated: use RequestID=PreserveOrGenerate instead
              */
             preserveXRequestID: boolean;
             /**
              * RequestID configures Envoy's behavior for handling the `X-Request-ID` header.
-             * Defaults to `Generate` and builds the `X-Request-ID` for every request and ignores pre-existing values from the edge.
+             * When omitted default behavior is `Generate` which builds the `X-Request-ID` for every request
+             *  and ignores pre-existing values from the edge.
              * (An "edge request" refers to a request from an external client to the Envoy entrypoint.)
              */
             requestID: string;
@@ -4447,6 +5337,216 @@ export namespace gateway {
         }
 
         /**
+         * LateResponseHeaders defines settings for global response header modification.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeaders {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAdd[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersSet[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeadersAdd {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeadersAddPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * LateResponseHeaders defines settings for global response header modification.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeadersPatch {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAddPatch[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersSetPatch[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeadersSet {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface ClientTrafficPolicySpecHeadersLateResponseHeadersSetPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
          * HeaderSettings provides configuration for header management.
          */
         export interface ClientTrafficPolicySpecHeadersPatch {
@@ -4461,16 +5561,18 @@ export namespace gateway {
              * and responses.
              */
             enableEnvoyHeaders: boolean;
+            lateResponseHeaders: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersPatch;
             /**
              * PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
              * (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
              * Defaults to false and cannot be combined with RequestID.
-             * Deprecated: use RequestID=Preserve instead
+             * Deprecated: use RequestID=PreserveOrGenerate instead
              */
             preserveXRequestID: boolean;
             /**
              * RequestID configures Envoy's behavior for handling the `X-Request-ID` header.
-             * Defaults to `Generate` and builds the `X-Request-ID` for every request and ignores pre-existing values from the edge.
+             * When omitted default behavior is `Generate` which builds the `X-Request-ID` for every request
+             *  and ignores pre-existing values from the edge.
              * (An "edge request" refers to a request from an external client to the Envoy entrypoint.)
              */
             requestID: string;
@@ -4565,6 +5667,14 @@ export namespace gateway {
          */
         export interface ClientTrafficPolicySpecHttp1 {
             /**
+             * DisableSafeMaxConnectionDuration controls the close behavior for HTTP/1 connections.
+             * By default, connection closure is delayed until the next request arrives after maxConnectionDuration is exceeded.
+             * It then adds a Connection: close header and gracefully closes the connection after the response completes.
+             * When set to true (disabled), Envoy uses its default drain behavior, closing the connection shortly after maxConnectionDuration elapses.
+             * Has no effect unless maxConnectionDuration is set.
+             */
+            disableSafeMaxConnectionDuration: boolean;
+            /**
              * EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy.
              */
             enableTrailers: boolean;
@@ -4581,11 +5691,18 @@ export namespace gateway {
          */
         export interface ClientTrafficPolicySpecHttp1Http10 {
             /**
-             * UseDefaultHost defines if the HTTP/1.0 request is missing the Host header,
-             * then the hostname associated with the listener should be injected into the
-             * request.
-             * If this is not set and an HTTP/1.0 request arrives without a host, then
-             * it will be rejected.
+             * UseDefaultHost specifies whether a default Host header should be injected
+             * into HTTP/1.0 requests that do not include one.
+             *
+             * When set to true, Envoy Gateway injects the hostname associated with the
+             * listener or route into the request, in the following order:
+             *
+             *   1. If the targeted listener has a non-wildcard hostname, use that hostname.
+             *   2. If there is exactly one HTTPRoute with a non-wildcard hostname under
+             *      the targeted listener, use that hostname.
+             *
+             *  Note: Setting this field to true without a non-wildcard hostname makes the
+             * ClientTrafficPolicy invalid.
              */
             useDefaultHost: boolean;
         }
@@ -4595,11 +5712,18 @@ export namespace gateway {
          */
         export interface ClientTrafficPolicySpecHttp1Http10Patch {
             /**
-             * UseDefaultHost defines if the HTTP/1.0 request is missing the Host header,
-             * then the hostname associated with the listener should be injected into the
-             * request.
-             * If this is not set and an HTTP/1.0 request arrives without a host, then
-             * it will be rejected.
+             * UseDefaultHost specifies whether a default Host header should be injected
+             * into HTTP/1.0 requests that do not include one.
+             *
+             * When set to true, Envoy Gateway injects the hostname associated with the
+             * listener or route into the request, in the following order:
+             *
+             *   1. If the targeted listener has a non-wildcard hostname, use that hostname.
+             *   2. If there is exactly one HTTPRoute with a non-wildcard hostname under
+             *      the targeted listener, use that hostname.
+             *
+             *  Note: Setting this field to true without a non-wildcard hostname makes the
+             * ClientTrafficPolicy invalid.
              */
             useDefaultHost: boolean;
         }
@@ -4608,6 +5732,14 @@ export namespace gateway {
          * HTTP1 provides HTTP/1 configuration on the listener.
          */
         export interface ClientTrafficPolicySpecHttp1Patch {
+            /**
+             * DisableSafeMaxConnectionDuration controls the close behavior for HTTP/1 connections.
+             * By default, connection closure is delayed until the next request arrives after maxConnectionDuration is exceeded.
+             * It then adds a Connection: close header and gracefully closes the connection after the response completes.
+             * When set to true (disabled), Envoy uses its default drain behavior, closing the connection shortly after maxConnectionDuration elapses.
+             * Has no effect unless maxConnectionDuration is set.
+             */
+            disableSafeMaxConnectionDuration: boolean;
             /**
              * EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy.
              */
@@ -5170,7 +6302,10 @@ export namespace gateway {
              * 2. Other Routes: ALPN is disabled.
              * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
              * When an empty list is provided, the ALPN TLS extension is disabled.
-             * Supported values are:
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
              * - http/1.0
              * - http/1.1
              * - h2
@@ -5244,6 +6379,7 @@ export namespace gateway {
              * one of the specified values.
              */
             certificateHashes: string[];
+            crl: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrl;
             /**
              * Optional set to true accepts connections even when a client doesn't present a certificate.
              * Defaults to false, which rejects connections without a valid client certificate.
@@ -5337,6 +6473,126 @@ export namespace gateway {
         }
 
         /**
+         * Crl specifies the crl configuration that can be used to validate the client initiating the TLS connection
+         */
+        export interface ClientTrafficPolicySpecTlsClientValidationCrl {
+            /**
+             * If this option is set to true,  Envoy will only verify the certificate at the end of the certificate chain against the CRL.
+             * Defaults to false, which will verify the entire certificate chain against the CRL.
+             */
+            onlyVerifyLeafCertificate: boolean;
+            /**
+             * Refs contains one or more references to a Kubernetes ConfigMap or a Kubernetes Secret,
+             * containing the certificate revocation list in PEM format
+             * Expects the content in a key named `ca.crl`.
+             *
+             * References to a resource in different namespace are invalid UNLESS there
+             * is a ReferenceGrant in the target namespace that allows the crl
+             * to be attached.
+             */
+            refs: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrlRefs[];
+        }
+
+        /**
+         * Crl specifies the crl configuration that can be used to validate the client initiating the TLS connection
+         */
+        export interface ClientTrafficPolicySpecTlsClientValidationCrlPatch {
+            /**
+             * If this option is set to true,  Envoy will only verify the certificate at the end of the certificate chain against the CRL.
+             * Defaults to false, which will verify the entire certificate chain against the CRL.
+             */
+            onlyVerifyLeafCertificate: boolean;
+            /**
+             * Refs contains one or more references to a Kubernetes ConfigMap or a Kubernetes Secret,
+             * containing the certificate revocation list in PEM format
+             * Expects the content in a key named `ca.crl`.
+             *
+             * References to a resource in different namespace are invalid UNLESS there
+             * is a ReferenceGrant in the target namespace that allows the crl
+             * to be attached.
+             */
+            refs: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrlRefsPatch[];
+        }
+
+        /**
+         * SecretObjectReference identifies an API object including its namespace,
+         * defaulting to Secret.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface ClientTrafficPolicySpecTlsClientValidationCrlRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+
+        /**
+         * SecretObjectReference identifies an API object including its namespace,
+         * defaulting to Secret.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface ClientTrafficPolicySpecTlsClientValidationCrlRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+
+        /**
          * ClientValidation specifies the configuration to validate the client
          * initiating the TLS connection to the Gateway listener.
          */
@@ -5361,6 +6617,7 @@ export namespace gateway {
              * one of the specified values.
              */
             certificateHashes: string[];
+            crl: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrlPatch;
             /**
              * Optional set to true accepts connections even when a client doesn't present a certificate.
              * Defaults to false, which rejects connections without a valid client certificate.
@@ -5601,7 +6858,10 @@ export namespace gateway {
              * 2. Other Routes: ALPN is disabled.
              * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
              * When an empty list is provided, the ALPN TLS extension is disabled.
-             * Supported values are:
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
              * - http/1.0
              * - http/1.1
              * - h2
@@ -5774,6 +7034,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.ClientTrafficPolicyStatusAncestorsAncestorRef;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.ClientTrafficPolicyStatusAncestorsConditions[];
             /**
@@ -6142,6 +7432,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.ClientTrafficPolicyStatusAncestorsAncestorRefPatch;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.ClientTrafficPolicyStatusAncestorsConditionsPatch[];
             /**
@@ -6622,6 +7942,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -6644,6 +7965,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -6652,6 +7974,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -7009,6 +8393,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -7043,6 +8433,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -7156,6 +8552,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -7163,6 +8563,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -7216,6 +8617,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -7226,8 +8629,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -7242,6 +8669,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -7249,6 +8680,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -7379,6 +8811,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -7414,6 +8850,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -7660,6 +9100,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -7679,6 +9126,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -8788,6 +10242,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatusAncestorsAncestorRef;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatusAncestorsConditions[];
             /**
@@ -9156,6 +10640,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatusAncestorsAncestorRefPatch;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatusAncestorsConditionsPatch[];
             /**
@@ -9509,6 +11023,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.EnvoyPatchPolicyStatusAncestorsAncestorRef;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.EnvoyPatchPolicyStatusAncestorsConditions[];
             /**
@@ -9877,6 +11421,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.EnvoyPatchPolicyStatusAncestorsAncestorRefPatch;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.EnvoyPatchPolicyStatusAncestorsConditionsPatch[];
             /**
@@ -9989,6 +11563,8 @@ export namespace gateway {
              *
              * - envoy.filters.http.ext_authz
              *
+             * - envoy.filters.http.api_key_auth
+             *
              * - envoy.filters.http.basic_auth
              *
              * - envoy.filters.http.oauth2
@@ -9996,6 +11572,8 @@ export namespace gateway {
              * - envoy.filters.http.jwt_authn
              *
              * - envoy.filters.http.stateful_session
+             *
+             * - envoy.filters.http.buffer
              *
              * - envoy.filters.http.lua
              *
@@ -10009,7 +11587,15 @@ export namespace gateway {
              *
              * - envoy.filters.http.ratelimit
              *
+             * - envoy.filters.http.grpc_web
+             *
+             * - envoy.filters.http.grpc_stats
+             *
              * - envoy.filters.http.custom_response
+             *
+             * - envoy.filters.http.credential_injector
+             *
+             * - envoy.filters.http.compressor
              *
              * - envoy.filters.http.router
              *
@@ -10041,7 +11627,7 @@ export namespace gateway {
             mergeGateways: boolean;
             /**
              * PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
-             * specification (https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteRule)
+             * specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
              * or preserves the order defined by users in the HTTPRoute's HTTPRouteRule list.
              * Default: False
              */
@@ -10069,7 +11655,10 @@ export namespace gateway {
              * 2. Other Routes: ALPN is disabled.
              * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
              * When an empty list is provided, the ALPN TLS extension is disabled.
-             * Supported values are:
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
              * - http/1.0
              * - http/1.1
              * - h2
@@ -10198,7 +11787,10 @@ export namespace gateway {
              * 2. Other Routes: ALPN is disabled.
              * 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
              * When an empty list is provided, the ALPN TLS extension is disabled.
-             * Supported values are:
+             *
+             * Defaults to [h2, http/1.1] if not specified.
+             *
+             * Typical Supported values are:
              * - http/1.0
              * - http/1.1
              * - h2
@@ -10469,6 +12061,8 @@ export namespace gateway {
              *
              * - envoy.filters.http.ext_authz
              *
+             * - envoy.filters.http.api_key_auth
+             *
              * - envoy.filters.http.basic_auth
              *
              * - envoy.filters.http.oauth2
@@ -10476,6 +12070,8 @@ export namespace gateway {
              * - envoy.filters.http.jwt_authn
              *
              * - envoy.filters.http.stateful_session
+             *
+             * - envoy.filters.http.buffer
              *
              * - envoy.filters.http.lua
              *
@@ -10489,7 +12085,15 @@ export namespace gateway {
              *
              * - envoy.filters.http.ratelimit
              *
+             * - envoy.filters.http.grpc_web
+             *
+             * - envoy.filters.http.grpc_stats
+             *
              * - envoy.filters.http.custom_response
+             *
+             * - envoy.filters.http.credential_injector
+             *
+             * - envoy.filters.http.compressor
              *
              * - envoy.filters.http.router
              *
@@ -10521,7 +12125,7 @@ export namespace gateway {
             mergeGateways: boolean;
             /**
              * PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
-             * specification (https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteRule)
+             * specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
              * or preserves the order defined by users in the HTTPRoute's HTTPRouteRule list.
              * Default: False
              */
@@ -10542,13 +12146,42 @@ export namespace gateway {
          * parameters.
          */
         export interface EnvoyProxySpecProvider {
+            host: outputs.gateway.v1alpha1.EnvoyProxySpecProviderHost;
             kubernetes: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetes;
             /**
              * Type is the type of resource provider to use. A resource provider provides
              * infrastructure resources for running the data plane, e.g. Envoy proxy, and
-             * optional auxiliary control planes. Supported types are "Kubernetes".
+             * optional auxiliary control planes. Supported types are "Kubernetes"and "Host".
              */
             type: string;
+        }
+
+        /**
+         * Host provides runtime deployment of the data plane as a child process on the
+         * host environment.
+         * If unspecified and type is "Host", default settings for the custom provider
+         * are applied.
+         */
+        export interface EnvoyProxySpecProviderHost {
+            /**
+             * EnvoyVersion is the version of Envoy to use. If unspecified, the version
+             * against which Envoy Gateway is built will be used.
+             */
+            envoyVersion: string;
+        }
+
+        /**
+         * Host provides runtime deployment of the data plane as a child process on the
+         * host environment.
+         * If unspecified and type is "Host", default settings for the custom provider
+         * are applied.
+         */
+        export interface EnvoyProxySpecProviderHostPatch {
+            /**
+             * EnvoyVersion is the version of Envoy to use. If unspecified, the version
+             * against which Envoy Gateway is built will be used.
+             */
+            envoyVersion: string;
         }
 
         /**
@@ -10621,7 +12254,8 @@ export namespace gateway {
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -10645,6 +12279,7 @@ export namespace gateway {
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFrom {
             configMapKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromFieldRef;
+            fileKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromSecretKeyRef;
         }
@@ -10684,6 +12319,38 @@ export namespace gateway {
              * Path of the field to select in the specified API version.
              */
             fieldPath: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetContainerEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
         }
 
         /**
@@ -10736,7 +12403,7 @@ export namespace gateway {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -11580,8 +13247,8 @@ export namespace gateway {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
@@ -12828,15 +14495,13 @@ export namespace gateway {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -13141,12 +14806,10 @@ export namespace gateway {
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
          * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesGlusterfs {
             /**
              * endpoints is the endpoint name that details Glusterfs topology.
-             * More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
              */
             endpoints: string;
             /**
@@ -13223,7 +14886,7 @@ export namespace gateway {
         /**
          * iscsi represents an ISCSI Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
-         * More info: https://examples.k8s.io/volumes/iscsi/README.md
+         * More info: https://kubernetes.io/docs/concepts/storage/volumes/#iscsi
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesIscsi {
             /**
@@ -13402,6 +15065,7 @@ export namespace gateway {
             clusterTrustBundle: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesClusterTrustBundle;
             configMap: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesConfigMap;
             downwardAPI: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesDownwardAPI;
+            podCertificate: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesPodCertificate;
             secret: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesSecret;
             serviceAccountToken: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesServiceAccountToken;
         }
@@ -13609,6 +15273,108 @@ export namespace gateway {
         }
 
         /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesPodCertificate {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
+        }
+
+        /**
          * secret information about the secret data to project
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesProjectedSourcesSecret {
@@ -13729,7 +15495,6 @@ export namespace gateway {
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
          * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodVolumesRbd {
             /**
@@ -14023,7 +15788,7 @@ export namespace gateway {
              * pod is available (Ready for at least minReadySeconds) the old DaemonSet pod
              * on that node is marked deleted. If the old pod becomes unavailable for any
              * reason (Ready transitions to false, is evicted, or is drained) an updated
-             * pod is immediatedly created on that node without considering surge limits.
+             * pod is immediately created on that node without considering surge limits.
              * Allowing surge implies the possibility that the resources consumed by the
              * daemonset on any given node can double if the readiness check fails, and
              * so resource intensive daemonsets should take into account that they may
@@ -14108,7 +15873,8 @@ export namespace gateway {
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -14132,6 +15898,7 @@ export namespace gateway {
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFrom {
             configMapKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromFieldRef;
+            fileKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromSecretKeyRef;
         }
@@ -14171,6 +15938,38 @@ export namespace gateway {
              * Path of the field to select in the specified API version.
              */
             fieldPath: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentContainerEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
         }
 
         /**
@@ -14223,7 +16022,7 @@ export namespace gateway {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -14546,8 +16345,8 @@ export namespace gateway {
             env: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnv[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -14594,10 +16393,10 @@ export namespace gateway {
             resources: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersResources;
             /**
              * RestartPolicy defines the restart behavior of individual containers in a pod.
-             * This field may only be set for init containers, and the only allowed value is "Always".
-             * For non-init containers or when this field is not specified,
+             * This overrides the pod-level restart policy. When this field is not specified,
              * the restart behavior is defined by the Pod's restart policy and the container type.
-             * Setting the RestartPolicy as "Always" for the init container will have the following effect:
+             * Additionally, setting the RestartPolicy as "Always" for the init container will
+             * have the following effect:
              * this init container will be continually restarted on
              * exit until all regular containers have terminated. Once all regular
              * containers have completed, all init containers with restartPolicy "Always"
@@ -14610,6 +16409,20 @@ export namespace gateway {
              * completed.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. The rules are evaluated in
+             * order. Once a rule matches a container exit condition, the remaining
+             * rules are ignored. If no rule matches the container exit condition,
+             * the Container-level restart policy determines the whether the container
+             * is restarted or not. Constraints on the rules:
+             * - At most 20 rules are allowed.
+             * - Rules can have the same action.
+             * - Identical rules are not forbidden in validations.
+             * When rules are specified, container MUST set RestartPolicy explicitly
+             * even it if matches the Pod's RestartPolicy.
+             */
+            restartPolicyRules: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersRestartPolicyRules[];
             securityContext: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersSecurityContext;
             startupProbe: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersStartupProbe;
             /**
@@ -14676,7 +16489,8 @@ export namespace gateway {
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -14700,7 +16514,8 @@ export namespace gateway {
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvFrom {
             configMapRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvFromConfigMapRef;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvFromSecretRef;
@@ -14748,6 +16563,7 @@ export namespace gateway {
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFrom {
             configMapKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromSecretKeyRef;
         }
@@ -14787,6 +16603,38 @@ export namespace gateway {
              * Path of the field to select in the specified API version.
              */
             fieldPath: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
         }
 
         /**
@@ -15397,7 +17245,7 @@ export namespace gateway {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -15433,6 +17281,39 @@ export namespace gateway {
              * only the result of this request.
              */
             request: string;
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersRestartPolicyRules {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersRestartPolicyRulesExitCodes;
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersRestartPolicyRulesExitCodes {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
         }
 
         /**
@@ -16402,8 +18283,8 @@ export namespace gateway {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
@@ -17650,15 +19531,13 @@ export namespace gateway {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -17963,12 +19842,10 @@ export namespace gateway {
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
          * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesGlusterfs {
             /**
              * endpoints is the endpoint name that details Glusterfs topology.
-             * More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
              */
             endpoints: string;
             /**
@@ -18045,7 +19922,7 @@ export namespace gateway {
         /**
          * iscsi represents an ISCSI Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
-         * More info: https://examples.k8s.io/volumes/iscsi/README.md
+         * More info: https://kubernetes.io/docs/concepts/storage/volumes/#iscsi
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesIscsi {
             /**
@@ -18224,6 +20101,7 @@ export namespace gateway {
             clusterTrustBundle: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesClusterTrustBundle;
             configMap: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesConfigMap;
             downwardAPI: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesDownwardAPI;
+            podCertificate: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesPodCertificate;
             secret: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesSecret;
             serviceAccountToken: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesServiceAccountToken;
         }
@@ -18431,6 +20309,108 @@ export namespace gateway {
         }
 
         /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesPodCertificate {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
+        }
+
+        /**
          * secret information about the secret data to project
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesProjectedSourcesSecret {
@@ -18551,7 +20531,6 @@ export namespace gateway {
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
          * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodVolumesRbd {
             /**
@@ -19605,11 +21584,12 @@ export namespace gateway {
          * parameters.
          */
         export interface EnvoyProxySpecProviderPatch {
+            host: outputs.gateway.v1alpha1.EnvoyProxySpecProviderHostPatch;
             kubernetes: outputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesPatch;
             /**
              * Type is the type of resource provider to use. A resource provider provides
              * infrastructure resources for running the data plane, e.g. Envoy proxy, and
-             * optional auxiliary control planes. Supported types are "Kubernetes".
+             * optional auxiliary control planes. Supported types are "Kubernetes"and "Host".
              */
             type: string;
         }
@@ -20157,6 +22137,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -20179,6 +22160,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -20187,6 +22169,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -20544,6 +22588,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -20578,6 +22628,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -20691,6 +22747,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -20698,6 +22758,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -20751,6 +22812,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -20761,8 +22824,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -20777,6 +22864,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -20784,6 +22875,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -20914,6 +23006,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -20949,6 +23045,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -21195,6 +23295,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -21214,6 +23321,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -21697,6 +23811,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -21719,6 +23834,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -21727,6 +23843,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -22084,6 +24262,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -22118,6 +24302,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -22231,6 +24421,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -22238,6 +24432,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -22291,6 +24486,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -22301,8 +24498,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -22317,6 +24538,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -22324,6 +24549,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -22454,6 +24680,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -22489,6 +24719,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -22735,6 +24969,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -22754,6 +24995,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -22986,6 +25234,10 @@ export namespace gateway {
              * CompressorType defines the compressor type to use for compression.
              */
             type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
         }
 
         /**
@@ -23004,6 +25256,10 @@ export namespace gateway {
              * CompressorType defines the compressor type to use for compression.
              */
             type: string;
+            /**
+             * The configuration for Zstd compressor.
+             */
+            zstd: {[key: string]: string};
         }
 
         /**
@@ -23393,6 +25649,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -23415,6 +25672,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -23423,6 +25681,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -23780,6 +26100,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -23814,6 +26140,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -23927,6 +26259,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -23934,6 +26270,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -23987,6 +26324,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -23997,8 +26336,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -24013,6 +26376,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -24020,6 +26387,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -24150,6 +26518,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -24185,6 +26557,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -24431,6 +26807,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -24450,6 +26833,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -24954,6 +27344,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -24976,6 +27367,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -24984,6 +27376,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -25341,6 +27795,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -25375,6 +27835,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -25488,6 +27954,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -25495,6 +27965,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -25548,6 +28019,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -25558,8 +28031,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -25574,6 +28071,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -25581,6 +28082,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -25711,6 +28213,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -25746,6 +28252,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -25992,6 +28502,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -26011,6 +28528,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -26303,9 +28827,10 @@ export namespace gateway {
         export interface HTTPRouteFilterSpecDirectResponse {
             body: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseBody;
             /**
-             * Content Type of the response. This will be set in the Content-Type header.
+             * Content Type of the direct response. This will be set in the Content-Type header.
              */
             contentType: string;
+            header: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeader;
             /**
              * Status Code of the HTTP response
              * If unset, defaults to 200.
@@ -26314,7 +28839,7 @@ export namespace gateway {
         }
 
         /**
-         * Body of the Response
+         * Body of the direct response.
          */
         export interface HTTPRouteFilterSpecDirectResponseBody {
             /**
@@ -26330,7 +28855,7 @@ export namespace gateway {
         }
 
         /**
-         * Body of the Response
+         * Body of the direct response.
          */
         export interface HTTPRouteFilterSpecDirectResponseBodyPatch {
             /**
@@ -26394,14 +28919,225 @@ export namespace gateway {
         }
 
         /**
+         * Header defines the headers of the direct response.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeader {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeaderAdd[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeaderSet[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeaderAdd {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeaderAddPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * Header defines the headers of the direct response.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeaderPatch {
+            /**
+             * Add adds the given header(s) (name, value) to the request
+             * before the action. It appends to any existing values associated
+             * with the header name.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   add:
+             *   - name: "my-header"
+             *     value: "bar,baz"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo,bar,baz
+             */
+            add: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeaderAddPatch[];
+            /**
+             * Remove the given header(s) from the HTTP request before the action. The
+             * value of Remove is a list of HTTP header names. Note that the header
+             * names are case-insensitive (see
+             * https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header1: foo
+             *   my-header2: bar
+             *   my-header3: baz
+             *
+             * Config:
+             *   remove: ["my-header1", "my-header3"]
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header2: bar
+             */
+            remove: string[];
+            /**
+             * Set overwrites the request with the given header (name, value)
+             * before the action.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   set:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: bar
+             */
+            set: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeaderSetPatch[];
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeaderSet {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        export interface HTTPRouteFilterSpecDirectResponseHeaderSetPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name: string;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value: string;
+        }
+
+        /**
          * HTTPDirectResponseFilter defines the configuration to return a fixed response.
          */
         export interface HTTPRouteFilterSpecDirectResponsePatch {
             body: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseBodyPatch;
             /**
-             * Content Type of the response. This will be set in the Content-Type header.
+             * Content Type of the direct response. This will be set in the Content-Type header.
              */
             contentType: string;
+            header: outputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponseHeaderPatch;
             /**
              * Status Code of the HTTP response
              * If unset, defaults to 200.
@@ -26896,6 +29632,15 @@ export namespace gateway {
              * or the proxy protocol.
              * You can use the `ClientIPDetection` or the `ProxyProtocol` field in
              * the `ClientTrafficPolicy` to configure how the client IP is detected.
+             *
+             * For TCPRoute targets (raw TCP connections), HTTP headers such as
+             * X-Forwarded-For are not available. The client IP is obtained from the
+             * TCP connection's peer address. If intermediaries (load balancers, NAT)
+             * terminate or proxy TCP, the original client IP will only be available
+             * if the intermediary preserves the source address (for example by
+             * enabling the PROXY protocol or avoiding SNAT). Ensure your L4 proxy is
+             * configured to preserve the source IP to enable correct client-IP
+             * matching for TCPRoute targets.
              */
             clientCIDRs: string[];
             /**
@@ -27072,6 +29817,15 @@ export namespace gateway {
              * or the proxy protocol.
              * You can use the `ClientIPDetection` or the `ProxyProtocol` field in
              * the `ClientTrafficPolicy` to configure how the client IP is detected.
+             *
+             * For TCPRoute targets (raw TCP connections), HTTP headers such as
+             * X-Forwarded-For are not available. The client IP is obtained from the
+             * TCP connection's peer address. If intermediaries (load balancers, NAT)
+             * terminate or proxy TCP, the original client IP will only be available
+             * if the intermediary preserves the source address (for example by
+             * enabling the PROXY protocol or avoiding SNAT). Ensure your L4 proxy is
+             * configured to preserve the source IP to enable correct client-IP
+             * matching for TCPRoute targets.
              */
             clientCIDRs: string[];
             /**
@@ -27315,6 +30069,11 @@ export namespace gateway {
              * the new matched route will be applied.
              */
             recomputeRoute: boolean;
+            /**
+             * Timeout defines the timeout for requests to the external authorization service.
+             * If not specified, defaults to 10 seconds.
+             */
+            timeout: string;
         }
 
         /**
@@ -27697,6 +30456,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -27719,6 +30479,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -27727,6 +30488,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -28084,6 +30907,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -28118,6 +30947,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -28231,6 +31066,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -28238,6 +31077,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -28291,6 +31131,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -28301,8 +31143,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -28317,6 +31183,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -28324,6 +31194,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -28454,6 +31325,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -28489,6 +31364,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -28735,6 +31614,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -28754,6 +31640,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -29178,6 +32071,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -29200,6 +32094,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -29208,6 +32103,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -29565,6 +32522,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -29599,6 +32562,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -29712,6 +32681,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -29719,6 +32692,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -29772,6 +32746,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -29782,8 +32758,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -29798,6 +32798,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -29805,6 +32809,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -29935,6 +32940,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -29970,6 +32979,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -30216,6 +33229,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -30235,6 +33255,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -30342,6 +33369,11 @@ export namespace gateway {
              * the new matched route will be applied.
              */
             recomputeRoute: boolean;
+            /**
+             * Timeout defines the timeout for requests to the external authorization service.
+             * If not specified, defaults to 10 seconds.
+             */
+            timeout: string;
         }
 
         /**
@@ -30652,6 +33684,11 @@ export namespace gateway {
              */
             backendRefs: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendRefs[];
             backendSettings: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettings;
+            /**
+             * Duration is a string value representing a duration in time. The format is as specified
+             * in GEP-2257, a strict subset of the syntax parsed by Golang time.ParseDuration.
+             */
+            cacheDuration: string;
             /**
              * URI is the HTTPS URI to fetch the JWKS. Envoy's system trust bundle is used to validate the server certificate.
              * If a custom trust bundle is needed, it can be specified in a BackendTLSConfig resource and target the BackendRefs.
@@ -30998,6 +34035,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -31020,6 +34058,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -31028,6 +34067,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -31385,6 +34486,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -31419,6 +34526,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -31532,6 +34645,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -31539,6 +34656,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -31592,6 +34710,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -31602,8 +34722,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -31618,6 +34762,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -31625,6 +34773,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -31755,6 +34904,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -31790,6 +34943,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -32036,6 +35193,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -32055,6 +35219,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -32104,6 +35275,11 @@ export namespace gateway {
             backendRefs: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendRefsPatch[];
             backendSettings: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsPatch;
             /**
+             * Duration is a string value representing a duration in time. The format is as specified
+             * in GEP-2257, a strict subset of the syntax parsed by Golang time.ParseDuration.
+             */
+            cacheDuration: string;
+            /**
              * URI is the HTTPS URI to fetch the JWKS. Envoy's system trust bundle is used to validate the server certificate.
              * If a custom trust bundle is needed, it can be specified in a BackendTLSConfig resource and target the BackendRefs.
              */
@@ -32133,6 +35309,15 @@ export namespace gateway {
             cookieDomain: string;
             cookieNames: outputs.gateway.v1alpha1.SecurityPolicySpecOidcCookieNames;
             /**
+             * CSRFTokenTTL defines how long the CSRF token generated during the OAuth2 authorization flow remains valid.
+             *
+             * This duration determines the lifetime of the CSRF cookie, which is validated against the CSRF token
+             * in the "state" parameter when the provider redirects back to the callback endpoint.
+             *
+             * If omitted, Envoy Gateway defaults the token expiration to 10 minutes.
+             */
+            csrfTokenTTL: string;
+            /**
              * DefaultRefreshTokenTTL is the default lifetime of the refresh token.
              * This field is only used when the exp (expiration time) claim is omitted in
              * the refresh token or the refresh token is not JWT.
@@ -32153,6 +35338,12 @@ export namespace gateway {
              */
             defaultTokenTTL: string;
             denyRedirect: outputs.gateway.v1alpha1.SecurityPolicySpecOidcDenyRedirect;
+            /**
+             * Disable token encryption. When set to true, both the access token and the ID token will be stored in plain text.
+             * This option should only be used in secure environments where token encryption is not required.
+             * Default is false (tokens are encrypted).
+             */
+            disableTokenEncryption: boolean;
             /**
              * ForwardAccessToken indicates whether the Envoy should forward the access token
              * via the Authorization header Bearer scheme to the upstream.
@@ -32188,7 +35379,7 @@ export namespace gateway {
              * When set to true, the Envoy will use the refresh token to get a new id token
              * and access token when they expire.
              *
-             * If not specified, defaults to false.
+             * If not specified, defaults to true.
              */
             refreshToken: boolean;
             /**
@@ -32484,6 +35675,15 @@ export namespace gateway {
             cookieDomain: string;
             cookieNames: outputs.gateway.v1alpha1.SecurityPolicySpecOidcCookieNamesPatch;
             /**
+             * CSRFTokenTTL defines how long the CSRF token generated during the OAuth2 authorization flow remains valid.
+             *
+             * This duration determines the lifetime of the CSRF cookie, which is validated against the CSRF token
+             * in the "state" parameter when the provider redirects back to the callback endpoint.
+             *
+             * If omitted, Envoy Gateway defaults the token expiration to 10 minutes.
+             */
+            csrfTokenTTL: string;
+            /**
              * DefaultRefreshTokenTTL is the default lifetime of the refresh token.
              * This field is only used when the exp (expiration time) claim is omitted in
              * the refresh token or the refresh token is not JWT.
@@ -32504,6 +35704,12 @@ export namespace gateway {
              */
             defaultTokenTTL: string;
             denyRedirect: outputs.gateway.v1alpha1.SecurityPolicySpecOidcDenyRedirectPatch;
+            /**
+             * Disable token encryption. When set to true, both the access token and the ID token will be stored in plain text.
+             * This option should only be used in secure environments where token encryption is not required.
+             * Default is false (tokens are encrypted).
+             */
+            disableTokenEncryption: boolean;
             /**
              * ForwardAccessToken indicates whether the Envoy should forward the access token
              * via the Authorization header Bearer scheme to the upstream.
@@ -32539,7 +35745,7 @@ export namespace gateway {
              * When set to true, the Envoy will use the refresh token to get a new id token
              * and access token when they expire.
              *
-             * If not specified, defaults to false.
+             * If not specified, defaults to true.
              */
             refreshToken: boolean;
             /**
@@ -32932,6 +36138,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsConnectionPreconnect;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -32954,6 +36161,7 @@ export namespace gateway {
              * Note: that when the suffix is not provided, the value is interpreted as bytes.
              */
             bufferLimit: number | string;
+            preconnect: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsConnectionPreconnectPatch;
             /**
              * SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
              * to backend.
@@ -32962,6 +36170,68 @@ export namespace gateway {
              * Note that when the suffix is not provided, the value is interpreted as bytes.
              */
             socketBufferLimit: number | string;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsConnectionPreconnect {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
+        }
+
+        /**
+         * Preconnect configures proactive upstream connections to reduce latency by establishing
+         * connections before they’re needed and avoiding connection establishment overhead.
+         *
+         * If unset, Envoy will fetch connections as needed to serve in-flight requests.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsConnectionPreconnectPatch {
+            /**
+             * PerEndpointPercent configures how many additional connections to maintain per
+             * upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+             * percentage of the connections required by active streams
+             * (e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+             *
+             * Allowed value range is between 100-300. When both PerEndpointPercent and
+             * PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+             */
+            perEndpointPercent: number;
+            /**
+             * PredictivePercent configures how many additional connections to maintain
+             * across the cluster by anticipating which upstream endpoint the load balancer
+             * will select next, useful for low-QPS services. Relies on deterministic
+             * loadbalancing and is only supported with Random or RoundRobin.
+             * Expressed as a percentage of the connections required by active streams
+             * (e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+             *
+             * Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+             * set Envoy ensures both are satisfied per host (max of the two).
+             */
+            predictivePercent: number;
         }
 
         /**
@@ -33319,6 +36589,12 @@ export namespace gateway {
              */
             consecutiveLocalOriginFailures: number;
             /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
+            /**
              * Interval defines the time between passive health checks.
              */
             interval: string;
@@ -33353,6 +36629,12 @@ export namespace gateway {
              * Parameter takes effect only when split_external_local_origin_errors is set to true.
              */
             consecutiveLocalOriginFailures: number;
+            /**
+             * FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+             * If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+             * Defaults to 85.
+             */
+            failurePercentageThreshold: number;
             /**
              * Interval defines the time between passive health checks.
              */
@@ -33466,6 +36748,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashCookie;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeader;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeaders[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -33473,6 +36759,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -33526,6 +36813,8 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeader {
             /**
@@ -33536,8 +36825,32 @@ export namespace gateway {
 
         /**
          * Header configures the header hash policy when the consistent hash type is set to Header.
+         *
+         * Deprecated: use Headers instead
          */
         export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeaderPatch {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeaders {
+            /**
+             * Name of the header to hash.
+             */
+            name: string;
+        }
+
+        /**
+         * Header defines the header hashing configuration for consistent hash based
+         * load balancing.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch {
             /**
              * Name of the header to hash.
              */
@@ -33552,6 +36865,10 @@ export namespace gateway {
             cookie: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashCookiePatch;
             header: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeaderPatch;
             /**
+             * Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+             */
+            headers: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch[];
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize: number;
@@ -33559,6 +36876,7 @@ export namespace gateway {
              * ConsistentHashType defines the type of input to hash on. Valid Type values are
              * "SourceIP",
              * "Header",
+             * "Headers",
              * "Cookie".
              */
             type: string;
@@ -33689,6 +37007,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -33724,6 +37046,10 @@ export namespace gateway {
              * MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
              */
             minEndpointsThreshold: number;
+            /**
+             * Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+             */
+            percentageEnabled: number;
         }
 
         /**
@@ -33970,6 +37296,13 @@ export namespace gateway {
              */
             maxConnectionDuration: string;
             /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
+            /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
@@ -33989,6 +37322,13 @@ export namespace gateway {
              * Default: unlimited.
              */
             maxConnectionDuration: string;
+            /**
+             * MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+             * from when the request is sent until the response stream is fully consumed and does not apply to
+             * non-streaming requests.
+             * When set to "0s", no max duration is applied and streams can run indefinitely.
+             */
+            maxStreamDuration: string;
             /**
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
@@ -34395,6 +37735,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.SecurityPolicyStatusAncestorsAncestorRef;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.SecurityPolicyStatusAncestorsConditions[];
             /**
@@ -34763,6 +38133,36 @@ export namespace gateway {
             ancestorRef: outputs.gateway.v1alpha1.SecurityPolicyStatusAncestorsAncestorRefPatch;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
+             *
+             * <gateway:util:excludeFromCRD>
+             *
+             * Notes for implementors:
+             *
+             * Conditions are a listType `map`, which means that they function like a
+             * map with a key of the `type` field _in the k8s apiserver_.
+             *
+             * This means that implementations must obey some rules when updating this
+             * section.
+             *
+             * * Implementations MUST perform a read-modify-write cycle on this field
+             *   before modifying it. That is, when modifying this field, implementations
+             *   must be confident they have fetched the most recent version of this field,
+             *   and ensure that changes they make are on that recent version.
+             * * Implementations MUST NOT remove or reorder Conditions that they are not
+             *   directly responsible for. For example, if an implementation sees a Condition
+             *   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+             *   Condition.
+             * * Implementations MUST always _merge_ changes into Conditions of the same Type,
+             *   rather than creating more than one Condition of the same Type.
+             * * Implementations MUST always update the `observedGeneration` field of the
+             *   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+             * * If the `observedGeneration` of a Condition is _greater than_ the value the
+             *   implementation knows about, then it MUST NOT perform the update on that Condition,
+             *   but must wait for a future reconciliation and status update. (The assumption is that
+             *   the implementation's copy of the object is stale and an update will be re-triggered
+             *   if relevant.)
+             *
+             * </gateway:util:excludeFromCRD>
              */
             conditions: outputs.gateway.v1alpha1.SecurityPolicyStatusAncestorsConditionsPatch[];
             /**

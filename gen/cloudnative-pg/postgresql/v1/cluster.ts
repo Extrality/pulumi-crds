@@ -7,7 +7,8 @@ import * as outputs from "../../types/output";
 import * as utilities from "../../utilities";
 
 /**
- * Cluster is the Schema for the PostgreSQL API
+ * Cluster defines the API schema for a highly available PostgreSQL database cluster
+ * managed by CloudNativePG.
  */
 export class Cluster extends pulumi.CustomResource {
     /**

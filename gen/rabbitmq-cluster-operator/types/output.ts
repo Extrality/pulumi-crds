@@ -1377,8 +1377,8 @@ export namespace rabbitmq {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
@@ -1405,8 +1405,8 @@ export namespace rabbitmq {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch[];
@@ -2223,6 +2223,7 @@ export namespace rabbitmq {
             hostPID: boolean;
             hostUsers: boolean;
             hostname: string;
+            hostnameOverride: string;
             imagePullSecrets: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecImagePullSecrets[];
             initContainers: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainers[];
             nodeName: string;
@@ -2662,6 +2663,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResizePolicy[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResources;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRules[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContext;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersStartupProbe;
             stdin: boolean;
@@ -2721,6 +2723,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFrom {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromSecretKeyRef;
         }
@@ -2747,9 +2750,24 @@ export namespace rabbitmq {
             fieldPath: string;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRef {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromPatch {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -3017,6 +3035,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResizePolicyPatch[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResourcesPatch;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesPatch[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContextPatch;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersStartupProbePatch;
             stdin: boolean;
@@ -3155,6 +3174,26 @@ export namespace rabbitmq {
             claims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResourcesClaimsPatch[];
             limits: {[key: string]: number | string};
             requests: {[key: string]: number | string};
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRules {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodes;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodes {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesPatch {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContext {
@@ -3392,6 +3431,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResizePolicy[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResources;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRules[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContext;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersStartupProbe;
             stdin: boolean;
@@ -3452,6 +3492,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFrom {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRef;
         }
@@ -3478,9 +3519,24 @@ export namespace rabbitmq {
             fieldPath: string;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromPatch {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -3748,6 +3804,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResizePolicyPatch[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResourcesPatch;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContextPatch;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersStartupProbePatch;
             stdin: boolean;
@@ -3887,6 +3944,26 @@ export namespace rabbitmq {
             claims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResourcesClaimsPatch[];
             limits: {[key: string]: number | string};
             requests: {[key: string]: number | string};
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRules {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContext {
@@ -4120,6 +4197,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResizePolicy[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResources;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRules[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContext;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersStartupProbe;
             stdin: boolean;
@@ -4179,6 +4257,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFrom {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromSecretKeyRef;
         }
@@ -4205,9 +4284,24 @@ export namespace rabbitmq {
             fieldPath: string;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRef {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch {
+            key: string;
+            optional: boolean;
+            path: string;
+            volumeName: string;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromPatch {
             configMapKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -4475,6 +4569,7 @@ export namespace rabbitmq {
             resizePolicy: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResizePolicyPatch[];
             resources: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResourcesPatch;
             restartPolicy: string;
+            restartPolicyRules: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesPatch[];
             securityContext: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContextPatch;
             startupProbe: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersStartupProbePatch;
             stdin: boolean;
@@ -4613,6 +4708,26 @@ export namespace rabbitmq {
             claims: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResourcesClaimsPatch[];
             limits: {[key: string]: number | string};
             requests: {[key: string]: number | string};
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRules {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch {
+            operator: string;
+            values: number[];
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesPatch {
+            action: string;
+            exitCodes: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContext {
@@ -4836,6 +4951,7 @@ export namespace rabbitmq {
             hostPID: boolean;
             hostUsers: boolean;
             hostname: string;
+            hostnameOverride: string;
             imagePullSecrets: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecImagePullSecretsPatch[];
             initContainers: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersPatch[];
             nodeName: string;
@@ -5632,6 +5748,7 @@ export namespace rabbitmq {
             clusterTrustBundle: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundle;
             configMap: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesConfigMap;
             downwardAPI: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesDownwardAPI;
+            podCertificate: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificate;
             secret: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecret;
             serviceAccountToken: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesServiceAccountToken;
         }
@@ -5746,8 +5863,27 @@ export namespace rabbitmq {
             clusterTrustBundle: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundlePatch;
             configMap: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesConfigMapPatch;
             downwardAPI: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesDownwardAPIPatch;
+            podCertificate: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch;
             secret: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecretPatch;
             serviceAccountToken: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesServiceAccountTokenPatch;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificate {
+            certificateChainPath: string;
+            credentialBundlePath: string;
+            keyPath: string;
+            keyType: string;
+            maxExpirationSeconds: number;
+            signerName: string;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch {
+            certificateChainPath: string;
+            credentialBundlePath: string;
+            keyPath: string;
+            keyType: string;
+            maxExpirationSeconds: number;
+            signerName: string;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecret {
@@ -6225,7 +6361,7 @@ export namespace rabbitmq {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -6289,7 +6425,7 @@ export namespace rabbitmq {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.

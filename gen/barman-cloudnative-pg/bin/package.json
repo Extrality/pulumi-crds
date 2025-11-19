@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/barman-cloudnative-pg",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -34,6 +34,6 @@
   "pulumi": {
     "resource": true,
     "name": "barman-cloudnative-pg",
-    "version": "0.7.0"
+    "version": "0.9.0"
   }
 }

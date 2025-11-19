@@ -577,6 +577,11 @@ export namespace postgresql {
             googleCredentials: outputs.postgresql.v1.BackupStatusGoogleCredentials;
             instanceID: outputs.postgresql.v1.BackupStatusInstanceID;
             /**
+             * The PostgreSQL major version that was running when the
+             * backup was taken.
+             */
+            majorVersion: number;
+            /**
              * The backup method being used
              */
             method: string;
@@ -935,6 +940,11 @@ export namespace postgresql {
             googleCredentials: outputs.postgresql.v1.BackupStatusGoogleCredentialsPatch;
             instanceID: outputs.postgresql.v1.BackupStatusInstanceIDPatch;
             /**
+             * The PostgreSQL major version that was running when the
+             * backup was taken.
+             */
+            majorVersion: number;
+            /**
              * The backup method being used
              */
             method: string;
@@ -1170,7 +1180,8 @@ export namespace postgresql {
         }
 
         /**
-         * Cluster is the Schema for the PostgreSQL API
+         * Cluster defines the API schema for a highly available PostgreSQL database cluster
+         * managed by CloudNativePG.
          */
         export interface Cluster {
             /**
@@ -1368,6 +1379,7 @@ export namespace postgresql {
              * any plugin to be loaded with the corresponding configuration
              */
             plugins: outputs.postgresql.v1.ClusterSpecPlugins[];
+            podSecurityContext: outputs.postgresql.v1.ClusterSpecPodSecurityContext;
             /**
              * The GID of the `postgres` user inside the image, defaults to `26`
              */
@@ -1409,11 +1421,12 @@ export namespace postgresql {
              */
             schedulerName: string;
             seccompProfile: outputs.postgresql.v1.ClusterSpecSeccompProfile;
+            securityContext: outputs.postgresql.v1.ClusterSpecSecurityContext;
             serviceAccountTemplate: outputs.postgresql.v1.ClusterSpecServiceAccountTemplate;
             /**
              * The time in seconds that controls the window of time reserved for the smart shutdown of Postgres to complete.
              * Make sure you reserve enough time for the operator to request a fast shutdown of Postgres
-             * (that is: `stopDelay` - `smartShutdownTimeout`).
+             * (that is: `stopDelay` - `smartShutdownTimeout`). Default is 180 seconds.
              */
             smartShutdownTimeout: number;
             /**
@@ -2103,8 +2116,8 @@ export namespace postgresql {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
@@ -2132,8 +2145,8 @@ export namespace postgresql {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.postgresql.v1.ClusterSpecAffinityAdditionalPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch[];
@@ -4061,6 +4074,7 @@ export namespace postgresql {
             localeProvider: string;
             /**
              * The list of options that must be passed to initdb when creating the cluster.
+             *
              * Deprecated: This could lead to inconsistent configurations,
              * please use the explicit provided parameters instead.
              * If defined, explicit values will be ignored.
@@ -4110,19 +4124,53 @@ export namespace postgresql {
              */
             databases: string[];
             /**
-             * List of custom options to pass to the `pg_dump` command. IMPORTANT:
-             * Use these options with caution and at your own risk, as the operator
-             * does not validate their content. Be aware that certain options may
-             * conflict with the operator's intended functionality or design.
+             * List of custom options to pass to the `pg_dump` command.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
              */
             pgDumpExtraOptions: string[];
             /**
-             * List of custom options to pass to the `pg_restore` command. IMPORTANT:
-             * Use these options with caution and at your own risk, as the operator
-             * does not validate their content. Be aware that certain options may
-             * conflict with the operator's intended functionality or design.
+             * Custom options to pass to the `pg_restore` command during the `data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestoreDataOptions: string[];
+            /**
+             * List of custom options to pass to the `pg_restore` command.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
              */
             pgRestoreExtraOptions: string[];
+            /**
+             * Custom options to pass to the `pg_restore` command during the `post-data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestorePostdataOptions: string[];
+            /**
+             * Custom options to pass to the `pg_restore` command during the `pre-data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestorePredataOptions: string[];
             /**
              * List of SQL queries to be executed as a superuser in the application
              * database right after is imported - to be used with extreme care
@@ -4155,19 +4203,53 @@ export namespace postgresql {
              */
             databases: string[];
             /**
-             * List of custom options to pass to the `pg_dump` command. IMPORTANT:
-             * Use these options with caution and at your own risk, as the operator
-             * does not validate their content. Be aware that certain options may
-             * conflict with the operator's intended functionality or design.
+             * List of custom options to pass to the `pg_dump` command.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
              */
             pgDumpExtraOptions: string[];
             /**
-             * List of custom options to pass to the `pg_restore` command. IMPORTANT:
-             * Use these options with caution and at your own risk, as the operator
-             * does not validate their content. Be aware that certain options may
-             * conflict with the operator's intended functionality or design.
+             * Custom options to pass to the `pg_restore` command during the `data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestoreDataOptions: string[];
+            /**
+             * List of custom options to pass to the `pg_restore` command.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
              */
             pgRestoreExtraOptions: string[];
+            /**
+             * Custom options to pass to the `pg_restore` command during the `post-data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestorePostdataOptions: string[];
+            /**
+             * Custom options to pass to the `pg_restore` command during the `pre-data`
+             * section. This setting overrides the generic `pgRestoreExtraOptions` value.
+             *
+             * IMPORTANT: Use with caution. The operator does not validate these options,
+             * and certain flags may interfere with its intended functionality or design.
+             * You are responsible for ensuring that the provided options are compatible
+             * with your environment and desired behavior.
+             */
+            pgRestorePredataOptions: string[];
             /**
              * List of SQL queries to be executed as a superuser in the application
              * database right after is imported - to be used with extreme care
@@ -4265,6 +4347,7 @@ export namespace postgresql {
             localeProvider: string;
             /**
              * The list of options that must be passed to initdb when creating the cluster.
+             *
              * Deprecated: This could lead to inconsistent configurations,
              * please use the explicit provided parameters instead.
              * If defined, explicit values will be ignored.
@@ -5152,7 +5235,8 @@ export namespace postgresql {
          */
         export interface ClusterSpecEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -5176,7 +5260,8 @@ export namespace postgresql {
         export interface ClusterSpecEnvFrom {
             configMapRef: outputs.postgresql.v1.ClusterSpecEnvFromConfigMapRef;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.ClusterSpecEnvFromSecretRef;
@@ -5224,7 +5309,8 @@ export namespace postgresql {
         export interface ClusterSpecEnvFromPatch {
             configMapRef: outputs.postgresql.v1.ClusterSpecEnvFromConfigMapRefPatch;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.ClusterSpecEnvFromSecretRefPatch;
@@ -5271,7 +5357,8 @@ export namespace postgresql {
          */
         export interface ClusterSpecEnvPatch {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -5295,6 +5382,7 @@ export namespace postgresql {
         export interface ClusterSpecEnvValueFrom {
             configMapKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.postgresql.v1.ClusterSpecEnvValueFromFieldRef;
+            fileKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.postgresql.v1.ClusterSpecEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromSecretKeyRef;
         }
@@ -5374,11 +5462,76 @@ export namespace postgresql {
         }
 
         /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface ClusterSpecEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface ClusterSpecEnvValueFromFileKeyRefPatch {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         export interface ClusterSpecEnvValueFromPatch {
             configMapKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.postgresql.v1.ClusterSpecEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.postgresql.v1.ClusterSpecEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.postgresql.v1.ClusterSpecEnvValueFromSecretKeyRefPatch;
         }
@@ -5570,15 +5723,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -5767,15 +5918,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -6721,8 +6870,9 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
-             * Only one plugin can be declared as WALArchiver.
-             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             * Marks the plugin as the WAL archiver. At most one plugin can be
+             * designated as a WAL archiver. This cannot be enabled if the
+             * `.spec.backup.barmanObjectStore` configuration is present.
              */
             isWALArchiver: boolean;
             /**
@@ -6745,8 +6895,9 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
-             * Only one plugin can be declared as WALArchiver.
-             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             * Marks the plugin as the WAL archiver. At most one plugin can be
+             * designated as a WAL archiver. This cannot be enabled if the
+             * `.spec.backup.barmanObjectStore` configuration is present.
              */
             isWALArchiver: boolean;
             /**
@@ -7993,14 +8144,31 @@ export namespace postgresql {
             disableDefaultQueries: boolean;
             /**
              * Enable or disable the `PodMonitor`
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             enablePodMonitor: boolean;
             /**
+             * The interval during which metrics computed from queries are considered current.
+             * Once it is exceeded, a new scrape will trigger a rerun
+             * of the queries.
+             * If not set, defaults to 30 seconds, in line with Prometheus scraping defaults.
+             * Setting this to zero disables the caching mechanism and can cause heavy load on the PostgreSQL server.
+             */
+            metricsQueriesTTL: string;
+            /**
              * The list of metric relabelings for the `PodMonitor`. Applied to samples before ingestion.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorMetricRelabelings: outputs.postgresql.v1.ClusterSpecMonitoringPodMonitorMetricRelabelings[];
             /**
              * The list of relabelings for the `PodMonitor`. Applied to samples before scraping.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorRelabelings: outputs.postgresql.v1.ClusterSpecMonitoringPodMonitorRelabelings[];
             tls: outputs.postgresql.v1.ClusterSpecMonitoringTls;
@@ -8086,14 +8254,31 @@ export namespace postgresql {
             disableDefaultQueries: boolean;
             /**
              * Enable or disable the `PodMonitor`
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             enablePodMonitor: boolean;
             /**
+             * The interval during which metrics computed from queries are considered current.
+             * Once it is exceeded, a new scrape will trigger a rerun
+             * of the queries.
+             * If not set, defaults to 30 seconds, in line with Prometheus scraping defaults.
+             * Setting this to zero disables the caching mechanism and can cause heavy load on the PostgreSQL server.
+             */
+            metricsQueriesTTL: string;
+            /**
              * The list of metric relabelings for the `PodMonitor`. Applied to samples before ingestion.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorMetricRelabelings: outputs.postgresql.v1.ClusterSpecMonitoringPodMonitorMetricRelabelingsPatch[];
             /**
              * The list of relabelings for the `PodMonitor`. Applied to samples before scraping.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorRelabelings: outputs.postgresql.v1.ClusterSpecMonitoringPodMonitorRelabelingsPatch[];
             tls: outputs.postgresql.v1.ClusterSpecMonitoringTlsPatch;
@@ -8107,7 +8292,7 @@ export namespace postgresql {
          */
         export interface ClusterSpecMonitoringPodMonitorMetricRelabelings {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -8116,34 +8301,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -8161,7 +8346,7 @@ export namespace postgresql {
          */
         export interface ClusterSpecMonitoringPodMonitorMetricRelabelingsPatch {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -8170,34 +8355,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -8215,7 +8400,7 @@ export namespace postgresql {
          */
         export interface ClusterSpecMonitoringPodMonitorRelabelings {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -8224,34 +8409,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -8269,7 +8454,7 @@ export namespace postgresql {
          */
         export interface ClusterSpecMonitoringPodMonitorRelabelingsPatch {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -8278,34 +8463,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -8479,6 +8664,7 @@ export namespace postgresql {
              * any plugin to be loaded with the corresponding configuration
              */
             plugins: outputs.postgresql.v1.ClusterSpecPluginsPatch[];
+            podSecurityContext: outputs.postgresql.v1.ClusterSpecPodSecurityContextPatch;
             /**
              * The GID of the `postgres` user inside the image, defaults to `26`
              */
@@ -8520,11 +8706,12 @@ export namespace postgresql {
              */
             schedulerName: string;
             seccompProfile: outputs.postgresql.v1.ClusterSpecSeccompProfilePatch;
+            securityContext: outputs.postgresql.v1.ClusterSpecSecurityContextPatch;
             serviceAccountTemplate: outputs.postgresql.v1.ClusterSpecServiceAccountTemplatePatch;
             /**
              * The time in seconds that controls the window of time reserved for the smart shutdown of Postgres to complete.
              * Make sure you reserve enough time for the operator to request a fast shutdown of Postgres
-             * (that is: `stopDelay` - `smartShutdownTimeout`).
+             * (that is: `stopDelay` - `smartShutdownTimeout`). Default is 180 seconds.
              */
             smartShutdownTimeout: number;
             /**
@@ -8570,8 +8757,9 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
-             * Only one plugin can be declared as WALArchiver.
-             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             * Marks the plugin as the WAL archiver. At most one plugin can be
+             * designated as a WAL archiver. This cannot be enabled if the
+             * `.spec.backup.barmanObjectStore` configuration is present.
              */
             isWALArchiver: boolean;
             /**
@@ -8594,8 +8782,9 @@ export namespace postgresql {
              */
             enabled: boolean;
             /**
-             * Only one plugin can be declared as WALArchiver.
-             * Cannot be active if ".spec.backup.barmanObjectStore" configuration is present.
+             * Marks the plugin as the WAL archiver. At most one plugin can be
+             * designated as a WAL archiver. This cannot be enabled if the
+             * `.spec.backup.barmanObjectStore` configuration is present.
              */
             isWALArchiver: boolean;
             /**
@@ -8606,6 +8795,474 @@ export namespace postgresql {
              * Parameters is the configuration of the plugin
              */
             parameters: {[key: string]: string};
+        }
+
+        /**
+         * Override the PodSecurityContext applied to every Pod of the cluster.
+         * When set, this overrides the operator's default PodSecurityContext for the cluster.
+         * If omitted, the operator defaults are used.
+         * This field doesn't have any effect if SecurityContextConstraints are present.
+         */
+        export interface ClusterSpecPodSecurityContext {
+            appArmorProfile: outputs.postgresql.v1.ClusterSpecPodSecurityContextAppArmorProfile;
+            /**
+             * A special supplemental group that applies to all containers in a pod.
+             * Some volume types allow the Kubelet to change the ownership of that volume
+             * to be owned by the pod:
+             *
+             * 1. The owning GID will be the FSGroup
+             * 2. The setgid bit is set (new files created in the volume will be owned by FSGroup)
+             * 3. The permission bits are OR'd with rw-rw----
+             *
+             * If unset, the Kubelet will not modify the ownership and permissions of any volume.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            fsGroup: number;
+            /**
+             * fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
+             * before being exposed inside Pod. This field will only apply to
+             * volume types which support fsGroup based ownership(and permissions).
+             * It will have no effect on ephemeral volume types such as: secret, configmaps
+             * and emptydir.
+             * Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            fsGroupChangePolicy: string;
+            /**
+             * The GID to run the entrypoint of the container process.
+             * Uses runtime default if unset.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence
+             * for that container.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsGroup: number;
+            /**
+             * Indicates that the container must run as a non-root user.
+             * If true, the Kubelet will validate the image at runtime to ensure that it
+             * does not run as UID 0 (root) and fail to start the container if it does.
+             * If unset or false, no such validation will be performed.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsNonRoot: boolean;
+            /**
+             * The UID to run the entrypoint of the container process.
+             * Defaults to user specified in image metadata if unspecified.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence
+             * for that container.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsUser: number;
+            /**
+             * seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+             * It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+             * Valid values are "MountOption" and "Recursive".
+             *
+             * "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+             * This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+             *
+             * "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+             * This requires all Pods that share the same volume to use the same SELinux label.
+             * It is not possible to share the same volume among privileged and unprivileged Pods.
+             * Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+             * whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+             * CSIDriver instance. Other volumes are always re-labelled recursively.
+             * "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+             *
+             * If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+             * If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+             * and "Recursive" for all other volumes.
+             *
+             * This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+             *
+             * All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            seLinuxChangePolicy: string;
+            seLinuxOptions: outputs.postgresql.v1.ClusterSpecPodSecurityContextSeLinuxOptions;
+            seccompProfile: outputs.postgresql.v1.ClusterSpecPodSecurityContextSeccompProfile;
+            /**
+             * A list of groups applied to the first process run in each container, in
+             * addition to the container's primary GID and fsGroup (if specified).  If
+             * the SupplementalGroupsPolicy feature is enabled, the
+             * supplementalGroupsPolicy field determines whether these are in addition
+             * to or instead of any group memberships defined in the container image.
+             * If unspecified, no additional groups are added, though group memberships
+             * defined in the container image may still be used, depending on the
+             * supplementalGroupsPolicy field.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            supplementalGroups: number[];
+            /**
+             * Defines how supplemental groups of the first container processes are calculated.
+             * Valid values are "Merge" and "Strict". If not specified, "Merge" is used.
+             * (Alpha) Using the field requires the SupplementalGroupsPolicy feature gate to be enabled
+             * and the container runtime must implement support for this feature.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            supplementalGroupsPolicy: string;
+            /**
+             * Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+             * sysctls (by the container runtime) might fail to launch.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            sysctls: outputs.postgresql.v1.ClusterSpecPodSecurityContextSysctls[];
+            windowsOptions: outputs.postgresql.v1.ClusterSpecPodSecurityContextWindowsOptions;
+        }
+
+        /**
+         * appArmorProfile is the AppArmor options to use by the containers in this pod.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextAppArmorProfile {
+            /**
+             * localhostProfile indicates a profile loaded on the node that should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must match the loaded name of the profile.
+             * Must be set if and only if type is "Localhost".
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of AppArmor profile will be applied.
+             * Valid options are:
+             *   Localhost - a profile pre-loaded on the node.
+             *   RuntimeDefault - the container runtime's default profile.
+             *   Unconfined - no AppArmor enforcement.
+             */
+            type: string;
+        }
+
+        /**
+         * appArmorProfile is the AppArmor options to use by the containers in this pod.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextAppArmorProfilePatch {
+            /**
+             * localhostProfile indicates a profile loaded on the node that should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must match the loaded name of the profile.
+             * Must be set if and only if type is "Localhost".
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of AppArmor profile will be applied.
+             * Valid options are:
+             *   Localhost - a profile pre-loaded on the node.
+             *   RuntimeDefault - the container runtime's default profile.
+             *   Unconfined - no AppArmor enforcement.
+             */
+            type: string;
+        }
+
+        /**
+         * Override the PodSecurityContext applied to every Pod of the cluster.
+         * When set, this overrides the operator's default PodSecurityContext for the cluster.
+         * If omitted, the operator defaults are used.
+         * This field doesn't have any effect if SecurityContextConstraints are present.
+         */
+        export interface ClusterSpecPodSecurityContextPatch {
+            appArmorProfile: outputs.postgresql.v1.ClusterSpecPodSecurityContextAppArmorProfilePatch;
+            /**
+             * A special supplemental group that applies to all containers in a pod.
+             * Some volume types allow the Kubelet to change the ownership of that volume
+             * to be owned by the pod:
+             *
+             * 1. The owning GID will be the FSGroup
+             * 2. The setgid bit is set (new files created in the volume will be owned by FSGroup)
+             * 3. The permission bits are OR'd with rw-rw----
+             *
+             * If unset, the Kubelet will not modify the ownership and permissions of any volume.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            fsGroup: number;
+            /**
+             * fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
+             * before being exposed inside Pod. This field will only apply to
+             * volume types which support fsGroup based ownership(and permissions).
+             * It will have no effect on ephemeral volume types such as: secret, configmaps
+             * and emptydir.
+             * Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            fsGroupChangePolicy: string;
+            /**
+             * The GID to run the entrypoint of the container process.
+             * Uses runtime default if unset.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence
+             * for that container.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsGroup: number;
+            /**
+             * Indicates that the container must run as a non-root user.
+             * If true, the Kubelet will validate the image at runtime to ensure that it
+             * does not run as UID 0 (root) and fail to start the container if it does.
+             * If unset or false, no such validation will be performed.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsNonRoot: boolean;
+            /**
+             * The UID to run the entrypoint of the container process.
+             * Defaults to user specified in image metadata if unspecified.
+             * May also be set in SecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence
+             * for that container.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsUser: number;
+            /**
+             * seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+             * It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+             * Valid values are "MountOption" and "Recursive".
+             *
+             * "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+             * This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+             *
+             * "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+             * This requires all Pods that share the same volume to use the same SELinux label.
+             * It is not possible to share the same volume among privileged and unprivileged Pods.
+             * Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+             * whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+             * CSIDriver instance. Other volumes are always re-labelled recursively.
+             * "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+             *
+             * If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+             * If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+             * and "Recursive" for all other volumes.
+             *
+             * This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+             *
+             * All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            seLinuxChangePolicy: string;
+            seLinuxOptions: outputs.postgresql.v1.ClusterSpecPodSecurityContextSeLinuxOptionsPatch;
+            seccompProfile: outputs.postgresql.v1.ClusterSpecPodSecurityContextSeccompProfilePatch;
+            /**
+             * A list of groups applied to the first process run in each container, in
+             * addition to the container's primary GID and fsGroup (if specified).  If
+             * the SupplementalGroupsPolicy feature is enabled, the
+             * supplementalGroupsPolicy field determines whether these are in addition
+             * to or instead of any group memberships defined in the container image.
+             * If unspecified, no additional groups are added, though group memberships
+             * defined in the container image may still be used, depending on the
+             * supplementalGroupsPolicy field.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            supplementalGroups: number[];
+            /**
+             * Defines how supplemental groups of the first container processes are calculated.
+             * Valid values are "Merge" and "Strict". If not specified, "Merge" is used.
+             * (Alpha) Using the field requires the SupplementalGroupsPolicy feature gate to be enabled
+             * and the container runtime must implement support for this feature.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            supplementalGroupsPolicy: string;
+            /**
+             * Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+             * sysctls (by the container runtime) might fail to launch.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            sysctls: outputs.postgresql.v1.ClusterSpecPodSecurityContextSysctlsPatch[];
+            windowsOptions: outputs.postgresql.v1.ClusterSpecPodSecurityContextWindowsOptionsPatch;
+        }
+
+        /**
+         * The SELinux context to be applied to all containers.
+         * If unspecified, the container runtime will allocate a random SELinux context for each
+         * container.  May also be set in SecurityContext.  If set in
+         * both SecurityContext and PodSecurityContext, the value specified in SecurityContext
+         * takes precedence for that container.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextSeLinuxOptions {
+            /**
+             * Level is SELinux level label that applies to the container.
+             */
+            level: string;
+            /**
+             * Role is a SELinux role label that applies to the container.
+             */
+            role: string;
+            /**
+             * Type is a SELinux type label that applies to the container.
+             */
+            type: string;
+            /**
+             * User is a SELinux user label that applies to the container.
+             */
+            user: string;
+        }
+
+        /**
+         * The SELinux context to be applied to all containers.
+         * If unspecified, the container runtime will allocate a random SELinux context for each
+         * container.  May also be set in SecurityContext.  If set in
+         * both SecurityContext and PodSecurityContext, the value specified in SecurityContext
+         * takes precedence for that container.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextSeLinuxOptionsPatch {
+            /**
+             * Level is SELinux level label that applies to the container.
+             */
+            level: string;
+            /**
+             * Role is a SELinux role label that applies to the container.
+             */
+            role: string;
+            /**
+             * Type is a SELinux type label that applies to the container.
+             */
+            type: string;
+            /**
+             * User is a SELinux user label that applies to the container.
+             */
+            user: string;
+        }
+
+        /**
+         * The seccomp options to use by the containers in this pod.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextSeccompProfile {
+            /**
+             * localhostProfile indicates a profile defined in a file on the node should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must be a descending path, relative to the kubelet's configured seccomp profile location.
+             * Must be set if type is "Localhost". Must NOT be set for any other type.
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of seccomp profile will be applied.
+             * Valid options are:
+             *
+             * Localhost - a profile defined in a file on the node should be used.
+             * RuntimeDefault - the container runtime default profile should be used.
+             * Unconfined - no profile should be applied.
+             */
+            type: string;
+        }
+
+        /**
+         * The seccomp options to use by the containers in this pod.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecPodSecurityContextSeccompProfilePatch {
+            /**
+             * localhostProfile indicates a profile defined in a file on the node should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must be a descending path, relative to the kubelet's configured seccomp profile location.
+             * Must be set if type is "Localhost". Must NOT be set for any other type.
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of seccomp profile will be applied.
+             * Valid options are:
+             *
+             * Localhost - a profile defined in a file on the node should be used.
+             * RuntimeDefault - the container runtime default profile should be used.
+             * Unconfined - no profile should be applied.
+             */
+            type: string;
+        }
+
+        /**
+         * Sysctl defines a kernel parameter to be set
+         */
+        export interface ClusterSpecPodSecurityContextSysctls {
+            /**
+             * Name of a property to set
+             */
+            name: string;
+            /**
+             * Value of a property to set
+             */
+            value: string;
+        }
+
+        /**
+         * Sysctl defines a kernel parameter to be set
+         */
+        export interface ClusterSpecPodSecurityContextSysctlsPatch {
+            /**
+             * Name of a property to set
+             */
+            name: string;
+            /**
+             * Value of a property to set
+             */
+            value: string;
+        }
+
+        /**
+         * The Windows specific settings applied to all containers.
+         * If unspecified, the options within a container's SecurityContext will be used.
+         * If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is linux.
+         */
+        export interface ClusterSpecPodSecurityContextWindowsOptions {
+            /**
+             * GMSACredentialSpec is where the GMSA admission webhook
+             * (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+             * GMSA credential spec named by the GMSACredentialSpecName field.
+             */
+            gmsaCredentialSpec: string;
+            /**
+             * GMSACredentialSpecName is the name of the GMSA credential spec to use.
+             */
+            gmsaCredentialSpecName: string;
+            /**
+             * HostProcess determines if a container should be run as a 'Host Process' container.
+             * All of a Pod's containers must have the same effective HostProcess value
+             * (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+             * In addition, if HostProcess is true then HostNetwork must also be set to true.
+             */
+            hostProcess: boolean;
+            /**
+             * The UserName in Windows to run the entrypoint of the container process.
+             * Defaults to the user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext. If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsUserName: string;
+        }
+
+        /**
+         * The Windows specific settings applied to all containers.
+         * If unspecified, the options within a container's SecurityContext will be used.
+         * If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is linux.
+         */
+        export interface ClusterSpecPodSecurityContextWindowsOptionsPatch {
+            /**
+             * GMSACredentialSpec is where the GMSA admission webhook
+             * (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+             * GMSA credential spec named by the GMSACredentialSpecName field.
+             */
+            gmsaCredentialSpec: string;
+            /**
+             * GMSACredentialSpecName is the name of the GMSA credential spec to use.
+             */
+            gmsaCredentialSpecName: string;
+            /**
+             * HostProcess determines if a container should be run as a 'Host Process' container.
+             * All of a Pod's containers must have the same effective HostProcess value
+             * (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+             * In addition, if HostProcess is true then HostNetwork must also be set to true.
+             */
+            hostProcess: boolean;
+            /**
+             * The UserName in Windows to run the entrypoint of the container process.
+             * Defaults to the user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext. If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsUserName: string;
         }
 
         /**
@@ -9006,6 +9663,12 @@ export namespace postgresql {
              */
             dataDurability: string;
             /**
+             * FailoverQuorum enables a quorum-based check before failover, improving
+             * data durability and safety during failover events in CloudNativePG-managed
+             * PostgreSQL clusters.
+             */
+            failoverQuorum: boolean;
+            /**
              * Specifies the maximum number of local cluster pods that can be
              * automatically included in the `synchronous_standby_names` option in
              * PostgreSQL.
@@ -9051,6 +9714,12 @@ export namespace postgresql {
              * `standbyNamesPre` and `standbyNamesPost` are unset (empty).
              */
             dataDurability: string;
+            /**
+             * FailoverQuorum enables a quorum-based check before failover, improving
+             * data durability and safety during failover events in CloudNativePG-managed
+             * PostgreSQL clusters.
+             */
+            failoverQuorum: boolean;
             /**
              * Specifies the maximum number of local cluster pods that can be
              * automatically included in the `synchronous_standby_names` option in
@@ -9500,6 +10169,7 @@ export namespace postgresql {
             clusterTrustBundle: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesClusterTrustBundle;
             configMap: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesConfigMap;
             downwardAPI: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesDownwardAPI;
+            podCertificate: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesPodCertificate;
             secret: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesSecret;
             serviceAccountToken: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesServiceAccountToken;
         }
@@ -9916,8 +10586,213 @@ export namespace postgresql {
             clusterTrustBundle: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesClusterTrustBundlePatch;
             configMap: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesConfigMapPatch;
             downwardAPI: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesDownwardAPIPatch;
+            podCertificate: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesPodCertificatePatch;
             secret: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesSecretPatch;
             serviceAccountToken: outputs.postgresql.v1.ClusterSpecProjectedVolumeTemplateSourcesServiceAccountTokenPatch;
+        }
+
+        /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface ClusterSpecProjectedVolumeTemplateSourcesPodCertificate {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
+        }
+
+        /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface ClusterSpecProjectedVolumeTemplateSourcesPodCertificatePatch {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
         }
 
         /**
@@ -10288,7 +11163,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -10354,7 +11229,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -10418,6 +11293,390 @@ export namespace postgresql {
              * Unconfined - no profile should be applied.
              */
             type: string;
+        }
+
+        /**
+         * Override the SecurityContext applied to every Container in the Pod of the cluster.
+         * When set, this overrides the operator's default Container SecurityContext.
+         * If omitted, the operator defaults are used.
+         */
+        export interface ClusterSpecSecurityContext {
+            /**
+             * AllowPrivilegeEscalation controls whether a process can gain more
+             * privileges than its parent process. This bool directly controls if
+             * the no_new_privs flag will be set on the container process.
+             * AllowPrivilegeEscalation is true always when the container is:
+             * 1) run as Privileged
+             * 2) has CAP_SYS_ADMIN
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            allowPrivilegeEscalation: boolean;
+            appArmorProfile: outputs.postgresql.v1.ClusterSpecSecurityContextAppArmorProfile;
+            capabilities: outputs.postgresql.v1.ClusterSpecSecurityContextCapabilities;
+            /**
+             * Run container in privileged mode.
+             * Processes in privileged containers are essentially equivalent to root on the host.
+             * Defaults to false.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            privileged: boolean;
+            /**
+             * procMount denotes the type of proc mount to use for the containers.
+             * The default value is Default which uses the container runtime defaults for
+             * readonly paths and masked paths.
+             * This requires the ProcMountType feature flag to be enabled.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            procMount: string;
+            /**
+             * Whether this container has a read-only root filesystem.
+             * Default is false.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            readOnlyRootFilesystem: boolean;
+            /**
+             * The GID to run the entrypoint of the container process.
+             * Uses runtime default if unset.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsGroup: number;
+            /**
+             * Indicates that the container must run as a non-root user.
+             * If true, the Kubelet will validate the image at runtime to ensure that it
+             * does not run as UID 0 (root) and fail to start the container if it does.
+             * If unset or false, no such validation will be performed.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsNonRoot: boolean;
+            /**
+             * The UID to run the entrypoint of the container process.
+             * Defaults to user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsUser: number;
+            seLinuxOptions: outputs.postgresql.v1.ClusterSpecSecurityContextSeLinuxOptions;
+            seccompProfile: outputs.postgresql.v1.ClusterSpecSecurityContextSeccompProfile;
+            windowsOptions: outputs.postgresql.v1.ClusterSpecSecurityContextWindowsOptions;
+        }
+
+        /**
+         * appArmorProfile is the AppArmor options to use by this container. If set, this profile
+         * overrides the pod's appArmorProfile.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextAppArmorProfile {
+            /**
+             * localhostProfile indicates a profile loaded on the node that should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must match the loaded name of the profile.
+             * Must be set if and only if type is "Localhost".
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of AppArmor profile will be applied.
+             * Valid options are:
+             *   Localhost - a profile pre-loaded on the node.
+             *   RuntimeDefault - the container runtime's default profile.
+             *   Unconfined - no AppArmor enforcement.
+             */
+            type: string;
+        }
+
+        /**
+         * appArmorProfile is the AppArmor options to use by this container. If set, this profile
+         * overrides the pod's appArmorProfile.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextAppArmorProfilePatch {
+            /**
+             * localhostProfile indicates a profile loaded on the node that should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must match the loaded name of the profile.
+             * Must be set if and only if type is "Localhost".
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of AppArmor profile will be applied.
+             * Valid options are:
+             *   Localhost - a profile pre-loaded on the node.
+             *   RuntimeDefault - the container runtime's default profile.
+             *   Unconfined - no AppArmor enforcement.
+             */
+            type: string;
+        }
+
+        /**
+         * The capabilities to add/drop when running containers.
+         * Defaults to the default set of capabilities granted by the container runtime.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextCapabilities {
+            /**
+             * Added capabilities
+             */
+            add: string[];
+            /**
+             * Removed capabilities
+             */
+            drop: string[];
+        }
+
+        /**
+         * The capabilities to add/drop when running containers.
+         * Defaults to the default set of capabilities granted by the container runtime.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextCapabilitiesPatch {
+            /**
+             * Added capabilities
+             */
+            add: string[];
+            /**
+             * Removed capabilities
+             */
+            drop: string[];
+        }
+
+        /**
+         * Override the SecurityContext applied to every Container in the Pod of the cluster.
+         * When set, this overrides the operator's default Container SecurityContext.
+         * If omitted, the operator defaults are used.
+         */
+        export interface ClusterSpecSecurityContextPatch {
+            /**
+             * AllowPrivilegeEscalation controls whether a process can gain more
+             * privileges than its parent process. This bool directly controls if
+             * the no_new_privs flag will be set on the container process.
+             * AllowPrivilegeEscalation is true always when the container is:
+             * 1) run as Privileged
+             * 2) has CAP_SYS_ADMIN
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            allowPrivilegeEscalation: boolean;
+            appArmorProfile: outputs.postgresql.v1.ClusterSpecSecurityContextAppArmorProfilePatch;
+            capabilities: outputs.postgresql.v1.ClusterSpecSecurityContextCapabilitiesPatch;
+            /**
+             * Run container in privileged mode.
+             * Processes in privileged containers are essentially equivalent to root on the host.
+             * Defaults to false.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            privileged: boolean;
+            /**
+             * procMount denotes the type of proc mount to use for the containers.
+             * The default value is Default which uses the container runtime defaults for
+             * readonly paths and masked paths.
+             * This requires the ProcMountType feature flag to be enabled.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            procMount: string;
+            /**
+             * Whether this container has a read-only root filesystem.
+             * Default is false.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            readOnlyRootFilesystem: boolean;
+            /**
+             * The GID to run the entrypoint of the container process.
+             * Uses runtime default if unset.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsGroup: number;
+            /**
+             * Indicates that the container must run as a non-root user.
+             * If true, the Kubelet will validate the image at runtime to ensure that it
+             * does not run as UID 0 (root) and fail to start the container if it does.
+             * If unset or false, no such validation will be performed.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsNonRoot: boolean;
+            /**
+             * The UID to run the entrypoint of the container process.
+             * Defaults to user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext.  If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             * Note that this field cannot be set when spec.os.name is windows.
+             */
+            runAsUser: number;
+            seLinuxOptions: outputs.postgresql.v1.ClusterSpecSecurityContextSeLinuxOptionsPatch;
+            seccompProfile: outputs.postgresql.v1.ClusterSpecSecurityContextSeccompProfilePatch;
+            windowsOptions: outputs.postgresql.v1.ClusterSpecSecurityContextWindowsOptionsPatch;
+        }
+
+        /**
+         * The SELinux context to be applied to the container.
+         * If unspecified, the container runtime will allocate a random SELinux context for each
+         * container.  May also be set in PodSecurityContext.  If set in both SecurityContext and
+         * PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextSeLinuxOptions {
+            /**
+             * Level is SELinux level label that applies to the container.
+             */
+            level: string;
+            /**
+             * Role is a SELinux role label that applies to the container.
+             */
+            role: string;
+            /**
+             * Type is a SELinux type label that applies to the container.
+             */
+            type: string;
+            /**
+             * User is a SELinux user label that applies to the container.
+             */
+            user: string;
+        }
+
+        /**
+         * The SELinux context to be applied to the container.
+         * If unspecified, the container runtime will allocate a random SELinux context for each
+         * container.  May also be set in PodSecurityContext.  If set in both SecurityContext and
+         * PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextSeLinuxOptionsPatch {
+            /**
+             * Level is SELinux level label that applies to the container.
+             */
+            level: string;
+            /**
+             * Role is a SELinux role label that applies to the container.
+             */
+            role: string;
+            /**
+             * Type is a SELinux type label that applies to the container.
+             */
+            type: string;
+            /**
+             * User is a SELinux user label that applies to the container.
+             */
+            user: string;
+        }
+
+        /**
+         * The seccomp options to use by this container. If seccomp options are
+         * provided at both the pod & container level, the container options
+         * override the pod options.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextSeccompProfile {
+            /**
+             * localhostProfile indicates a profile defined in a file on the node should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must be a descending path, relative to the kubelet's configured seccomp profile location.
+             * Must be set if type is "Localhost". Must NOT be set for any other type.
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of seccomp profile will be applied.
+             * Valid options are:
+             *
+             * Localhost - a profile defined in a file on the node should be used.
+             * RuntimeDefault - the container runtime default profile should be used.
+             * Unconfined - no profile should be applied.
+             */
+            type: string;
+        }
+
+        /**
+         * The seccomp options to use by this container. If seccomp options are
+         * provided at both the pod & container level, the container options
+         * override the pod options.
+         * Note that this field cannot be set when spec.os.name is windows.
+         */
+        export interface ClusterSpecSecurityContextSeccompProfilePatch {
+            /**
+             * localhostProfile indicates a profile defined in a file on the node should be used.
+             * The profile must be preconfigured on the node to work.
+             * Must be a descending path, relative to the kubelet's configured seccomp profile location.
+             * Must be set if type is "Localhost". Must NOT be set for any other type.
+             */
+            localhostProfile: string;
+            /**
+             * type indicates which kind of seccomp profile will be applied.
+             * Valid options are:
+             *
+             * Localhost - a profile defined in a file on the node should be used.
+             * RuntimeDefault - the container runtime default profile should be used.
+             * Unconfined - no profile should be applied.
+             */
+            type: string;
+        }
+
+        /**
+         * The Windows specific settings applied to all containers.
+         * If unspecified, the options from the PodSecurityContext will be used.
+         * If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is linux.
+         */
+        export interface ClusterSpecSecurityContextWindowsOptions {
+            /**
+             * GMSACredentialSpec is where the GMSA admission webhook
+             * (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+             * GMSA credential spec named by the GMSACredentialSpecName field.
+             */
+            gmsaCredentialSpec: string;
+            /**
+             * GMSACredentialSpecName is the name of the GMSA credential spec to use.
+             */
+            gmsaCredentialSpecName: string;
+            /**
+             * HostProcess determines if a container should be run as a 'Host Process' container.
+             * All of a Pod's containers must have the same effective HostProcess value
+             * (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+             * In addition, if HostProcess is true then HostNetwork must also be set to true.
+             */
+            hostProcess: boolean;
+            /**
+             * The UserName in Windows to run the entrypoint of the container process.
+             * Defaults to the user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext. If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsUserName: string;
+        }
+
+        /**
+         * The Windows specific settings applied to all containers.
+         * If unspecified, the options from the PodSecurityContext will be used.
+         * If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+         * Note that this field cannot be set when spec.os.name is linux.
+         */
+        export interface ClusterSpecSecurityContextWindowsOptionsPatch {
+            /**
+             * GMSACredentialSpec is where the GMSA admission webhook
+             * (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+             * GMSA credential spec named by the GMSACredentialSpecName field.
+             */
+            gmsaCredentialSpec: string;
+            /**
+             * GMSACredentialSpecName is the name of the GMSA credential spec to use.
+             */
+            gmsaCredentialSpecName: string;
+            /**
+             * HostProcess determines if a container should be run as a 'Host Process' container.
+             * All of a Pod's containers must have the same effective HostProcess value
+             * (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+             * In addition, if HostProcess is true then HostNetwork must also be set to true.
+             */
+            hostProcess: boolean;
+            /**
+             * The UserName in Windows to run the entrypoint of the container process.
+             * Defaults to the user specified in image metadata if unspecified.
+             * May also be set in PodSecurityContext. If set in both SecurityContext and
+             * PodSecurityContext, the value specified in SecurityContext takes precedence.
+             */
+            runAsUserName: string;
         }
 
         /**
@@ -10554,15 +11813,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -10748,15 +12005,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -11038,15 +12293,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -11232,15 +12485,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -11758,15 +13009,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -11952,15 +13201,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -13181,6 +14428,10 @@ export namespace postgresql {
              */
             extensions: outputs.postgresql.v1.DatabaseSpecExtensions[];
             /**
+             * The list of foreign data wrappers to be managed in the database
+             */
+            fdws: outputs.postgresql.v1.DatabaseSpecFdws[];
+            /**
              * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
              * setting cannot be changed. Specifies the ICU locale when the ICU
              * provider is used. This option requires `localeProvider` to be set to
@@ -13237,6 +14488,10 @@ export namespace postgresql {
              */
             schemas: outputs.postgresql.v1.DatabaseSpecSchemas[];
             /**
+             * The list of foreign servers to be managed in the database
+             */
+            servers: outputs.postgresql.v1.DatabaseSpecServers[];
+            /**
              * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
              * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
              * The name of the tablespace (in PostgreSQL) that will be associated
@@ -13285,14 +14540,14 @@ export namespace postgresql {
          */
         export interface DatabaseSpecExtensions {
             /**
-             * Specifies whether an extension/schema should be present or absent in
-             * the database. If set to `present`, the extension/schema will be
-             * created if it does not exist. If set to `absent`, the
-             * extension/schema will be removed if it exists.
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
              */
             ensure: string;
             /**
-             * Name of the extension/schema
+             * Name of the object (extension, schema, FDW, server)
              */
             name: string;
             /**
@@ -13316,14 +14571,14 @@ export namespace postgresql {
          */
         export interface DatabaseSpecExtensionsPatch {
             /**
-             * Specifies whether an extension/schema should be present or absent in
-             * the database. If set to `present`, the extension/schema will be
-             * created if it does not exist. If set to `absent`, the
-             * extension/schema will be removed if it exists.
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
              */
             ensure: string;
             /**
-             * Name of the extension/schema
+             * Name of the object (extension, schema, FDW, server)
              */
             name: string;
             /**
@@ -13340,6 +14595,160 @@ export namespace postgresql {
              * extension's control file)
              */
             version: string;
+        }
+
+        /**
+         * FDWSpec configures an Foreign Data Wrapper in a database
+         */
+        export interface DatabaseSpecFdws {
+            /**
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the handler function (e.g., "postgres_fdw_handler").
+             * This will be empty if no handler is specified. In that case,
+             * the default handler is registered when the FDW extension is created.
+             */
+            handler: string;
+            /**
+             * Name of the object (extension, schema, FDW, server)
+             */
+            name: string;
+            /**
+             * Options specifies the configuration options for the FDW.
+             */
+            options: outputs.postgresql.v1.DatabaseSpecFdwsOptions[];
+            /**
+             * Owner specifies the database role that will own the Foreign Data Wrapper.
+             * The role must have superuser privileges in the target database.
+             */
+            owner: string;
+            /**
+             * List of roles for which `USAGE` privileges on the FDW are granted or revoked.
+             */
+            usage: outputs.postgresql.v1.DatabaseSpecFdwsUsage[];
+            /**
+             * Name of the validator function (e.g., "postgres_fdw_validator").
+             * This will be empty if no validator is specified. In that case,
+             * the default validator is registered when the FDW extension is created.
+             */
+            validator: string;
+        }
+
+        /**
+         * OptionSpec holds the name, value and the ensure field for an option
+         */
+        export interface DatabaseSpecFdwsOptions {
+            /**
+             * Specifies whether an option should be present or absent in
+             * the database. If set to `present`, the option will be
+             * created if it does not exist. If set to `absent`, the
+             * option will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the option
+             */
+            name: string;
+            /**
+             * Value of the option
+             */
+            value: string;
+        }
+
+        /**
+         * OptionSpec holds the name, value and the ensure field for an option
+         */
+        export interface DatabaseSpecFdwsOptionsPatch {
+            /**
+             * Specifies whether an option should be present or absent in
+             * the database. If set to `present`, the option will be
+             * created if it does not exist. If set to `absent`, the
+             * option will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the option
+             */
+            name: string;
+            /**
+             * Value of the option
+             */
+            value: string;
+        }
+
+        /**
+         * FDWSpec configures an Foreign Data Wrapper in a database
+         */
+        export interface DatabaseSpecFdwsPatch {
+            /**
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the handler function (e.g., "postgres_fdw_handler").
+             * This will be empty if no handler is specified. In that case,
+             * the default handler is registered when the FDW extension is created.
+             */
+            handler: string;
+            /**
+             * Name of the object (extension, schema, FDW, server)
+             */
+            name: string;
+            /**
+             * Options specifies the configuration options for the FDW.
+             */
+            options: outputs.postgresql.v1.DatabaseSpecFdwsOptionsPatch[];
+            /**
+             * Owner specifies the database role that will own the Foreign Data Wrapper.
+             * The role must have superuser privileges in the target database.
+             */
+            owner: string;
+            /**
+             * List of roles for which `USAGE` privileges on the FDW are granted or revoked.
+             */
+            usage: outputs.postgresql.v1.DatabaseSpecFdwsUsagePatch[];
+            /**
+             * Name of the validator function (e.g., "postgres_fdw_validator").
+             * This will be empty if no validator is specified. In that case,
+             * the default validator is registered when the FDW extension is created.
+             */
+            validator: string;
+        }
+
+        /**
+         * UsageSpec configures a usage for a foreign data wrapper
+         */
+        export interface DatabaseSpecFdwsUsage {
+            /**
+             * Name of the usage
+             */
+            name: string;
+            /**
+             * The type of usage
+             */
+            type: string;
+        }
+
+        /**
+         * UsageSpec configures a usage for a foreign data wrapper
+         */
+        export interface DatabaseSpecFdwsUsagePatch {
+            /**
+             * Name of the usage
+             */
+            name: string;
+            /**
+             * The type of usage
+             */
+            type: string;
         }
 
         /**
@@ -13388,6 +14797,10 @@ export namespace postgresql {
              * The list of extensions to be managed in the database
              */
             extensions: outputs.postgresql.v1.DatabaseSpecExtensionsPatch[];
+            /**
+             * The list of foreign data wrappers to be managed in the database
+             */
+            fdws: outputs.postgresql.v1.DatabaseSpecFdwsPatch[];
             /**
              * Maps to the `ICU_LOCALE` parameter of `CREATE DATABASE`. This
              * setting cannot be changed. Specifies the ICU locale when the ICU
@@ -13445,6 +14858,10 @@ export namespace postgresql {
              */
             schemas: outputs.postgresql.v1.DatabaseSpecSchemasPatch[];
             /**
+             * The list of foreign servers to be managed in the database
+             */
+            servers: outputs.postgresql.v1.DatabaseSpecServersPatch[];
+            /**
              * Maps to the `TABLESPACE` parameter of `CREATE DATABASE`.
              * Maps to the `SET TABLESPACE` command of `ALTER DATABASE`.
              * The name of the tablespace (in PostgreSQL) that will be associated
@@ -13465,14 +14882,14 @@ export namespace postgresql {
          */
         export interface DatabaseSpecSchemas {
             /**
-             * Specifies whether an extension/schema should be present or absent in
-             * the database. If set to `present`, the extension/schema will be
-             * created if it does not exist. If set to `absent`, the
-             * extension/schema will be removed if it exists.
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
              */
             ensure: string;
             /**
-             * Name of the extension/schema
+             * Name of the object (extension, schema, FDW, server)
              */
             name: string;
             /**
@@ -13488,14 +14905,14 @@ export namespace postgresql {
          */
         export interface DatabaseSpecSchemasPatch {
             /**
-             * Specifies whether an extension/schema should be present or absent in
-             * the database. If set to `present`, the extension/schema will be
-             * created if it does not exist. If set to `absent`, the
-             * extension/schema will be removed if it exists.
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
              */
             ensure: string;
             /**
-             * Name of the extension/schema
+             * Name of the object (extension, schema, FDW, server)
              */
             name: string;
             /**
@@ -13504,6 +14921,136 @@ export namespace postgresql {
              * `OWNER TO` command of `ALTER SCHEMA`.
              */
             owner: string;
+        }
+
+        /**
+         * ServerSpec configures a server of a foreign data wrapper
+         */
+        export interface DatabaseSpecServers {
+            /**
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
+             */
+            ensure: string;
+            /**
+             * The name of the Foreign Data Wrapper (FDW)
+             */
+            fdw: string;
+            /**
+             * Name of the object (extension, schema, FDW, server)
+             */
+            name: string;
+            /**
+             * Options specifies the configuration options for the server
+             * (key is the option name, value is the option value).
+             */
+            options: outputs.postgresql.v1.DatabaseSpecServersOptions[];
+            /**
+             * List of roles for which `USAGE` privileges on the server are granted or revoked.
+             */
+            usage: outputs.postgresql.v1.DatabaseSpecServersUsage[];
+        }
+
+        /**
+         * OptionSpec holds the name, value and the ensure field for an option
+         */
+        export interface DatabaseSpecServersOptions {
+            /**
+             * Specifies whether an option should be present or absent in
+             * the database. If set to `present`, the option will be
+             * created if it does not exist. If set to `absent`, the
+             * option will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the option
+             */
+            name: string;
+            /**
+             * Value of the option
+             */
+            value: string;
+        }
+
+        /**
+         * OptionSpec holds the name, value and the ensure field for an option
+         */
+        export interface DatabaseSpecServersOptionsPatch {
+            /**
+             * Specifies whether an option should be present or absent in
+             * the database. If set to `present`, the option will be
+             * created if it does not exist. If set to `absent`, the
+             * option will be removed if it exists.
+             */
+            ensure: string;
+            /**
+             * Name of the option
+             */
+            name: string;
+            /**
+             * Value of the option
+             */
+            value: string;
+        }
+
+        /**
+         * ServerSpec configures a server of a foreign data wrapper
+         */
+        export interface DatabaseSpecServersPatch {
+            /**
+             * Specifies whether an object (e.g schema) should be present or absent
+             * in the database. If set to `present`, the object will be created if
+             * it does not exist. If set to `absent`, the extension/schema will be
+             * removed if it exists.
+             */
+            ensure: string;
+            /**
+             * The name of the Foreign Data Wrapper (FDW)
+             */
+            fdw: string;
+            /**
+             * Name of the object (extension, schema, FDW, server)
+             */
+            name: string;
+            /**
+             * Options specifies the configuration options for the server
+             * (key is the option name, value is the option value).
+             */
+            options: outputs.postgresql.v1.DatabaseSpecServersOptionsPatch[];
+            /**
+             * List of roles for which `USAGE` privileges on the server are granted or revoked.
+             */
+            usage: outputs.postgresql.v1.DatabaseSpecServersUsagePatch[];
+        }
+
+        /**
+         * UsageSpec configures a usage for a foreign data wrapper
+         */
+        export interface DatabaseSpecServersUsage {
+            /**
+             * Name of the usage
+             */
+            name: string;
+            /**
+             * The type of usage
+             */
+            type: string;
+        }
+
+        /**
+         * UsageSpec configures a usage for a foreign data wrapper
+         */
+        export interface DatabaseSpecServersUsagePatch {
+            /**
+             * Name of the usage
+             */
+            name: string;
+            /**
+             * The type of usage
+             */
+            type: string;
         }
 
         /**
@@ -13521,6 +15068,10 @@ export namespace postgresql {
              */
             extensions: outputs.postgresql.v1.DatabaseStatusExtensions[];
             /**
+             * FDWs is the status of the managed FDWs
+             */
+            fdws: outputs.postgresql.v1.DatabaseStatusFdws[];
+            /**
              * Message is the reconciliation output message
              */
             message: string;
@@ -13533,6 +15084,10 @@ export namespace postgresql {
              * Schemas is the status of the managed schemas
              */
             schemas: outputs.postgresql.v1.DatabaseStatusSchemas[];
+            /**
+             * Servers is the status of the managed servers
+             */
+            servers: outputs.postgresql.v1.DatabaseStatusServers[];
         }
 
         /**
@@ -13574,6 +15129,44 @@ export namespace postgresql {
         }
 
         /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusFdws {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusFdwsPatch {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
          * Most recently observed status of the Database. This data may not be up to
          * date. Populated by the system. Read-only.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
@@ -13588,6 +15181,10 @@ export namespace postgresql {
              */
             extensions: outputs.postgresql.v1.DatabaseStatusExtensionsPatch[];
             /**
+             * FDWs is the status of the managed FDWs
+             */
+            fdws: outputs.postgresql.v1.DatabaseStatusFdwsPatch[];
+            /**
              * Message is the reconciliation output message
              */
             message: string;
@@ -13600,6 +15197,10 @@ export namespace postgresql {
              * Schemas is the status of the managed schemas
              */
             schemas: outputs.postgresql.v1.DatabaseStatusSchemasPatch[];
+            /**
+             * Servers is the status of the managed servers
+             */
+            servers: outputs.postgresql.v1.DatabaseStatusServersPatch[];
         }
 
         /**
@@ -13625,6 +15226,44 @@ export namespace postgresql {
          * DatabaseObjectStatus is the status of the managed database objects
          */
         export interface DatabaseStatusSchemasPatch {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusServers {
+            /**
+             * True of the object has been installed successfully in
+             * the database
+             */
+            applied: boolean;
+            /**
+             * Message is the object reconciliation message
+             */
+            message: string;
+            /**
+             * The name of the object
+             */
+            name: string;
+        }
+
+        /**
+         * DatabaseObjectStatus is the status of the managed database objects
+         */
+        export interface DatabaseStatusServersPatch {
             /**
              * True of the object has been installed successfully in
              * the database
@@ -13936,6 +15575,9 @@ export namespace postgresql {
 
         /**
          * The configuration of the monitoring infrastructure of this pooler.
+         *
+         * Deprecated: This feature will be removed in an upcoming release. If
+         * you need this functionality, you can create a PodMonitor manually.
          */
         export interface PoolerSpecMonitoring {
             /**
@@ -13954,6 +15596,9 @@ export namespace postgresql {
 
         /**
          * The configuration of the monitoring infrastructure of this pooler.
+         *
+         * Deprecated: This feature will be removed in an upcoming release. If
+         * you need this functionality, you can create a PodMonitor manually.
          */
         export interface PoolerSpecMonitoringPatch {
             /**
@@ -13978,7 +15623,7 @@ export namespace postgresql {
          */
         export interface PoolerSpecMonitoringPodMonitorMetricRelabelings {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -13987,34 +15632,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -14032,7 +15677,7 @@ export namespace postgresql {
          */
         export interface PoolerSpecMonitoringPodMonitorMetricRelabelingsPatch {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -14041,34 +15686,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -14086,7 +15731,7 @@ export namespace postgresql {
          */
         export interface PoolerSpecMonitoringPodMonitorRelabelings {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -14095,34 +15740,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -14140,7 +15785,7 @@ export namespace postgresql {
          */
         export interface PoolerSpecMonitoringPodMonitorRelabelingsPatch {
             /**
-             * Action to perform based on the regex matching.
+             * action to perform based on the regex matching.
              *
              * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
              * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
@@ -14149,34 +15794,34 @@ export namespace postgresql {
              */
             action: string;
             /**
-             * Modulus to take of the hash of the source label values.
+             * modulus to take of the hash of the source label values.
              *
              * Only applicable when the action is `HashMod`.
              */
             modulus: number;
             /**
-             * Regular expression against which the extracted value is matched.
+             * regex defines the regular expression against which the extracted value is matched.
              */
             regex: string;
             /**
-             * Replacement value against which a Replace action is performed if the
+             * replacement value against which a Replace action is performed if the
              * regular expression matches.
              *
              * Regex capture groups are available.
              */
             replacement: string;
             /**
-             * Separator is the string between concatenated SourceLabels.
+             * separator defines the string between concatenated SourceLabels.
              */
             separator: string;
             /**
-             * The source labels select values from existing labels. Their content is
+             * sourceLabels defines the source labels select values from existing labels. Their content is
              * concatenated using the configured Separator and matched against the
              * configured regular expression.
              */
             sourceLabels: string[];
             /**
-             * Label to which the resulting string is written in a replacement.
+             * targetLabel defines the label to which the resulting string is written in a replacement.
              *
              * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
              * `KeepEqual` and `DropEqual` actions.
@@ -14219,6 +15864,8 @@ export namespace postgresql {
              */
             authQuery: string;
             authQuerySecret: outputs.postgresql.v1.PoolerSpecPgbouncerAuthQuerySecret;
+            clientCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientCASecret;
+            clientTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientTLSSecret;
             /**
              * Additional parameters to be passed to PgBouncer - please check
              * the CNPG documentation for a list of options you can configure
@@ -14240,6 +15887,8 @@ export namespace postgresql {
              * The pool mode. Default: `session`.
              */
             poolMode: string;
+            serverCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerServerCASecret;
+            serverTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerServerTLSSecret;
         }
 
         /**
@@ -14247,6 +15896,8 @@ export namespace postgresql {
          * query. In case it is specified, also an AuthQuery
          * (e.g. "SELECT usename, passwd FROM pg_catalog.pg_shadow WHERE usename=$1")
          * has to be specified and no automatic CNPG Cluster integration will be triggered.
+         *
+         * Deprecated.
          */
         export interface PoolerSpecPgbouncerAuthQuerySecret {
             /**
@@ -14260,8 +15911,54 @@ export namespace postgresql {
          * query. In case it is specified, also an AuthQuery
          * (e.g. "SELECT usename, passwd FROM pg_catalog.pg_shadow WHERE usename=$1")
          * has to be specified and no automatic CNPG Cluster integration will be triggered.
+         *
+         * Deprecated.
          */
         export interface PoolerSpecPgbouncerAuthQuerySecretPatch {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ClientCASecret provides PgBouncer’s client_tls_ca_file, the root
+         * CA for validating client certificates
+         */
+        export interface PoolerSpecPgbouncerClientCASecret {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ClientCASecret provides PgBouncer’s client_tls_ca_file, the root
+         * CA for validating client certificates
+         */
+        export interface PoolerSpecPgbouncerClientCASecretPatch {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ClientTLSSecret provides PgBouncer’s client_tls_key_file (private key)
+         * and client_tls_cert_file (certificate) used to accept client connections
+         */
+        export interface PoolerSpecPgbouncerClientTLSSecret {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ClientTLSSecret provides PgBouncer’s client_tls_key_file (private key)
+         * and client_tls_cert_file (certificate) used to accept client connections
+         */
+        export interface PoolerSpecPgbouncerClientTLSSecretPatch {
             /**
              * Name of the referent.
              */
@@ -14280,6 +15977,8 @@ export namespace postgresql {
              */
             authQuery: string;
             authQuerySecret: outputs.postgresql.v1.PoolerSpecPgbouncerAuthQuerySecretPatch;
+            clientCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientCASecretPatch;
+            clientTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientTLSSecretPatch;
             /**
              * Additional parameters to be passed to PgBouncer - please check
              * the CNPG documentation for a list of options you can configure
@@ -14301,6 +16000,54 @@ export namespace postgresql {
              * The pool mode. Default: `session`.
              */
             poolMode: string;
+            serverCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerServerCASecretPatch;
+            serverTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerServerTLSSecretPatch;
+        }
+
+        /**
+         * ServerCASecret provides PgBouncer’s server_tls_ca_file, the root
+         * CA for validating PostgreSQL certificates
+         */
+        export interface PoolerSpecPgbouncerServerCASecret {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ServerCASecret provides PgBouncer’s server_tls_ca_file, the root
+         * CA for validating PostgreSQL certificates
+         */
+        export interface PoolerSpecPgbouncerServerCASecretPatch {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ServerTLSSecret, when pointing to a TLS secret, provides pgbouncer's
+         * `server_tls_key_file` and `server_tls_cert_file`, used when
+         * authenticating against PostgreSQL.
+         */
+        export interface PoolerSpecPgbouncerServerTLSSecret {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ServerTLSSecret, when pointing to a TLS secret, provides pgbouncer's
+         * `server_tls_key_file` and `server_tls_cert_file`, used when
+         * authenticating against PostgreSQL.
+         */
+        export interface PoolerSpecPgbouncerServerTLSSecretPatch {
+            /**
+             * Name of the referent.
+             */
+            name: string;
         }
 
         /**
@@ -15131,7 +16878,9 @@ export namespace postgresql {
             hostIPC: boolean;
             /**
              * Host networking requested for this pod. Use the host's network namespace.
-             * If this option is set, the ports that will be used must be specified.
+             * When using HostNetwork you should specify ports so the scheduler is aware.
+             * When `hostNetwork` is true, specified `hostPort` fields in port definitions must match `containerPort`,
+             * and unspecified `hostPort` fields in port definitions are defaulted to match `containerPort`.
              * Default to false.
              */
             hostNetwork: boolean;
@@ -15157,6 +16906,19 @@ export namespace postgresql {
              * If not specified, the pod's hostname will be set to a system-defined value.
              */
             hostname: string;
+            /**
+             * HostnameOverride specifies an explicit override for the pod's hostname as perceived by the pod.
+             * This field only specifies the pod's hostname and does not affect its DNS records.
+             * When this field is set to a non-empty string:
+             * - It takes precedence over the values set in `hostname` and `subdomain`.
+             * - The Pod's hostname will be set to this value.
+             * - `setHostnameAsFQDN` must be nil or set to false.
+             * - `hostNetwork` must be set to false.
+             *
+             * This field must be a valid DNS subdomain as defined in RFC 1123 and contain at most 64 characters.
+             * Requires the HostnameOverride feature gate to be enabled.
+             */
+            hostnameOverride: string;
             /**
              * ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
              * If specified, these secrets will be passed to individual puller implementations for them to use.
@@ -16308,8 +18070,8 @@ export namespace postgresql {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
@@ -16336,8 +18098,8 @@ export namespace postgresql {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution: outputs.postgresql.v1.PoolerSpecTemplateSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch[];
@@ -16932,8 +18694,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnv[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -16980,10 +18742,10 @@ export namespace postgresql {
             resources: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersResources;
             /**
              * RestartPolicy defines the restart behavior of individual containers in a pod.
-             * This field may only be set for init containers, and the only allowed value is "Always".
-             * For non-init containers or when this field is not specified,
+             * This overrides the pod-level restart policy. When this field is not specified,
              * the restart behavior is defined by the Pod's restart policy and the container type.
-             * Setting the RestartPolicy as "Always" for the init container will have the following effect:
+             * Additionally, setting the RestartPolicy as "Always" for the init container will
+             * have the following effect:
              * this init container will be continually restarted on
              * exit until all regular containers have terminated. Once all regular
              * containers have completed, all init containers with restartPolicy "Always"
@@ -16996,6 +18758,20 @@ export namespace postgresql {
              * completed.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. The rules are evaluated in
+             * order. Once a rule matches a container exit condition, the remaining
+             * rules are ignored. If no rule matches the container exit condition,
+             * the Container-level restart policy determines the whether the container
+             * is restarted or not. Constraints on the rules:
+             * - At most 20 rules are allowed.
+             * - Rules can have the same action.
+             * - Identical rules are not forbidden in validations.
+             * When rules are specified, container MUST set RestartPolicy explicitly
+             * even it if matches the Pod's RestartPolicy.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersRestartPolicyRules[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersSecurityContext;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersStartupProbe;
             /**
@@ -17062,7 +18838,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecContainersEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -17086,7 +18863,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromConfigMapRef;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromSecretRef;
@@ -17134,7 +18912,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromConfigMapRefPatch;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvFromSecretRefPatch;
@@ -17181,7 +18960,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecContainersEnvPatch {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -17205,6 +18985,7 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecContainersEnvValueFrom {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromSecretKeyRef;
         }
@@ -17284,11 +19065,76 @@ export namespace postgresql {
         }
 
         /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecContainersEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         export interface PoolerSpecTemplateSpecContainersEnvValueFromPatch {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -18136,8 +19982,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersEnvPatch[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -18184,10 +20030,10 @@ export namespace postgresql {
             resources: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersResourcesPatch;
             /**
              * RestartPolicy defines the restart behavior of individual containers in a pod.
-             * This field may only be set for init containers, and the only allowed value is "Always".
-             * For non-init containers or when this field is not specified,
+             * This overrides the pod-level restart policy. When this field is not specified,
              * the restart behavior is defined by the Pod's restart policy and the container type.
-             * Setting the RestartPolicy as "Always" for the init container will have the following effect:
+             * Additionally, setting the RestartPolicy as "Always" for the init container will
+             * have the following effect:
              * this init container will be continually restarted on
              * exit until all regular containers have terminated. Once all regular
              * containers have completed, all init containers with restartPolicy "Always"
@@ -18200,6 +20046,20 @@ export namespace postgresql {
              * completed.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. The rules are evaluated in
+             * order. Once a rule matches a container exit condition, the remaining
+             * rules are ignored. If no rule matches the container exit condition,
+             * the Container-level restart policy determines the whether the container
+             * is restarted or not. Constraints on the rules:
+             * - At most 20 rules are allowed.
+             * - Rules can have the same action.
+             * - Identical rules are not forbidden in validations.
+             * When rules are specified, container MUST set RestartPolicy explicitly
+             * even it if matches the Pod's RestartPolicy.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersRestartPolicyRulesPatch[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersSecurityContextPatch;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersStartupProbePatch;
             /**
@@ -18657,7 +20517,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -18723,7 +20583,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -18741,6 +20601,72 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
              */
             requests: {[key: string]: number | string};
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecContainersRestartPolicyRules {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersRestartPolicyRulesExitCodes;
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecContainersRestartPolicyRulesExitCodes {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecContainersRestartPolicyRulesPatch {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch;
         }
 
         /**
@@ -19693,8 +21619,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnv[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -19733,10 +21659,15 @@ export namespace postgresql {
             /**
              * Restart policy for the container to manage the restart behavior of each
              * container within a pod.
-             * This may only be set for init containers. You cannot set this field on
-             * ephemeral containers.
+             * You cannot set this field on ephemeral containers.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. You cannot set this field on
+             * ephemeral containers.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRules[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersSecurityContext;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersStartupProbe;
             /**
@@ -19812,7 +21743,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -19836,7 +21768,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecEphemeralContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromConfigMapRef;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromSecretRef;
@@ -19884,7 +21817,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecEphemeralContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromConfigMapRefPatch;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvFromSecretRefPatch;
@@ -19931,7 +21865,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersEnvPatch {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -19955,6 +21890,7 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecEphemeralContainersEnvValueFrom {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRef;
         }
@@ -20034,11 +21970,76 @@ export namespace postgresql {
         }
 
         /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         export interface PoolerSpecTemplateSpecEphemeralContainersEnvValueFromPatch {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -20885,8 +22886,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersEnvPatch[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -20925,10 +22926,15 @@ export namespace postgresql {
             /**
              * Restart policy for the container to manage the restart behavior of each
              * container within a pod.
-             * This may only be set for init containers. You cannot set this field on
-             * ephemeral containers.
+             * You cannot set this field on ephemeral containers.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. You cannot set this field on
+             * ephemeral containers.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersSecurityContextPatch;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersStartupProbePatch;
             /**
@@ -21388,7 +23394,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -21453,7 +23459,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -21471,6 +23477,72 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
              */
             requests: {[key: string]: number | string};
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRules {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes;
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch;
         }
 
         /**
@@ -22378,8 +24450,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnv[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -22426,10 +24498,10 @@ export namespace postgresql {
             resources: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResources;
             /**
              * RestartPolicy defines the restart behavior of individual containers in a pod.
-             * This field may only be set for init containers, and the only allowed value is "Always".
-             * For non-init containers or when this field is not specified,
+             * This overrides the pod-level restart policy. When this field is not specified,
              * the restart behavior is defined by the Pod's restart policy and the container type.
-             * Setting the RestartPolicy as "Always" for the init container will have the following effect:
+             * Additionally, setting the RestartPolicy as "Always" for the init container will
+             * have the following effect:
              * this init container will be continually restarted on
              * exit until all regular containers have terminated. Once all regular
              * containers have completed, all init containers with restartPolicy "Always"
@@ -22442,6 +24514,20 @@ export namespace postgresql {
              * completed.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. The rules are evaluated in
+             * order. Once a rule matches a container exit condition, the remaining
+             * rules are ignored. If no rule matches the container exit condition,
+             * the Container-level restart policy determines the whether the container
+             * is restarted or not. Constraints on the rules:
+             * - At most 20 rules are allowed.
+             * - Rules can have the same action.
+             * - Identical rules are not forbidden in validations.
+             * When rules are specified, container MUST set RestartPolicy explicitly
+             * even it if matches the Pod's RestartPolicy.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersRestartPolicyRules[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersSecurityContext;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersStartupProbe;
             /**
@@ -22508,7 +24594,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecInitContainersEnv {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -22532,7 +24619,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecInitContainersEnvFrom {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromConfigMapRef;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromSecretRef;
@@ -22580,7 +24668,8 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecInitContainersEnvFromPatch {
             configMapRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromConfigMapRefPatch;
             /**
-             * Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
+             * Optional text to prepend to the name of each environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             prefix: string;
             secretRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvFromSecretRefPatch;
@@ -22627,7 +24716,8 @@ export namespace postgresql {
          */
         export interface PoolerSpecTemplateSpecInitContainersEnvPatch {
             /**
-             * Name of the environment variable. Must be a C_IDENTIFIER.
+             * Name of the environment variable.
+             * May consist of any printable ASCII characters except '='.
              */
             name: string;
             /**
@@ -22651,6 +24741,7 @@ export namespace postgresql {
         export interface PoolerSpecTemplateSpecInitContainersEnvValueFrom {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRef;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromFieldRef;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromFileKeyRef;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromResourceFieldRef;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromSecretKeyRef;
         }
@@ -22730,11 +24821,76 @@ export namespace postgresql {
         }
 
         /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersEnvValueFromFileKeyRef {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
+         * FileKeyRef selects a key of the env file.
+         * Requires the EnvFiles feature gate to be enabled.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch {
+            /**
+             * The key within the env file. An invalid key will prevent the pod from starting.
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
+             */
+            key: string;
+            /**
+             * Specify whether the file or its key must be defined. If the file or key
+             * does not exist, then the env var is not published.
+             * If optional is set to true and the specified key does not exist,
+             * the environment variable will not be set in the Pod's containers.
+             *
+             * If optional is set to false and the specified key does not exist,
+             * an error will be returned during Pod creation.
+             */
+            optional: boolean;
+            /**
+             * The path within the volume from which to select the file.
+             * Must be relative and may not contain the '..' path or start with '..'.
+             */
+            path: string;
+            /**
+             * The name of the volume mount containing the env file.
+             */
+            volumeName: string;
+        }
+
+        /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         export interface PoolerSpecTemplateSpecInitContainersEnvValueFromPatch {
             configMapKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRefPatch;
             fieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromFieldRefPatch;
+            fileKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch;
             resourceFieldRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromResourceFieldRefPatch;
             secretKeyRef: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvValueFromSecretKeyRefPatch;
         }
@@ -23582,8 +25738,8 @@ export namespace postgresql {
             env: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersEnvPatch[];
             /**
              * List of sources to populate environment variables in the container.
-             * The keys defined within a source must be a C_IDENTIFIER. All invalid keys
-             * will be reported as an event when the container is starting. When a key exists in multiple
+             * The keys defined within a source may consist of any printable ASCII characters except '='.
+             * When a key exists in multiple
              * sources, the value associated with the last source will take precedence.
              * Values defined by an Env with a duplicate key will take precedence.
              * Cannot be updated.
@@ -23630,10 +25786,10 @@ export namespace postgresql {
             resources: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResourcesPatch;
             /**
              * RestartPolicy defines the restart behavior of individual containers in a pod.
-             * This field may only be set for init containers, and the only allowed value is "Always".
-             * For non-init containers or when this field is not specified,
+             * This overrides the pod-level restart policy. When this field is not specified,
              * the restart behavior is defined by the Pod's restart policy and the container type.
-             * Setting the RestartPolicy as "Always" for the init container will have the following effect:
+             * Additionally, setting the RestartPolicy as "Always" for the init container will
+             * have the following effect:
              * this init container will be continually restarted on
              * exit until all regular containers have terminated. Once all regular
              * containers have completed, all init containers with restartPolicy "Always"
@@ -23646,6 +25802,20 @@ export namespace postgresql {
              * completed.
              */
             restartPolicy: string;
+            /**
+             * Represents a list of rules to be checked to determine if the
+             * container should be restarted on exit. The rules are evaluated in
+             * order. Once a rule matches a container exit condition, the remaining
+             * rules are ignored. If no rule matches the container exit condition,
+             * the Container-level restart policy determines the whether the container
+             * is restarted or not. Constraints on the rules:
+             * - At most 20 rules are allowed.
+             * - Rules can have the same action.
+             * - Identical rules are not forbidden in validations.
+             * When rules are specified, container MUST set RestartPolicy explicitly
+             * even it if matches the Pod's RestartPolicy.
+             */
+            restartPolicyRules: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersRestartPolicyRulesPatch[];
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersSecurityContextPatch;
             startupProbe: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersStartupProbePatch;
             /**
@@ -24103,7 +26273,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -24169,7 +26339,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -24187,6 +26357,72 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
              */
             requests: {[key: string]: number | string};
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersRestartPolicyRules {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes;
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * Represents the exit codes to check on container exits.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch {
+            /**
+             * Represents the relationship between the container exit code(s) and the
+             * specified values. Possible values are:
+             * - In: the requirement is satisfied if the container exit code is in the
+             *   set of specified values.
+             * - NotIn: the requirement is satisfied if the container exit code is
+             *   not in the set of specified values.
+             */
+            operator: string;
+            /**
+             * Specifies the set of values to check for container exit codes.
+             * At most 255 elements are allowed.
+             */
+            values: number[];
+        }
+
+        /**
+         * ContainerRestartRule describes how a container exit is handled.
+         */
+        export interface PoolerSpecTemplateSpecInitContainersRestartPolicyRulesPatch {
+            /**
+             * Specifies the action taken on a container exit if the requirements
+             * are satisfied. The only possible value is "Restart" to restart the
+             * container.
+             */
+            action: string;
+            exitCodes: outputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch;
         }
 
         /**
@@ -25026,6 +27262,7 @@ export namespace postgresql {
          * - spec.hostPID
          * - spec.hostIPC
          * - spec.hostUsers
+         * - spec.resources
          * - spec.securityContext.appArmorProfile
          * - spec.securityContext.seLinuxOptions
          * - spec.securityContext.seccompProfile
@@ -25069,6 +27306,7 @@ export namespace postgresql {
          * - spec.hostPID
          * - spec.hostIPC
          * - spec.hostUsers
+         * - spec.resources
          * - spec.securityContext.appArmorProfile
          * - spec.securityContext.seLinuxOptions
          * - spec.securityContext.seccompProfile
@@ -25159,7 +27397,9 @@ export namespace postgresql {
             hostIPC: boolean;
             /**
              * Host networking requested for this pod. Use the host's network namespace.
-             * If this option is set, the ports that will be used must be specified.
+             * When using HostNetwork you should specify ports so the scheduler is aware.
+             * When `hostNetwork` is true, specified `hostPort` fields in port definitions must match `containerPort`,
+             * and unspecified `hostPort` fields in port definitions are defaulted to match `containerPort`.
              * Default to false.
              */
             hostNetwork: boolean;
@@ -25185,6 +27425,19 @@ export namespace postgresql {
              * If not specified, the pod's hostname will be set to a system-defined value.
              */
             hostname: string;
+            /**
+             * HostnameOverride specifies an explicit override for the pod's hostname as perceived by the pod.
+             * This field only specifies the pod's hostname and does not affect its DNS records.
+             * When this field is set to a non-empty string:
+             * - It takes precedence over the values set in `hostname` and `subdomain`.
+             * - The Pod's hostname will be set to this value.
+             * - `setHostnameAsFQDN` must be nil or set to false.
+             * - `hostNetwork` must be set to false.
+             *
+             * This field must be a valid DNS subdomain as defined in RFC 1123 and contain at most 64 characters.
+             * Requires the HostnameOverride feature gate to be enabled.
+             */
+            hostnameOverride: string;
             /**
              * ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
              * If specified, these secrets will be passed to individual puller implementations for them to use.
@@ -25470,7 +27723,7 @@ export namespace postgresql {
         /**
          * Resources is the total amount of CPU and Memory resources required by all
          * containers in the pod. It supports specifying Requests and Limits for
-         * "cpu" and "memory" resource names only. ResourceClaims are not supported.
+         * "cpu", "memory" and "hugepages-" resource names only. ResourceClaims are not supported.
          *
          * This field enables fine-grained control over resource allocation for the
          * entire pod, allowing resource sharing among containers in a pod.
@@ -25483,7 +27736,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -25542,7 +27795,7 @@ export namespace postgresql {
         /**
          * Resources is the total amount of CPU and Memory resources required by all
          * containers in the pod. It supports specifying Requests and Limits for
-         * "cpu" and "memory" resource names only. ResourceClaims are not supported.
+         * "cpu", "memory" and "hugepages-" resource names only. ResourceClaims are not supported.
          *
          * This field enables fine-grained control over resource allocation for the
          * entire pod, allowing resource sharing among containers in a pod.
@@ -25555,7 +27808,7 @@ export namespace postgresql {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -27416,15 +29669,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -27613,15 +29864,13 @@ export namespace postgresql {
              * volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
              * If specified, the CSI driver will create or update the volume with the attributes defined
              * in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-             * it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-             * will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-             * If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-             * will be set by the persistentvolume controller if it exists.
+             * it can be changed after the claim is created. An empty string or nil value indicates that no
+             * VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+             * this field can be reset to its previous value (including nil) to cancel the modification.
              * If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
              * set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
              * exists.
              * More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-             * (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
              */
             volumeAttributesClassName: string;
             /**
@@ -28064,12 +30313,10 @@ export namespace postgresql {
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
          * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesGlusterfs {
             /**
              * endpoints is the endpoint name that details Glusterfs topology.
-             * More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
              */
             endpoints: string;
             /**
@@ -28088,12 +30335,10 @@ export namespace postgresql {
         /**
          * glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime.
          * Deprecated: Glusterfs is deprecated and the in-tree glusterfs type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/glusterfs/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesGlusterfsPatch {
             /**
              * endpoints is the endpoint name that details Glusterfs topology.
-             * More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
              */
             endpoints: string;
             /**
@@ -28228,7 +30473,7 @@ export namespace postgresql {
         /**
          * iscsi represents an ISCSI Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
-         * More info: https://examples.k8s.io/volumes/iscsi/README.md
+         * More info: https://kubernetes.io/docs/concepts/storage/volumes/#iscsi
          */
         export interface PoolerSpecTemplateSpecVolumesIscsi {
             /**
@@ -28286,7 +30531,7 @@ export namespace postgresql {
         /**
          * iscsi represents an ISCSI Disk resource that is attached to a
          * kubelet's host machine and then exposed to the pod.
-         * More info: https://examples.k8s.io/volumes/iscsi/README.md
+         * More info: https://kubernetes.io/docs/concepts/storage/volumes/#iscsi
          */
         export interface PoolerSpecTemplateSpecVolumesIscsiPatch {
             /**
@@ -28623,6 +30868,7 @@ export namespace postgresql {
             clusterTrustBundle: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundle;
             configMap: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesConfigMap;
             downwardAPI: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesDownwardAPI;
+            podCertificate: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesPodCertificate;
             secret: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesSecret;
             serviceAccountToken: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesServiceAccountToken;
         }
@@ -29039,8 +31285,213 @@ export namespace postgresql {
             clusterTrustBundle: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundlePatch;
             configMap: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesConfigMapPatch;
             downwardAPI: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesDownwardAPIPatch;
+            podCertificate: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch;
             secret: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesSecretPatch;
             serviceAccountToken: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesProjectedSourcesServiceAccountTokenPatch;
+        }
+
+        /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface PoolerSpecTemplateSpecVolumesProjectedSourcesPodCertificate {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
+        }
+
+        /**
+         * Projects an auto-rotating credential bundle (private key and certificate
+         * chain) that the pod can use either as a TLS client or server.
+         *
+         * Kubelet generates a private key and uses it to send a
+         * PodCertificateRequest to the named signer.  Once the signer approves the
+         * request and issues a certificate chain, Kubelet writes the key and
+         * certificate chain to the pod filesystem.  The pod does not start until
+         * certificates have been issued for each podCertificate projected volume
+         * source in its spec.
+         *
+         * Kubelet will begin trying to rotate the certificate at the time indicated
+         * by the signer using the PodCertificateRequest.Status.BeginRefreshAt
+         * timestamp.
+         *
+         * Kubelet can write a single file, indicated by the credentialBundlePath
+         * field, or separate files, indicated by the keyPath and
+         * certificateChainPath fields.
+         *
+         * The credential bundle is a single file in PEM format.  The first PEM
+         * entry is the private key (in PKCS#8 format), and the remaining PEM
+         * entries are the certificate chain issued by the signer (typically,
+         * signers will return their certificate chain in leaf-to-root order).
+         *
+         * Prefer using the credential bundle format, since your application code
+         * can read it atomically.  If you use keyPath and certificateChainPath,
+         * your application must make two separate file reads. If these coincide
+         * with a certificate rotation, it is possible that the private key and leaf
+         * certificate you read may not correspond to each other.  Your application
+         * will need to check for this condition, and re-read until they are
+         * consistent.
+         *
+         * The named signer controls chooses the format of the certificate it
+         * issues; consult the signer implementation's documentation to learn how to
+         * use the certificates it issues.
+         */
+        export interface PoolerSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch {
+            /**
+             * Write the certificate chain at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            certificateChainPath: string;
+            /**
+             * Write the credential bundle at this path in the projected volume.
+             *
+             * The credential bundle is a single file that contains multiple PEM blocks.
+             * The first PEM block is a PRIVATE KEY block, containing a PKCS#8 private
+             * key.
+             *
+             * The remaining blocks are CERTIFICATE blocks, containing the issued
+             * certificate chain from the signer (leaf and any intermediates).
+             *
+             * Using credentialBundlePath lets your Pod's application code make a single
+             * atomic read that retrieves a consistent key and certificate chain.  If you
+             * project them to separate files, your application code will need to
+             * additionally check that the leaf certificate was issued to the key.
+             */
+            credentialBundlePath: string;
+            /**
+             * Write the key at this path in the projected volume.
+             *
+             * Most applications should use credentialBundlePath.  When using keyPath
+             * and certificateChainPath, your application needs to check that the key
+             * and leaf certificate are consistent, because it is possible to read the
+             * files mid-rotation.
+             */
+            keyPath: string;
+            /**
+             * The type of keypair Kubelet will generate for the pod.
+             *
+             * Valid values are "RSA3072", "RSA4096", "ECDSAP256", "ECDSAP384",
+             * "ECDSAP521", and "ED25519".
+             */
+            keyType: string;
+            /**
+             * maxExpirationSeconds is the maximum lifetime permitted for the
+             * certificate.
+             *
+             * Kubelet copies this value verbatim into the PodCertificateRequests it
+             * generates for this projection.
+             *
+             * If omitted, kube-apiserver will set it to 86400(24 hours). kube-apiserver
+             * will reject values shorter than 3600 (1 hour).  The maximum allowable
+             * value is 7862400 (91 days).
+             *
+             * The signer implementation is then free to issue a certificate with any
+             * lifetime *shorter* than MaxExpirationSeconds, but no shorter than 3600
+             * seconds (1 hour).  This constraint is enforced by kube-apiserver.
+             * `kubernetes.io` signers will never issue certificates with a lifetime
+             * longer than 24 hours.
+             */
+            maxExpirationSeconds: number;
+            /**
+             * Kubelet's generated CSRs will be addressed to this signer.
+             */
+            signerName: string;
         }
 
         /**
@@ -29282,7 +31733,6 @@ export namespace postgresql {
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
          * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesRbd {
             /**
@@ -29332,7 +31782,6 @@ export namespace postgresql {
         /**
          * rbd represents a Rados Block Device mount on the host that shares a pod's lifetime.
          * Deprecated: RBD is deprecated and the in-tree rbd type is no longer supported.
-         * More info: https://examples.k8s.io/volumes/rbd/README.md
          */
         export interface PoolerSpecTemplateSpecVolumesRbdPatch {
             /**
@@ -29846,6 +32295,7 @@ export namespace postgresql {
          */
         export interface PoolerStatusSecrets {
             clientCA: outputs.postgresql.v1.PoolerStatusSecretsClientCA;
+            clientTLS: outputs.postgresql.v1.PoolerStatusSecretsClientTLS;
             pgBouncerSecrets: outputs.postgresql.v1.PoolerStatusSecretsPgBouncerSecrets;
             serverCA: outputs.postgresql.v1.PoolerStatusSecretsServerCA;
             serverTLS: outputs.postgresql.v1.PoolerStatusSecretsServerTLS;
@@ -29880,10 +32330,39 @@ export namespace postgresql {
         }
 
         /**
+         * The client TLS secret version
+         */
+        export interface PoolerStatusSecretsClientTLS {
+            /**
+             * The name of the secret
+             */
+            name: string;
+            /**
+             * The ResourceVersion of the secret
+             */
+            version: string;
+        }
+
+        /**
+         * The client TLS secret version
+         */
+        export interface PoolerStatusSecretsClientTLSPatch {
+            /**
+             * The name of the secret
+             */
+            name: string;
+            /**
+             * The ResourceVersion of the secret
+             */
+            version: string;
+        }
+
+        /**
          * The resource version of the config object
          */
         export interface PoolerStatusSecretsPatch {
             clientCA: outputs.postgresql.v1.PoolerStatusSecretsClientCAPatch;
+            clientTLS: outputs.postgresql.v1.PoolerStatusSecretsClientTLSPatch;
             pgBouncerSecrets: outputs.postgresql.v1.PoolerStatusSecretsPgBouncerSecretsPatch;
             serverCA: outputs.postgresql.v1.PoolerStatusSecretsServerCAPatch;
             serverTLS: outputs.postgresql.v1.PoolerStatusSecretsServerTLSPatch;

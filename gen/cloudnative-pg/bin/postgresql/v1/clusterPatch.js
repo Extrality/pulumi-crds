@@ -12,7 +12,8 @@ const utilities = require("../../utilities");
  * Conflicts will result in an error by default, but can be forced using the "pulumi.com/patchForce" annotation. See the
  * [Server-Side Apply Docs](https://www.pulumi.com/registry/packages/kubernetes/how-to-guides/managing-resources-with-server-side-apply/) for
  * additional information about using Server-Side Apply to manage Kubernetes resources with Pulumi.
- * Cluster is the Schema for the PostgreSQL API
+ * Cluster defines the API schema for a highly available PostgreSQL database cluster
+ * managed by CloudNativePG.
  */
 class ClusterPatch extends pulumi.CustomResource {
     /**

@@ -1377,8 +1377,8 @@ export namespace rabbitmq {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution>[]>;
@@ -1405,8 +1405,8 @@ export namespace rabbitmq {
              * most preferred is the one with the greatest sum of weights, i.e.
              * for each node that meets all of the scheduling requirements (resource
              * request, requiredDuringScheduling anti-affinity expressions, etc.),
-             * compute a sum by iterating through the elements of this field and adding
-             * "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+             * compute a sum by iterating through the elements of this field and subtracting
+             * "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
              * node(s) with the highest sum are the most preferred.
              */
             preferredDuringSchedulingIgnoredDuringExecution?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPatch>[]>;
@@ -2223,6 +2223,7 @@ export namespace rabbitmq {
             hostPID?: pulumi.Input<boolean>;
             hostUsers?: pulumi.Input<boolean>;
             hostname?: pulumi.Input<string>;
+            hostnameOverride?: pulumi.Input<string>;
             imagePullSecrets?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecImagePullSecrets>[]>;
             initContainers?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainers>[]>;
             nodeName?: pulumi.Input<string>;
@@ -2662,6 +2663,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResources>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRules>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContext>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersStartupProbe>;
             stdin?: pulumi.Input<boolean>;
@@ -2721,6 +2723,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFrom {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromConfigMapKeyRef>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFieldRef>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRef>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromResourceFieldRef>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromSecretKeyRef>;
         }
@@ -2747,9 +2750,24 @@ export namespace rabbitmq {
             fieldPath?: pulumi.Input<string>;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRef {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromPatch {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromConfigMapKeyRefPatch>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFieldRefPatch>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromFileKeyRefPatch>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromResourceFieldRefPatch>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersEnvValueFromSecretKeyRefPatch>;
         }
@@ -3017,6 +3035,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResizePolicyPatch>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResourcesPatch>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesPatch>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContextPatch>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersStartupProbePatch>;
             stdin?: pulumi.Input<boolean>;
@@ -3155,6 +3174,26 @@ export namespace rabbitmq {
             claims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersResourcesClaimsPatch>[]>;
             limits?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
             requests?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRules {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodes>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodes {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesPatch {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersRestartPolicyRulesExitCodesPatch>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecContainersSecurityContext {
@@ -3392,6 +3431,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResources>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRules>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContext>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersStartupProbe>;
             stdin?: pulumi.Input<boolean>;
@@ -3452,6 +3492,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFrom {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRef>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFieldRef>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRef>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRef>;
         }
@@ -3478,9 +3519,24 @@ export namespace rabbitmq {
             fieldPath?: pulumi.Input<string>;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRef {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromPatch {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromConfigMapKeyRefPatch>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFieldRefPatch>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromFileKeyRefPatch>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromResourceFieldRefPatch>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersEnvValueFromSecretKeyRefPatch>;
         }
@@ -3748,6 +3804,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResizePolicyPatch>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResourcesPatch>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContextPatch>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersStartupProbePatch>;
             stdin?: pulumi.Input<boolean>;
@@ -3887,6 +3944,26 @@ export namespace rabbitmq {
             claims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersResourcesClaimsPatch>[]>;
             limits?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
             requests?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRules {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodes {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesPatch {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersRestartPolicyRulesExitCodesPatch>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecEphemeralContainersSecurityContext {
@@ -4120,6 +4197,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResources>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRules>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContext>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersStartupProbe>;
             stdin?: pulumi.Input<boolean>;
@@ -4179,6 +4257,7 @@ export namespace rabbitmq {
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFrom {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRef>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFieldRef>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRef>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromResourceFieldRef>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromSecretKeyRef>;
         }
@@ -4205,9 +4284,24 @@ export namespace rabbitmq {
             fieldPath?: pulumi.Input<string>;
         }
 
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRef {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch {
+            key?: pulumi.Input<string>;
+            optional?: pulumi.Input<boolean>;
+            path?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string>;
+        }
+
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromPatch {
             configMapKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromConfigMapKeyRefPatch>;
             fieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFieldRefPatch>;
+            fileKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromFileKeyRefPatch>;
             resourceFieldRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromResourceFieldRefPatch>;
             secretKeyRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersEnvValueFromSecretKeyRefPatch>;
         }
@@ -4475,6 +4569,7 @@ export namespace rabbitmq {
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResizePolicyPatch>[]>;
             resources?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResourcesPatch>;
             restartPolicy?: pulumi.Input<string>;
+            restartPolicyRules?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesPatch>[]>;
             securityContext?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContextPatch>;
             startupProbe?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersStartupProbePatch>;
             stdin?: pulumi.Input<boolean>;
@@ -4613,6 +4708,26 @@ export namespace rabbitmq {
             claims?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersResourcesClaimsPatch>[]>;
             limits?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
             requests?: pulumi.Input<{[key: string]: pulumi.Input<number | string>}>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRules {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodes {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch {
+            operator?: pulumi.Input<string>;
+            values?: pulumi.Input<pulumi.Input<number>[]>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesPatch {
+            action?: pulumi.Input<string>;
+            exitCodes?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersRestartPolicyRulesExitCodesPatch>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersSecurityContext {
@@ -4836,6 +4951,7 @@ export namespace rabbitmq {
             hostPID?: pulumi.Input<boolean>;
             hostUsers?: pulumi.Input<boolean>;
             hostname?: pulumi.Input<string>;
+            hostnameOverride?: pulumi.Input<string>;
             imagePullSecrets?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecImagePullSecretsPatch>[]>;
             initContainers?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecInitContainersPatch>[]>;
             nodeName?: pulumi.Input<string>;
@@ -5632,6 +5748,7 @@ export namespace rabbitmq {
             clusterTrustBundle?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundle>;
             configMap?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesConfigMap>;
             downwardAPI?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesDownwardAPI>;
+            podCertificate?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificate>;
             secret?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecret>;
             serviceAccountToken?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesServiceAccountToken>;
         }
@@ -5746,8 +5863,27 @@ export namespace rabbitmq {
             clusterTrustBundle?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesClusterTrustBundlePatch>;
             configMap?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesConfigMapPatch>;
             downwardAPI?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesDownwardAPIPatch>;
+            podCertificate?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch>;
             secret?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecretPatch>;
             serviceAccountToken?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesServiceAccountTokenPatch>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificate {
+            certificateChainPath?: pulumi.Input<string>;
+            credentialBundlePath?: pulumi.Input<string>;
+            keyPath?: pulumi.Input<string>;
+            keyType?: pulumi.Input<string>;
+            maxExpirationSeconds?: pulumi.Input<number>;
+            signerName?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch {
+            certificateChainPath?: pulumi.Input<string>;
+            credentialBundlePath?: pulumi.Input<string>;
+            keyPath?: pulumi.Input<string>;
+            keyType?: pulumi.Input<string>;
+            maxExpirationSeconds?: pulumi.Input<number>;
+            signerName?: pulumi.Input<string>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecret {
@@ -6225,7 +6361,7 @@ export namespace rabbitmq {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.
@@ -6289,7 +6425,7 @@ export namespace rabbitmq {
              * Claims lists the names of resources, defined in spec.resourceClaims,
              * that are used by this container.
              *
-             * This is an alpha field and requires enabling the
+             * This field depends on the
              * DynamicResourceAllocation feature gate.
              *
              * This field is immutable. It can only be set for containers.

@@ -6,7 +6,8 @@ exports.Cluster = void 0;
 const pulumi = require("@pulumi/pulumi");
 const utilities = require("../../utilities");
 /**
- * Cluster is the Schema for the PostgreSQL API
+ * Cluster defines the API schema for a highly available PostgreSQL database cluster
+ * managed by CloudNativePG.
  */
 class Cluster extends pulumi.CustomResource {
     /**

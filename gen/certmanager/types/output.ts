@@ -83,10 +83,12 @@ export namespace acme {
         export interface ChallengeSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -105,10 +107,12 @@ export namespace acme {
         export interface ChallengeSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6059,10 +6063,12 @@ export namespace acme {
         export interface OrderSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6081,10 +6087,12 @@ export namespace acme {
         export interface OrderSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6488,10 +6496,12 @@ export namespace cert_manager {
         export interface CertificateRequestSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6511,10 +6521,12 @@ export namespace cert_manager {
         export interface CertificateRequestSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6915,10 +6927,12 @@ export namespace cert_manager {
         export interface CertificateSpecIssuerRef {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**
@@ -6938,10 +6952,12 @@ export namespace cert_manager {
         export interface CertificateSpecIssuerRefPatch {
             /**
              * Group of the issuer being referred to.
+             * Defaults to 'cert-manager.io'.
              */
             group: string;
             /**
              * Kind of the issuer being referred to.
+             * Defaults to 'Issuer'.
              */
             kind: string;
             /**

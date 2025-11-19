@@ -7,3 +7,12 @@ export declare const BackendTLSPolicyList: typeof import("./backendTLSPolicyList
 export { BackendTLSPolicyPatchArgs } from "./backendTLSPolicyPatch";
 export type BackendTLSPolicyPatch = import("./backendTLSPolicyPatch").BackendTLSPolicyPatch;
 export declare const BackendTLSPolicyPatch: typeof import("./backendTLSPolicyPatch").BackendTLSPolicyPatch;
+export { TLSRouteArgs } from "./tlsroute";
+export type TLSRoute = import("./tlsroute").TLSRoute;
+export declare const TLSRoute: typeof import("./tlsroute").TLSRoute;
+export { TLSRouteListArgs } from "./tlsrouteList";
+export type TLSRouteList = import("./tlsrouteList").TLSRouteList;
+export declare const TLSRouteList: typeof import("./tlsrouteList").TLSRouteList;
+export { TLSRoutePatchArgs } from "./tlsroutePatch";
+export type TLSRoutePatch = import("./tlsroutePatch").TLSRoutePatch;
+export declare const TLSRoutePatch: typeof import("./tlsroutePatch").TLSRoutePatch;
