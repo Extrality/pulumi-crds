@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/rabbitmq-cluster-operator",
-  "version": "2.17.2",
+  "version": "2.18.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -34,6 +34,6 @@
   "pulumi": {
     "resource": true,
     "name": "rabbitmq-cluster-operator",
-    "version": "2.17.2"
+    "version": "2.18.0"
   }
 }

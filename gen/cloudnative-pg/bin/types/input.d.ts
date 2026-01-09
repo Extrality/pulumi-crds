@@ -1026,7 +1026,10 @@ export declare namespace postgresql {
             /**
              * Method to follow to upgrade the primary server during a rolling
              * update procedure, after all replicas have been successfully updated:
-             * it can be with a switchover (`switchover`) or in-place (`restart` - default)
+             * it can be with a switchover (`switchover`) or in-place (`restart` - default).
+             * Note: when using `switchover`, the operator will reject updates that change both
+             * the image name and PostgreSQL configuration parameters simultaneously to avoid
+             * configuration mismatches during the switchover process.
              */
             primaryUpdateMethod?: pulumi.Input<string>;
             /**
@@ -8144,7 +8147,10 @@ export declare namespace postgresql {
             /**
              * Method to follow to upgrade the primary server during a rolling
              * update procedure, after all replicas have been successfully updated:
-             * it can be with a switchover (`switchover`) or in-place (`restart` - default)
+             * it can be with a switchover (`switchover`) or in-place (`restart` - default).
+             * Note: when using `switchover`, the operator will reject updates that change both
+             * the image name and PostgreSQL configuration parameters simultaneously to avoid
+             * configuration mismatches during the switchover process.
              */
             primaryUpdateMethod?: pulumi.Input<string>;
             /**

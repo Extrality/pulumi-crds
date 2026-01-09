@@ -77,6 +77,12 @@ export namespace gateway {
              * implementation MUST ensure the `Accepted` Condition is set to
              * `status: False`, with Reason `Conflicted`.
              *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
              * Support: Extended for Kubernetes Service
              *
              * Support: Implementation-specific for any other resource
@@ -133,6 +139,12 @@ export namespace gateway {
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
              * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
              *
              * Support: Extended for Kubernetes Service
              *
@@ -19139,6 +19151,12 @@ export namespace gateway {
              * implementation MUST ensure the `Accepted` Condition is set to
              * `status: False`, with Reason `Conflicted`.
              *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
              * Support: Extended for Kubernetes Service
              *
              * Support: Implementation-specific for any other resource
@@ -19195,6 +19213,12 @@ export namespace gateway {
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
              * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
              *
              * Support: Extended for Kubernetes Service
              *

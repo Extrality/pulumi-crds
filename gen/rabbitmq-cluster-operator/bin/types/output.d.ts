@@ -5746,6 +5746,7 @@ export declare namespace rabbitmq {
          * The desired persistent storage configuration for each Pod in the cluster.
          */
         interface RabbitmqClusterSpecPersistence {
+            emptyDir: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecPersistenceEmptyDir;
             /**
              * The requested size of the persistent volume attached to each Pod in the RabbitmqCluster.
              * The format of this field matches that defined by kubernetes/apimachinery.
@@ -5758,9 +5759,46 @@ export declare namespace rabbitmq {
             storageClassName: string;
         }
         /**
+         * EmptyDir configuration to be used when Storage is set to 0Gi.
+         */
+        interface RabbitmqClusterSpecPersistenceEmptyDir {
+            /**
+             * Medium represents the storage medium for the EmptyDir volume.
+             * The default is "" which means to use the node's default medium.
+             * Must be an empty string (default) or Memory.
+             * More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+             */
+            medium: string;
+            /**
+             * SizeLimit sets the size limit for EmptyDir volumes.
+             * The format of this field matches that defined by kubernetes/apimachinery.
+             * See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info on the format of this field.
+             */
+            sizeLimit: number | string;
+        }
+        /**
+         * EmptyDir configuration to be used when Storage is set to 0Gi.
+         */
+        interface RabbitmqClusterSpecPersistenceEmptyDirPatch {
+            /**
+             * Medium represents the storage medium for the EmptyDir volume.
+             * The default is "" which means to use the node's default medium.
+             * Must be an empty string (default) or Memory.
+             * More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+             */
+            medium: string;
+            /**
+             * SizeLimit sets the size limit for EmptyDir volumes.
+             * The format of this field matches that defined by kubernetes/apimachinery.
+             * See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info on the format of this field.
+             */
+            sizeLimit: number | string;
+        }
+        /**
          * The desired persistent storage configuration for each Pod in the cluster.
          */
         interface RabbitmqClusterSpecPersistencePatch {
+            emptyDir: outputs.rabbitmq.v1beta1.RabbitmqClusterSpecPersistenceEmptyDirPatch;
             /**
              * The requested size of the persistent volume attached to each Pod in the RabbitmqCluster.
              * The format of this field matches that defined by kubernetes/apimachinery.

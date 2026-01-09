@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/rabbitmq-topology-operator",
-  "version": "1.18.1",
+  "version": "1.18.2",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -34,6 +34,6 @@
   "pulumi": {
     "resource": true,
     "name": "rabbitmq-topology-operator",
-    "version": "1.18.1"
+    "version": "1.18.2"
   }
 }
