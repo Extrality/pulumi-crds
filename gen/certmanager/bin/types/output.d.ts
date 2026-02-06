@@ -818,8 +818,8 @@ export declare namespace acme {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -865,8 +865,8 @@ export declare namespace acme {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ChallengeSpecSolverDns01Route53AccessKeyIDSecretRef {
@@ -886,8 +886,8 @@ export declare namespace acme {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ChallengeSpecSolverDns01Route53AccessKeyIDSecretRefPatch {
@@ -972,8 +972,8 @@ export declare namespace acme {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -1017,8 +1017,8 @@ export declare namespace acme {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ChallengeSpecSolverDns01Route53SecretAccessKeySecretRef {
@@ -1036,8 +1036,8 @@ export declare namespace acme {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ChallengeSpecSolverDns01Route53SecretAccessKeySecretRefPatch {
@@ -3454,9 +3454,10 @@ export declare namespace acme {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -3489,9 +3490,10 @@ export declare namespace acme {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -5654,9 +5656,10 @@ export declare namespace acme {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -5689,9 +5692,10 @@ export declare namespace acme {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -7379,9 +7383,6 @@ export declare namespace cert_manager {
              * will be generated whenever a re-issuance occurs.
              * Default is `Always`.
              * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
-             * The new default can be disabled by setting the
-             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
-             * the controller component.
              */
             rotationPolicy: string;
             /**
@@ -7433,9 +7434,6 @@ export declare namespace cert_manager {
              * will be generated whenever a re-issuance occurs.
              * Default is `Always`.
              * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
-             * The new default can be disabled by setting the
-             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
-             * the controller component.
              */
             rotationPolicy: string;
             /**
@@ -8776,8 +8774,8 @@ export declare namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -8823,8 +8821,8 @@ export declare namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ClusterIssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRef {
@@ -8844,8 +8842,8 @@ export declare namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ClusterIssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRefPatch {
@@ -8930,8 +8928,8 @@ export declare namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -8975,8 +8973,8 @@ export declare namespace cert_manager {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
@@ -8994,8 +8992,8 @@ export declare namespace cert_manager {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRefPatch {
@@ -11412,9 +11410,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -11447,9 +11446,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -13612,9 +13612,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -13647,9 +13648,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -14113,8 +14115,8 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecVaultAuthKubernetesServiceAccountRef {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences: string[];
             /**
@@ -14131,8 +14133,8 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecVaultAuthKubernetesServiceAccountRefPatch {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences: string[];
             /**
@@ -14330,34 +14332,34 @@ export declare namespace cert_manager {
             serverName: string;
         }
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         interface ClusterIssuerSpecVenafi {
             cloud: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloud;
             tpp: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTpp;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
             zone: string;
         }
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface ClusterIssuerSpecVenafiCloud {
             apiTokenSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRef;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url: string;
         }
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         interface ClusterIssuerSpecVenafiCloudApiTokenSecretRef {
             /**
@@ -14373,7 +14375,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         interface ClusterIssuerSpecVenafiCloudApiTokenSecretRefPatch {
             /**
@@ -14389,40 +14391,40 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface ClusterIssuerSpecVenafiCloudPatch {
             apiTokenSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRefPatch;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url: string;
         }
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         interface ClusterIssuerSpecVenafiPatch {
             cloud: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudPatch;
             tpp: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppPatch;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
             zone: string;
         }
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface ClusterIssuerSpecVenafiTpp {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -14430,14 +14432,14 @@ export declare namespace cert_manager {
             caBundleSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCaBundleSecretRef;
             credentialsRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCredentialsRef;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url: string;
         }
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -14457,7 +14459,7 @@ export declare namespace cert_manager {
         }
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -14476,7 +14478,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -14488,7 +14490,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -14500,13 +14502,13 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface ClusterIssuerSpecVenafiTppPatch {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -14514,7 +14516,7 @@ export declare namespace cert_manager {
             caBundleSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCaBundleSecretRefPatch;
             credentialsRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCredentialsRefPatch;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url: string;
@@ -15648,8 +15650,8 @@ export declare namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -15695,8 +15697,8 @@ export declare namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface IssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRef {
@@ -15716,8 +15718,8 @@ export declare namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface IssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRefPatch {
@@ -15802,8 +15804,8 @@ export declare namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID: string;
@@ -15847,8 +15849,8 @@ export declare namespace cert_manager {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
@@ -15866,8 +15868,8 @@ export declare namespace cert_manager {
         }
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         interface IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRefPatch {
@@ -18284,9 +18286,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -18319,9 +18322,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -20484,9 +20488,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -20519,9 +20524,10 @@ export declare namespace cert_manager {
             key: string;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator: string;
             /**
@@ -20985,8 +20991,8 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecVaultAuthKubernetesServiceAccountRef {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences: string[];
             /**
@@ -21003,8 +21009,8 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecVaultAuthKubernetesServiceAccountRefPatch {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences: string[];
             /**
@@ -21202,34 +21208,34 @@ export declare namespace cert_manager {
             serverName: string;
         }
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         interface IssuerSpecVenafi {
             cloud: outputs.cert_manager.v1.IssuerSpecVenafiCloud;
             tpp: outputs.cert_manager.v1.IssuerSpecVenafiTpp;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
             zone: string;
         }
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface IssuerSpecVenafiCloud {
             apiTokenSecretRef: outputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRef;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url: string;
         }
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         interface IssuerSpecVenafiCloudApiTokenSecretRef {
             /**
@@ -21245,7 +21251,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         interface IssuerSpecVenafiCloudApiTokenSecretRefPatch {
             /**
@@ -21261,40 +21267,40 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface IssuerSpecVenafiCloudPatch {
             apiTokenSecretRef: outputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRefPatch;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url: string;
         }
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         interface IssuerSpecVenafiPatch {
             cloud: outputs.cert_manager.v1.IssuerSpecVenafiCloudPatch;
             tpp: outputs.cert_manager.v1.IssuerSpecVenafiTppPatch;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
             zone: string;
         }
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface IssuerSpecVenafiTpp {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -21302,14 +21308,14 @@ export declare namespace cert_manager {
             caBundleSecretRef: outputs.cert_manager.v1.IssuerSpecVenafiTppCaBundleSecretRef;
             credentialsRef: outputs.cert_manager.v1.IssuerSpecVenafiTppCredentialsRef;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url: string;
         }
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -21329,7 +21335,7 @@ export declare namespace cert_manager {
         }
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -21348,7 +21354,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -21360,7 +21366,7 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -21372,13 +21378,13 @@ export declare namespace cert_manager {
             name: string;
         }
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         interface IssuerSpecVenafiTppPatch {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -21386,7 +21392,7 @@ export declare namespace cert_manager {
             caBundleSecretRef: outputs.cert_manager.v1.IssuerSpecVenafiTppCaBundleSecretRefPatch;
             credentialsRef: outputs.cert_manager.v1.IssuerSpecVenafiTppCredentialsRefPatch;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url: string;

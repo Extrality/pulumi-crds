@@ -2250,6 +2250,7 @@ export namespace rabbitmq {
             tolerations?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecTolerations>[]>;
             topologySpreadConstraints?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecTopologySpreadConstraints>[]>;
             volumes?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumes>[]>;
+            workloadRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecWorkloadRef>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecAffinity {
@@ -4978,6 +4979,7 @@ export namespace rabbitmq {
             tolerations?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecTolerationsPatch>[]>;
             topologySpreadConstraints?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecTopologySpreadConstraintsPatch>[]>;
             volumes?: pulumi.Input<pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesPatch>[]>;
+            workloadRef?: pulumi.Input<inputs.rabbitmq.v1beta1.RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecWorkloadRefPatch>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecReadinessGates {
@@ -5875,6 +5877,7 @@ export namespace rabbitmq {
             keyType?: pulumi.Input<string>;
             maxExpirationSeconds?: pulumi.Input<number>;
             signerName?: pulumi.Input<string>;
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesPodCertificatePatch {
@@ -5884,6 +5887,7 @@ export namespace rabbitmq {
             keyType?: pulumi.Input<string>;
             maxExpirationSeconds?: pulumi.Input<number>;
             signerName?: pulumi.Input<string>;
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecVolumesProjectedSourcesSecret {
@@ -6066,6 +6070,18 @@ export namespace rabbitmq {
             storagePolicyID?: pulumi.Input<string>;
             storagePolicyName?: pulumi.Input<string>;
             volumePath?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecWorkloadRef {
+            name?: pulumi.Input<string>;
+            podGroup?: pulumi.Input<string>;
+            podGroupReplicaKey?: pulumi.Input<string>;
+        }
+
+        export interface RabbitmqClusterSpecOverrideStatefulSetSpecTemplateSpecWorkloadRefPatch {
+            name?: pulumi.Input<string>;
+            podGroup?: pulumi.Input<string>;
+            podGroupReplicaKey?: pulumi.Input<string>;
         }
 
         export interface RabbitmqClusterSpecOverrideStatefulSetSpecUpdateStrategy {
@@ -6766,9 +6782,10 @@ export namespace rabbitmq {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -6802,9 +6819,10 @@ export namespace rabbitmq {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -6836,6 +6854,17 @@ export namespace rabbitmq {
              * RabbitmqCluster's generation, which is updated on mutation by the API Server.
              */
             observedGeneration?: pulumi.Input<number>;
+            /**
+             * QuorumStatus indicates whether any node in the cluster is quorum critical.
+             * Format: "<status> [(<details>)]"
+             * Examples:
+             *   - "ok" - no nodes are quorum critical
+             *   - "ok (1 unavailable)" - no critical nodes, but 1 node unreachable
+             *   - "quorum-critical: pod-0" - pod-0 is quorum critical
+             *   - "quorum-critical: pod-0, pod-2 (1 unavailable)" - multiple critical pods
+             *   - "unavailable" - all nodes unreachable or StatefulSet not ready
+             */
+            quorumStatus?: pulumi.Input<string>;
         }
 
         /**

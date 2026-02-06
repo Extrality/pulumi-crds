@@ -88,6 +88,11 @@ export declare namespace barmancloud {
             storageAccount: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccount;
             storageKey: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKey;
             storageSasToken: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasToken;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials: boolean;
         }
         /**
          * The connection string to be used
@@ -127,6 +132,11 @@ export declare namespace barmancloud {
             storageAccount: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccountPatch;
             storageKey: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKeyPatch;
             storageSasToken: outputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasTokenPatch;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials: boolean;
         }
         /**
          * The storage account where to upload data

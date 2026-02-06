@@ -93,6 +93,11 @@ export namespace barmancloud {
             storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccount>;
             storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKey>;
             storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasToken>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -135,6 +140,11 @@ export namespace barmancloud {
             storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccountPatch>;
             storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKeyPatch>;
             storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasTokenPatch>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**

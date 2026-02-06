@@ -583,6 +583,7 @@ export declare namespace gateway {
             /**
              * The compressor config for the http streams.
              * This provides more granular control over compression configuration.
+             * Order matters: The first compressor in the list is preferred when q-values in Accept-Encoding are equal.
              */
             compressor?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressor>[]>;
             connection?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecConnection>;
@@ -613,6 +614,13 @@ export declare namespace gateway {
              */
             responseOverride?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverride>[]>;
             retry?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRetry>;
+            /**
+             * RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
+             * or it can be set to "Endpoint" to use Endpoint routing.
+             * When specified, this overrides the EnvoyProxy-level setting for the relevant targeRefs.
+             * If not specified, the EnvoyProxy-level setting is used.
+             */
+            routingType?: pulumi.Input<string>;
             targetRef?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetRef>;
             /**
              * TargetRefs are the names of the Gateway resources this policy
@@ -725,6 +733,14 @@ export declare namespace gateway {
                 [key: string]: pulumi.Input<string>;
             }>;
             /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
+            /**
              * CompressorType defines the compressor type to use for compression.
              */
             type?: pulumi.Input<string>;
@@ -752,6 +768,14 @@ export declare namespace gateway {
             gzip?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
             /**
              * CompressorType defines the compressor type to use for compression.
              */
@@ -781,6 +805,14 @@ export declare namespace gateway {
                 [key: string]: pulumi.Input<string>;
             }>;
             /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
+            /**
              * CompressorType defines the compressor type to use for compression.
              */
             type?: pulumi.Input<string>;
@@ -808,6 +840,14 @@ export declare namespace gateway {
             gzip?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
             /**
              * CompressorType defines the compressor type to use for compression.
              */
@@ -1536,6 +1576,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -1545,6 +1589,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -1650,6 +1695,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -1659,8 +1708,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -1832,6 +1902,7 @@ export declare namespace gateway {
             /**
              * The compressor config for the http streams.
              * This provides more granular control over compression configuration.
+             * Order matters: The first compressor in the list is preferred when q-values in Accept-Encoding are equal.
              */
             compressor?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressorPatch>[]>;
             connection?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecConnectionPatch>;
@@ -1862,6 +1933,13 @@ export declare namespace gateway {
              */
             responseOverride?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverridePatch>[]>;
             retry?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRetryPatch>;
+            /**
+             * RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
+             * or it can be set to "Endpoint" to use Endpoint routing.
+             * When specified, this overrides the EnvoyProxy-level setting for the relevant targeRefs.
+             * If not specified, the EnvoyProxy-level setting is used.
+             */
+            routingType?: pulumi.Input<string>;
             targetRef?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetRefPatch>;
             /**
              * TargetRefs are the names of the Gateway resources this policy
@@ -1976,6 +2054,15 @@ export declare namespace gateway {
             cost?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesCost>;
             limit?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesLimit>;
             /**
+             * ShadowMode indicates whether this rate-limit rule runs in shadow mode.
+             * When enabled, all rate-limiting operations are performed (cache lookups,
+             * counter updates, telemetry generation), but the outcome is never enforced.
+             * The request always succeeds, even if the configured limit is exceeded.
+             *
+             * Only supported for Global Rate Limits.
+             */
+            shadowMode?: pulumi.Input<boolean>;
+            /**
              * Shared determines whether this rate limit rule applies across all the policy targets.
              * If set to true, the rule is treated as a common bucket and is shared across all policy targets (xRoutes).
              * Default: false.
@@ -1986,7 +2073,7 @@ export declare namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
-         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
+         * And, at least one of headers or methods or path or sourceCIDR or queryParams condition must be specified.
          */
         interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectors {
             /**
@@ -2000,6 +2087,11 @@ export declare namespace gateway {
              */
             methods?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethods>[]>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPath>;
+            /**
+             * QueryParams is a list of query parameters to match. Multiple query parameter values are ANDed together,
+             * meaning, a request MUST match all the specified query parameters.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsQueryParams>[]>;
             sourceCIDR?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDR>;
         }
         /**
@@ -2086,7 +2178,7 @@ export declare namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
-         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
+         * And, at least one of headers or methods or path or sourceCIDR or queryParams condition must be specified.
          */
         interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPatch {
             /**
@@ -2100,6 +2192,11 @@ export declare namespace gateway {
              */
             methods?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsMethodsPatch>[]>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsPathPatch>;
+            /**
+             * QueryParams is a list of query parameters to match. Multiple query parameter values are ANDed together,
+             * meaning, a request MUST match all the specified query parameters.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsQueryParamsPatch>[]>;
             sourceCIDR?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDRPatch>;
         }
         /**
@@ -2135,6 +2232,56 @@ export declare namespace gateway {
             type?: pulumi.Input<string>;
             /**
              * Value specifies the HTTP path.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParamMatch defines the match attributes within the query parameters of the request.
+         */
+        interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsQueryParams {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            invert?: pulumi.Input<boolean>;
+            /**
+             * Name of the query parameter.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the query parameter.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the query parameter.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParamMatch defines the match attributes within the query parameters of the request.
+         */
+        interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsQueryParamsPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            invert?: pulumi.Input<boolean>;
+            /**
+             * Name of the query parameter.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the query parameter.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the query parameter.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
              */
             value?: pulumi.Input<string>;
         }
@@ -2381,6 +2528,15 @@ export declare namespace gateway {
             cost?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesCostPatch>;
             limit?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitGlobalRulesLimitPatch>;
             /**
+             * ShadowMode indicates whether this rate-limit rule runs in shadow mode.
+             * When enabled, all rate-limiting operations are performed (cache lookups,
+             * counter updates, telemetry generation), but the outcome is never enforced.
+             * The request always succeeds, even if the configured limit is exceeded.
+             *
+             * Only supported for Global Rate Limits.
+             */
+            shadowMode?: pulumi.Input<boolean>;
+            /**
              * Shared determines whether this rate limit rule applies across all the policy targets.
              * If set to true, the rule is treated as a common bucket and is shared across all policy targets (xRoutes).
              * Default: false.
@@ -2434,6 +2590,15 @@ export declare namespace gateway {
             cost?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesCost>;
             limit?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesLimit>;
             /**
+             * ShadowMode indicates whether this rate-limit rule runs in shadow mode.
+             * When enabled, all rate-limiting operations are performed (cache lookups,
+             * counter updates, telemetry generation), but the outcome is never enforced.
+             * The request always succeeds, even if the configured limit is exceeded.
+             *
+             * Only supported for Global Rate Limits.
+             */
+            shadowMode?: pulumi.Input<boolean>;
+            /**
              * Shared determines whether this rate limit rule applies across all the policy targets.
              * If set to true, the rule is treated as a common bucket and is shared across all policy targets (xRoutes).
              * Default: false.
@@ -2444,7 +2609,7 @@ export declare namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
-         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
+         * And, at least one of headers or methods or path or sourceCIDR or queryParams condition must be specified.
          */
         interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectors {
             /**
@@ -2458,6 +2623,11 @@ export declare namespace gateway {
              */
             methods?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethods>[]>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPath>;
+            /**
+             * QueryParams is a list of query parameters to match. Multiple query parameter values are ANDed together,
+             * meaning, a request MUST match all the specified query parameters.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsQueryParams>[]>;
             sourceCIDR?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDR>;
         }
         /**
@@ -2544,7 +2714,7 @@ export declare namespace gateway {
          * RateLimitSelectCondition specifies the attributes within the traffic flow that can
          * be used to select a subset of clients to be ratelimited.
          * All the individual conditions must hold True for the overall condition to hold True.
-         * And, at least one of headers or methods or path or sourceCIDR condition must be specified.
+         * And, at least one of headers or methods or path or sourceCIDR or queryParams condition must be specified.
          */
         interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPatch {
             /**
@@ -2558,6 +2728,11 @@ export declare namespace gateway {
              */
             methods?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsMethodsPatch>[]>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPathPatch>;
+            /**
+             * QueryParams is a list of query parameters to match. Multiple query parameter values are ANDed together,
+             * meaning, a request MUST match all the specified query parameters.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsQueryParamsPatch>[]>;
             sourceCIDR?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDRPatch>;
         }
         /**
@@ -2593,6 +2768,56 @@ export declare namespace gateway {
             type?: pulumi.Input<string>;
             /**
              * Value specifies the HTTP path.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParamMatch defines the match attributes within the query parameters of the request.
+         */
+        interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsQueryParams {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            invert?: pulumi.Input<boolean>;
+            /**
+             * Name of the query parameter.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the query parameter.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the query parameter.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParamMatch defines the match attributes within the query parameters of the request.
+         */
+        interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsQueryParamsPatch {
+            /**
+             * Invert specifies whether the value match result will be inverted.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
+             */
+            invert?: pulumi.Input<boolean>;
+            /**
+             * Name of the query parameter.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the query parameter.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the query parameter.
+             * Do not set this field when Type="Distinct", implying matching on any/all unique
+             * values within the query parameter.
              */
             value?: pulumi.Input<string>;
         }
@@ -2838,6 +3063,15 @@ export declare namespace gateway {
             clientSelectors?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsPatch>[]>;
             cost?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesCostPatch>;
             limit?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecRateLimitLocalRulesLimitPatch>;
+            /**
+             * ShadowMode indicates whether this rate-limit rule runs in shadow mode.
+             * When enabled, all rate-limiting operations are performed (cache lookups,
+             * counter updates, telemetry generation), but the outcome is never enforced.
+             * The request always succeeds, even if the configured limit is exceeded.
+             *
+             * Only supported for Global Rate Limits.
+             */
+            shadowMode?: pulumi.Input<boolean>;
             /**
              * Shared determines whether this rate limit rule applies across all the policy targets.
              * If set to true, the rule is treated as a common bucket and is shared across all policy targets (xRoutes).
@@ -3867,22 +4101,60 @@ export declare namespace gateway {
          * This will override the telemetry settings in the EnvoyProxy resource.
          */
         interface BackendTrafficPolicySpecTelemetry {
+            metrics?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryMetrics>;
             tracing?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracing>;
+        }
+        /**
+         * Metrics defines metrics configuration for the backend or Route.
+         */
+        interface BackendTrafficPolicySpecTelemetryMetrics {
+            /**
+             * RouteStatName defines the value of the Route stat_prefix, determining how the route stats are named.
+             * For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-route
+             * The supported operators for this pattern are:
+             * %ROUTE_NAME%: name of Gateway API xRoute resource
+             * %ROUTE_NAMESPACE%: namespace of Gateway API xRoute resource
+             * %ROUTE_KIND%: kind of Gateway API xRoute resource
+             * Example: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME% => httproute/my-ns/my-route
+             * Disabled by default.
+             */
+            routeStatName?: pulumi.Input<string>;
+        }
+        /**
+         * Metrics defines metrics configuration for the backend or Route.
+         */
+        interface BackendTrafficPolicySpecTelemetryMetricsPatch {
+            /**
+             * RouteStatName defines the value of the Route stat_prefix, determining how the route stats are named.
+             * For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-route
+             * The supported operators for this pattern are:
+             * %ROUTE_NAME%: name of Gateway API xRoute resource
+             * %ROUTE_NAMESPACE%: namespace of Gateway API xRoute resource
+             * %ROUTE_KIND%: kind of Gateway API xRoute resource
+             * Example: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME% => httproute/my-ns/my-route
+             * Disabled by default.
+             */
+            routeStatName?: pulumi.Input<string>;
         }
         /**
          * Telemetry configures the telemetry settings for the policy target (Gateway or xRoute).
          * This will override the telemetry settings in the EnvoyProxy resource.
          */
         interface BackendTrafficPolicySpecTelemetryPatch {
+            metrics?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryMetricsPatch>;
             tracing?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracingPatch>;
         }
         /**
          * Tracing configures the tracing settings for the backend or HTTPRoute.
+         *
+         * This takes precedence over EnvoyProxy tracing when set.
          */
         interface BackendTrafficPolicySpecTelemetryTracing {
             /**
              * CustomTags defines the custom tags to add to each span.
              * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Deprecated: Use Tags instead.
              */
             customTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<{
@@ -3890,14 +4162,30 @@ export declare namespace gateway {
                 }>;
             }>;
             samplingFraction?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracingSamplingFraction>;
+            spanName?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracingSpanName>;
+            /**
+             * Tags defines the custom tags to add to each span.
+             * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+             * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+             * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Same keys take precedence over CustomTags.
+             */
+            tags?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * Tracing configures the tracing settings for the backend or HTTPRoute.
+         *
+         * This takes precedence over EnvoyProxy tracing when set.
          */
         interface BackendTrafficPolicySpecTelemetryTracingPatch {
             /**
              * CustomTags defines the custom tags to add to each span.
              * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Deprecated: Use Tags instead.
              */
             customTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<{
@@ -3905,12 +4193,22 @@ export declare namespace gateway {
                 }>;
             }>;
             samplingFraction?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracingSamplingFractionPatch>;
+            spanName?: pulumi.Input<inputs.gateway.v1alpha1.BackendTrafficPolicySpecTelemetryTracingSpanNamePatch>;
+            /**
+             * Tags defines the custom tags to add to each span.
+             * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+             * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+             * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Same keys take precedence over CustomTags.
+             */
+            tags?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * SamplingFraction represents the fraction of requests that should be
          * selected for tracing if no prior sampling decision has been made.
-         *
-         * This will take precedence over sampling fraction on EnvoyProxy if set.
          */
         interface BackendTrafficPolicySpecTelemetryTracingSamplingFraction {
             denominator?: pulumi.Input<number>;
@@ -3919,12 +4217,48 @@ export declare namespace gateway {
         /**
          * SamplingFraction represents the fraction of requests that should be
          * selected for tracing if no prior sampling decision has been made.
-         *
-         * This will take precedence over sampling fraction on EnvoyProxy if set.
          */
         interface BackendTrafficPolicySpecTelemetryTracingSamplingFractionPatch {
             denominator?: pulumi.Input<number>;
             numerator?: pulumi.Input<number>;
+        }
+        /**
+         * SpanName defines the name of the span which will be used for tracing.
+         * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+         * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+         *
+         * If not set, the span name is provider specific.
+         * e.g. Datadog use `ingress` as the default client span name,
+         * and `router <UPSTREAM_CLUSTER> egress` as the server span name.
+         */
+        interface BackendTrafficPolicySpecTelemetryTracingSpanName {
+            /**
+             * Client defines operation name of the span which will be used for tracing.
+             */
+            client?: pulumi.Input<string>;
+            /**
+             * Server defines the operation name of the upstream span which will be used for tracing.
+             */
+            server?: pulumi.Input<string>;
+        }
+        /**
+         * SpanName defines the name of the span which will be used for tracing.
+         * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+         * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+         *
+         * If not set, the span name is provider specific.
+         * e.g. Datadog use `ingress` as the default client span name,
+         * and `router <UPSTREAM_CLUSTER> egress` as the server span name.
+         */
+        interface BackendTrafficPolicySpecTelemetryTracingSpanNamePatch {
+            /**
+             * Client defines operation name of the span which will be used for tracing.
+             */
+            client?: pulumi.Input<string>;
+            /**
+             * Server defines the operation name of the upstream span which will be used for tracing.
+             */
+            server?: pulumi.Input<string>;
         }
         /**
          * Timeout settings for the backend connections.
@@ -4335,6 +4669,18 @@ export declare namespace gateway {
             }>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecPath>;
             proxyProtocol?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecProxyProtocol>;
+            /**
+             * Scheme configures how the :scheme pseudo-header is set for requests forwarded to backends.
+             *
+             * - Preserve (default): Preserves the :scheme from the original client request.
+             *   Use this when backends need to know the original client scheme for URL generation or redirects.
+             *
+             * - MatchBackend: Sets the :scheme to match the backend transport protocol.
+             *   If the backend uses TLS, the scheme is "https", otherwise "http".
+             *   Use this when backends require the scheme to match the actual transport protocol,
+             *   such as strictly HTTPS services that validate the :scheme header.
+             */
+            scheme?: pulumi.Input<string>;
             targetRef?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetRef>;
             /**
              * TargetRefs are the names of the Gateway resources this policy
@@ -4641,6 +4987,25 @@ export declare namespace gateway {
              */
             add?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersAdd>[]>;
             /**
+             * AddIfAbsent adds the given header(s) (name, value) to the request/response
+             * only if the header does not already exist. Unlike Add which appends to
+             * existing values, this is a no-op if the header is already present.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   addIfAbsent:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             */
+            addIfAbsent?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersAddIfAbsent>[]>;
+            /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
              * names are case-insensitive (see
@@ -4660,6 +5025,11 @@ export declare namespace gateway {
              *   my-header2: bar
              */
             remove?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * RemoveOnMatch removes headers whose names match the specified string matchers.
+             * Matching is performed on the header name (case-insensitive).
+             */
+            removeOnMatch?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersRemoveOnMatch>[]>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -4683,6 +5053,46 @@ export declare namespace gateway {
          * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
          */
         interface ClientTrafficPolicySpecHeadersEarlyRequestHeadersAdd {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface ClientTrafficPolicySpecHeadersEarlyRequestHeadersAddIfAbsent {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface ClientTrafficPolicySpecHeadersEarlyRequestHeadersAddIfAbsentPatch {
             /**
              * Name is the name of the HTTP Header to be matched. Name matching MUST be
              * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
@@ -4744,6 +5154,25 @@ export declare namespace gateway {
              */
             add?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersAddPatch>[]>;
             /**
+             * AddIfAbsent adds the given header(s) (name, value) to the request/response
+             * only if the header does not already exist. Unlike Add which appends to
+             * existing values, this is a no-op if the header is already present.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   addIfAbsent:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             */
+            addIfAbsent?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersAddIfAbsentPatch>[]>;
+            /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
              * names are case-insensitive (see
@@ -4764,6 +5193,11 @@ export declare namespace gateway {
              */
             remove?: pulumi.Input<pulumi.Input<string>[]>;
             /**
+             * RemoveOnMatch removes headers whose names match the specified string matchers.
+             * Matching is performed on the header name (case-insensitive).
+             */
+            removeOnMatch?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersRemoveOnMatchPatch>[]>;
+            /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
              *
@@ -4781,6 +5215,36 @@ export declare namespace gateway {
              *   my-header: bar
              */
             set?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersEarlyRequestHeadersSetPatch>[]>;
+        }
+        /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHeadersEarlyRequestHeadersRemoveOnMatch {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHeadersEarlyRequestHeadersRemoveOnMatchPatch {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value?: pulumi.Input<string>;
         }
         /**
          * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
@@ -4846,6 +5310,25 @@ export declare namespace gateway {
              */
             add?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAdd>[]>;
             /**
+             * AddIfAbsent adds the given header(s) (name, value) to the request/response
+             * only if the header does not already exist. Unlike Add which appends to
+             * existing values, this is a no-op if the header is already present.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   addIfAbsent:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             */
+            addIfAbsent?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAddIfAbsent>[]>;
+            /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
              * names are case-insensitive (see
@@ -4865,6 +5348,11 @@ export declare namespace gateway {
              *   my-header2: bar
              */
             remove?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * RemoveOnMatch removes headers whose names match the specified string matchers.
+             * Matching is performed on the header name (case-insensitive).
+             */
+            removeOnMatch?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersRemoveOnMatch>[]>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -4888,6 +5376,46 @@ export declare namespace gateway {
          * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
          */
         interface ClientTrafficPolicySpecHeadersLateResponseHeadersAdd {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface ClientTrafficPolicySpecHeadersLateResponseHeadersAddIfAbsent {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface ClientTrafficPolicySpecHeadersLateResponseHeadersAddIfAbsentPatch {
             /**
              * Name is the name of the HTTP Header to be matched. Name matching MUST be
              * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
@@ -4948,6 +5476,25 @@ export declare namespace gateway {
              */
             add?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAddPatch>[]>;
             /**
+             * AddIfAbsent adds the given header(s) (name, value) to the request/response
+             * only if the header does not already exist. Unlike Add which appends to
+             * existing values, this is a no-op if the header is already present.
+             *
+             * Input:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             *
+             * Config:
+             *   addIfAbsent:
+             *   - name: "my-header"
+             *     value: "bar"
+             *
+             * Output:
+             *   GET /foo HTTP/1.1
+             *   my-header: foo
+             */
+            addIfAbsent?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersAddIfAbsentPatch>[]>;
+            /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
              * names are case-insensitive (see
@@ -4968,6 +5515,11 @@ export declare namespace gateway {
              */
             remove?: pulumi.Input<pulumi.Input<string>[]>;
             /**
+             * RemoveOnMatch removes headers whose names match the specified string matchers.
+             * Matching is performed on the header name (case-insensitive).
+             */
+            removeOnMatch?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersRemoveOnMatchPatch>[]>;
+            /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
              *
@@ -4985,6 +5537,36 @@ export declare namespace gateway {
              *   my-header: bar
              */
             set?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersLateResponseHeadersSetPatch>[]>;
+        }
+        /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHeadersLateResponseHeadersRemoveOnMatch {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHeadersLateResponseHeadersRemoveOnMatchPatch {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value?: pulumi.Input<string>;
         }
         /**
          * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
@@ -5304,6 +5886,18 @@ export declare namespace gateway {
             }>;
             path?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecPathPatch>;
             proxyProtocol?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecProxyProtocolPatch>;
+            /**
+             * Scheme configures how the :scheme pseudo-header is set for requests forwarded to backends.
+             *
+             * - Preserve (default): Preserves the :scheme from the original client request.
+             *   Use this when backends need to know the original client scheme for URL generation or redirects.
+             *
+             * - MatchBackend: Sets the :scheme to match the backend transport protocol.
+             *   If the backend uses TLS, the scheme is "https", otherwise "http".
+             *   Use this when backends require the scheme to match the actual transport protocol,
+             *   such as strictly HTTPS services that validate the :scheme header.
+             */
+            scheme?: pulumi.Input<string>;
             targetRef?: pulumi.Input<inputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetRefPatch>;
             /**
              * TargetRefs are the names of the Gateway resources this policy
@@ -6919,6 +7513,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -6979,6 +7589,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -7669,6 +8295,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -7678,6 +8308,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -7783,6 +8414,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -7792,8 +8427,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -9996,12 +10652,7 @@ export declare namespace gateway {
              */
             metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
             spec?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpec>;
-            /**
-             * EnvoyProxyStatus defines the actual state of EnvoyProxy.
-             */
-            status?: pulumi.Input<{
-                [key: string]: pulumi.Input<string>;
-            }>;
+            status?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxyStatus>;
         }
         /**
          * EnvoyProxySpec defines the desired state of EnvoyProxy.
@@ -10026,11 +10677,15 @@ export declare namespace gateway {
              * If unspecified, the default filter order is applied.
              * Default filter order is:
              *
+             * - envoy.filters.http.custom_response
+             *
              * - envoy.filters.http.health_check
              *
              * - envoy.filters.http.fault
              *
              * - envoy.filters.http.cors
+             *
+             * - envoy.filters.http.header_mutation
              *
              * - envoy.filters.http.ext_authz
              *
@@ -10062,11 +10717,11 @@ export declare namespace gateway {
              *
              * - envoy.filters.http.grpc_stats
              *
-             * - envoy.filters.http.custom_response
-             *
              * - envoy.filters.http.credential_injector
              *
              * - envoy.filters.http.compressor
+             *
+             * - envoy.filters.http.dynamic_forward_proxy
              *
              * - envoy.filters.http.router
              *
@@ -10519,11 +11174,15 @@ export declare namespace gateway {
              * If unspecified, the default filter order is applied.
              * Default filter order is:
              *
+             * - envoy.filters.http.custom_response
+             *
              * - envoy.filters.http.health_check
              *
              * - envoy.filters.http.fault
              *
              * - envoy.filters.http.cors
+             *
+             * - envoy.filters.http.header_mutation
              *
              * - envoy.filters.http.ext_authz
              *
@@ -10555,11 +11214,11 @@ export declare namespace gateway {
              *
              * - envoy.filters.http.grpc_stats
              *
-             * - envoy.filters.http.custom_response
-             *
              * - envoy.filters.http.credential_injector
              *
              * - envoy.filters.http.compressor
+             *
+             * - envoy.filters.http.dynamic_forward_proxy
              *
              * - envoy.filters.http.router
              *
@@ -11191,6 +11850,12 @@ export declare namespace gateway {
             nodeSelector?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * PriorityClassName indicates the importance of a Pod relative to other Pods.
+             * If a PriorityClassName is not specified, the pod priority will be default or zero if there is no default.
+             * More info: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+             */
+            priorityClassName?: pulumi.Input<string>;
             securityContext?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDaemonSetPodSecurityContext>;
             /**
              * If specified, the pod's tolerations.
@@ -12229,9 +12894,10 @@ export declare namespace gateway {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -13000,7 +13666,7 @@ export declare namespace gateway {
         }
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -13761,6 +14427,24 @@ export declare namespace gateway {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * secret information about the secret data to project
@@ -14747,6 +15431,7 @@ export declare namespace gateway {
             readinessProbe?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersReadinessProbe>;
             /**
              * Resources resize policy for the container.
+             * This field cannot be set on ephemeral containers.
              */
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentInitContainersResources>;
@@ -16087,6 +16772,12 @@ export declare namespace gateway {
             nodeSelector?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * PriorityClassName indicates the importance of a Pod relative to other Pods.
+             * If a PriorityClassName is not specified, the pod priority will be default or zero if there is no default.
+             * More info: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+             */
+            priorityClassName?: pulumi.Input<string>;
             securityContext?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecProviderKubernetesEnvoyDeploymentPodSecurityContext>;
             /**
              * If specified, the pod's tolerations.
@@ -17125,9 +17816,10 @@ export declare namespace gateway {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -17896,7 +18588,7 @@ export declare namespace gateway {
         }
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -18657,6 +19349,24 @@ export declare namespace gateway {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * secret information about the secret data to project
@@ -19150,8 +19860,8 @@ export declare namespace gateway {
              * and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
              * triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
              *
-             * This is an alpha field and requires enabling the HPAConfigurableTolerance
-             * feature gate.
+             * This is an beta field and requires the HPAConfigurableTolerance feature
+             * gate to be enabled.
              */
             tolerance?: pulumi.Input<number | string>;
         }
@@ -19213,8 +19923,8 @@ export declare namespace gateway {
              * and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
              * triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
              *
-             * This is an alpha field and requires enabling the HPAConfigurableTolerance
-             * feature gate.
+             * This is an beta field and requires the HPAConfigurableTolerance feature
+             * gate to be enabled.
              */
             tolerance?: pulumi.Input<number | string>;
         }
@@ -19843,6 +20553,7 @@ export declare namespace gateway {
         interface EnvoyProxySpecTelemetry {
             accessLog?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLog>;
             metrics?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetrics>;
+            requestID?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryRequestID>;
             tracing?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracing>;
         }
         /**
@@ -19919,6 +20630,7 @@ export declare namespace gateway {
             text?: pulumi.Input<string>;
             /**
              * Type defines the type of accesslog format.
+             * When unset, both text and json can be specified.
              */
             type?: pulumi.Input<string>;
         }
@@ -19945,6 +20657,7 @@ export declare namespace gateway {
             text?: pulumi.Input<string>;
             /**
              * Type defines the type of accesslog format.
+             * When unset, both text and json can be specified.
              */
             type?: pulumi.Input<string>;
         }
@@ -20171,6 +20884,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -20231,6 +20960,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -20921,6 +21666,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -20930,6 +21679,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -21035,6 +21785,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -21044,8 +21798,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -21585,6 +22360,11 @@ export declare namespace gateway {
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendRefs>[]>;
             backendSettings?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettings>;
             /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeaders>[]>;
+            /**
              * Host define the extension service hostname.
              * Deprecated: Use BackendRefs instead.
              */
@@ -21595,8 +22375,17 @@ export declare namespace gateway {
              */
             port?: pulumi.Input<number>;
             /**
+             * ResourceAttributes is a set of labels that describe the source of a log entry, including envoy node info.
+             * It's recommended to follow [semantic conventions](https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/).
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+            /**
              * Resources is a set of labels that describe the source of a log entry, including envoy node info.
              * It's recommended to follow [semantic conventions](https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/).
+             *
+             * Deprecated: Use ResourceAttributes instead.
              */
             resources?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
@@ -21769,6 +22558,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -21829,6 +22634,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -22519,6 +23340,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -22528,6 +23353,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -22633,6 +23459,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -22642,8 +23472,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -23097,6 +23948,46 @@ export declare namespace gateway {
             connectTimeout?: pulumi.Input<string>;
         }
         /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeaders {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeadersPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
          * OpenTelemetry defines the OpenTelemetry accesslog sink.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryPatch {
@@ -23108,6 +23999,11 @@ export declare namespace gateway {
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendRefsPatch>[]>;
             backendSettings?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsPatch>;
             /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeadersPatch>[]>;
+            /**
              * Host define the extension service hostname.
              * Deprecated: Use BackendRefs instead.
              */
@@ -23118,8 +24014,17 @@ export declare namespace gateway {
              */
             port?: pulumi.Input<number>;
             /**
+             * ResourceAttributes is a set of labels that describe the source of a log entry, including envoy node info.
+             * It's recommended to follow [semantic conventions](https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/).
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+            /**
              * Resources is a set of labels that describe the source of a log entry, including envoy node info.
              * It's recommended to follow [semantic conventions](https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/).
+             *
+             * Deprecated: Use ResourceAttributes instead.
              */
             resources?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
@@ -23145,15 +24050,15 @@ export declare namespace gateway {
              * ClusterStatName defines the value of cluster alt_stat_name, determining how cluster stats are named.
              * For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html
              * The supported operators for this pattern are:
-             * %ROUTE_NAME%: name of Gateway API xRoute resource
-             * %ROUTE_NAMESPACE%: namespace of Gateway API xRoute resource
-             * %ROUTE_KIND%: kind of Gateway API xRoute resource
-             * %ROUTE_RULE_NAME%: name of the Gateway API xRoute section
-             * %ROUTE_RULE_NUMBER%: name of the Gateway API xRoute section
-             * %BACKEND_REFS%: names of all backends referenced in <NAMESPACE>/<NAME>|<NAMESPACE>/<NAME>|... format
+             * `%ROUTE_NAME%`: name of Gateway API xRoute resource
+             * `%ROUTE_NAMESPACE%`: namespace of Gateway API xRoute resource
+             * `%ROUTE_KIND%`: kind of Gateway API xRoute resource
+             * `%ROUTE_RULE_NAME%`: name of the Gateway API xRoute section
+             * `%ROUTE_RULE_NUMBER%`: name of the Gateway API xRoute section
+             * `%BACKEND_REFS%`: names of all backends referenced in `<NAMESPACE>/<NAME>|<NAMESPACE>/<NAME>|...` format
              * Only xDS Clusters created for HTTPRoute and GRPCRoute are currently supported.
-             * Default: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%
-             * Example: httproute/my-ns/my-route/rule/0
+             * Default: `%ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%`
+             * Example: `httproute/my-ns/my-route/rule/0`
              */
             clusterStatName?: pulumi.Input<string>;
             /**
@@ -23222,15 +24127,15 @@ export declare namespace gateway {
              * ClusterStatName defines the value of cluster alt_stat_name, determining how cluster stats are named.
              * For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html
              * The supported operators for this pattern are:
-             * %ROUTE_NAME%: name of Gateway API xRoute resource
-             * %ROUTE_NAMESPACE%: namespace of Gateway API xRoute resource
-             * %ROUTE_KIND%: kind of Gateway API xRoute resource
-             * %ROUTE_RULE_NAME%: name of the Gateway API xRoute section
-             * %ROUTE_RULE_NUMBER%: name of the Gateway API xRoute section
-             * %BACKEND_REFS%: names of all backends referenced in <NAMESPACE>/<NAME>|<NAMESPACE>/<NAME>|... format
+             * `%ROUTE_NAME%`: name of Gateway API xRoute resource
+             * `%ROUTE_NAMESPACE%`: namespace of Gateway API xRoute resource
+             * `%ROUTE_KIND%`: kind of Gateway API xRoute resource
+             * `%ROUTE_RULE_NAME%`: name of the Gateway API xRoute section
+             * `%ROUTE_RULE_NUMBER%`: name of the Gateway API xRoute section
+             * `%BACKEND_REFS%`: names of all backends referenced in `<NAMESPACE>/<NAME>|<NAMESPACE>/<NAME>|...` format
              * Only xDS Clusters created for HTTPRoute and GRPCRoute are currently supported.
-             * Default: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%
-             * Example: httproute/my-ns/my-route/rule/0
+             * Default: `%ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%`
+             * Example: `httproute/my-ns/my-route/rule/0`
              */
             clusterStatName?: pulumi.Input<string>;
             /**
@@ -23288,6 +24193,14 @@ export declare namespace gateway {
                 [key: string]: pulumi.Input<string>;
             }>;
             /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
+            /**
              * CompressorType defines the compressor type to use for compression.
              */
             type?: pulumi.Input<string>;
@@ -23314,6 +24227,14 @@ export declare namespace gateway {
             gzip?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * MinContentLength defines the minimum response size in bytes to apply compression.
+             * Responses smaller than this threshold will not be compressed.
+             * Must be at least 30 bytes as enforced by Envoy Proxy.
+             * Note that when the suffix is not provided, the value is interpreted as bytes.
+             * Default: 30 bytes
+             */
+            minContentLength?: pulumi.Input<number | string>;
             /**
              * CompressorType defines the compressor type to use for compression.
              */
@@ -23360,6 +24281,11 @@ export declare namespace gateway {
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendRefs>[]>;
             backendSettings?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettings>;
             /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeaders>[]>;
+            /**
              * Host define the service hostname.
              * Deprecated: Use BackendRefs instead.
              */
@@ -23369,6 +24295,24 @@ export declare namespace gateway {
              * Deprecated: Use BackendRefs instead.
              */
             port?: pulumi.Input<number>;
+            /**
+             * ReportCountersAsDeltas configures the OpenTelemetry sink to report
+             * counters as delta temporality instead of cumulative.
+             */
+            reportCountersAsDeltas?: pulumi.Input<boolean>;
+            /**
+             * ReportHistogramsAsDeltas configures the OpenTelemetry sink to report
+             * histograms as delta temporality instead of cumulative.
+             * Required for backends like Elastic that drop cumulative histograms.
+             */
+            reportHistogramsAsDeltas?: pulumi.Input<boolean>;
+            /**
+             * ResourceAttributes is a set of labels that describe the source of metrics.
+             * It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * BackendRef references a Kubernetes object that represents the
@@ -23537,6 +24481,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -23597,6 +24557,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -24287,6 +25263,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -24296,6 +25276,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -24401,6 +25382,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -24410,8 +25395,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -24865,6 +25871,46 @@ export declare namespace gateway {
             connectTimeout?: pulumi.Input<string>;
         }
         /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeaders {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeadersPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
          * OpenTelemetry defines the configuration for OpenTelemetry sink.
          * It's required if the sink type is OpenTelemetry.
          */
@@ -24877,6 +25923,11 @@ export declare namespace gateway {
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendRefsPatch>[]>;
             backendSettings?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsPatch>;
             /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeadersPatch>[]>;
+            /**
              * Host define the service hostname.
              * Deprecated: Use BackendRefs instead.
              */
@@ -24886,6 +25937,24 @@ export declare namespace gateway {
              * Deprecated: Use BackendRefs instead.
              */
             port?: pulumi.Input<number>;
+            /**
+             * ReportCountersAsDeltas configures the OpenTelemetry sink to report
+             * counters as delta temporality instead of cumulative.
+             */
+            reportCountersAsDeltas?: pulumi.Input<boolean>;
+            /**
+             * ReportHistogramsAsDeltas configures the OpenTelemetry sink to report
+             * histograms as delta temporality instead of cumulative.
+             * Required for backends like Elastic that drop cumulative histograms.
+             */
+            reportHistogramsAsDeltas?: pulumi.Input<boolean>;
+            /**
+             * ResourceAttributes is a set of labels that describe the source of metrics.
+             * It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * ProxyMetricSink defines the sink of metrics.
@@ -24905,7 +25974,38 @@ export declare namespace gateway {
         interface EnvoyProxySpecTelemetryPatch {
             accessLog?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogPatch>;
             metrics?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsPatch>;
+            requestID?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryRequestIDPatch>;
             tracing?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingPatch>;
+        }
+        /**
+         * RequestID configures Envoy request ID behavior.
+         */
+        interface EnvoyProxySpecTelemetryRequestID {
+            /**
+             * Tracing configures Envoy's behavior for the UUID request ID extension,
+             * including whether the trace sampling decision is packed into the UUID and
+             * whether `X-Request-ID` is used for trace sampling decisions.
+             *
+             * When omitted, the default behavior is `PackAndSample`, which alters the UUID
+             * to contain the trace sampling decision and uses `X-Request-ID` for stable
+             * trace sampling.
+             */
+            tracing?: pulumi.Input<string>;
+        }
+        /**
+         * RequestID configures Envoy request ID behavior.
+         */
+        interface EnvoyProxySpecTelemetryRequestIDPatch {
+            /**
+             * Tracing configures Envoy's behavior for the UUID request ID extension,
+             * including whether the trace sampling decision is packed into the UUID and
+             * whether `X-Request-ID` is used for trace sampling decisions.
+             *
+             * When omitted, the default behavior is `PackAndSample`, which alters the UUID
+             * to contain the trace sampling decision and uses `X-Request-ID` for stable
+             * trace sampling.
+             */
+            tracing?: pulumi.Input<string>;
         }
         /**
          * Tracing defines tracing configuration for managed proxies.
@@ -24915,6 +26015,8 @@ export declare namespace gateway {
             /**
              * CustomTags defines the custom tags to add to each span.
              * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Deprecated: Use Tags instead.
              */
             customTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<{
@@ -24932,6 +26034,18 @@ export declare namespace gateway {
              * If neither field is specified, all requests will be sampled.
              */
             samplingRate?: pulumi.Input<number>;
+            spanName?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingSpanName>;
+            /**
+             * Tags defines the custom tags to add to each span.
+             * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+             * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+             * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Same keys take precedence over CustomTags.
+             */
+            tags?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * Tracing defines tracing configuration for managed proxies.
@@ -24941,6 +26055,8 @@ export declare namespace gateway {
             /**
              * CustomTags defines the custom tags to add to each span.
              * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Deprecated: Use Tags instead.
              */
             customTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<{
@@ -24958,6 +26074,18 @@ export declare namespace gateway {
              * If neither field is specified, all requests will be sampled.
              */
             samplingRate?: pulumi.Input<number>;
+            spanName?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingSpanNamePatch>;
+            /**
+             * Tags defines the custom tags to add to each span.
+             * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+             * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+             * If provider is kubernetes, pod name and namespace are added by default.
+             *
+             * Same keys take precedence over CustomTags.
+             */
+            tags?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
         }
         /**
          * Provider defines the tracing provider.
@@ -24975,6 +26103,7 @@ export declare namespace gateway {
              * Deprecated: Use BackendRefs instead.
              */
             host?: pulumi.Input<string>;
+            openTelemetry?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetry>;
             /**
              * Port defines the port the provider service is exposed on.
              * Deprecated: Use BackendRefs instead.
@@ -25162,6 +26291,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -25222,6 +26367,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -25912,6 +27073,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -25921,6 +27086,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -26026,6 +27192,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -26035,8 +27205,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -26490,6 +27681,80 @@ export declare namespace gateway {
             connectTimeout?: pulumi.Input<string>;
         }
         /**
+         * OpenTelemetry defines the OpenTelemetry tracing provider configuration
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetry {
+            /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetryHeaders>[]>;
+            /**
+             * ResourceAttributes is a set of labels that describe the source of traces.
+             * It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetryHeaders {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetryHeadersPatch {
+            /**
+             * Name is the name of the HTTP Header to be matched. Name matching MUST be
+             * case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+             *
+             * If multiple entries specify equivalent header names, the first entry with
+             * an equivalent name MUST be considered for a match. Subsequent entries
+             * with an equivalent header name MUST be ignored. Due to the
+             * case-insensitivity of header names, "foo" and "Foo" are considered
+             * equivalent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value is the value of HTTP Header to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * OpenTelemetry defines the OpenTelemetry tracing provider configuration
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetryPatch {
+            /**
+             * Headers is a list of additional headers to send with OTLP export requests.
+             * These headers are added as gRPC initial metadata for the OTLP gRPC service.
+             */
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetryHeadersPatch>[]>;
+            /**
+             * ResourceAttributes is a set of labels that describe the source of traces.
+             * It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+             */
+            resourceAttributes?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+        }
+        /**
          * Provider defines the tracing provider.
          */
         interface EnvoyProxySpecTelemetryTracingProviderPatch {
@@ -26505,6 +27770,7 @@ export declare namespace gateway {
              * Deprecated: Use BackendRefs instead.
              */
             host?: pulumi.Input<string>;
+            openTelemetry?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetryPatch>;
             /**
              * Port defines the port the provider service is exposed on.
              * Deprecated: Use BackendRefs instead.
@@ -26560,9 +27826,6 @@ export declare namespace gateway {
         /**
          * SamplingFraction represents the fraction of requests that should be
          * selected for tracing if no prior sampling decision has been made.
-         *
-         * Only one of SamplingRate or SamplingFraction may be specified.
-         * If neither field is specified, all requests will be sampled.
          */
         interface EnvoyProxySpecTelemetryTracingSamplingFraction {
             denominator?: pulumi.Input<number>;
@@ -26571,13 +27834,218 @@ export declare namespace gateway {
         /**
          * SamplingFraction represents the fraction of requests that should be
          * selected for tracing if no prior sampling decision has been made.
-         *
-         * Only one of SamplingRate or SamplingFraction may be specified.
-         * If neither field is specified, all requests will be sampled.
          */
         interface EnvoyProxySpecTelemetryTracingSamplingFractionPatch {
             denominator?: pulumi.Input<number>;
             numerator?: pulumi.Input<number>;
+        }
+        /**
+         * SpanName defines the name of the span which will be used for tracing.
+         * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+         * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+         *
+         * If not set, the span name is provider specific.
+         * e.g. Datadog use `ingress` as the default client span name,
+         * and `router <UPSTREAM_CLUSTER> egress` as the server span name.
+         */
+        interface EnvoyProxySpecTelemetryTracingSpanName {
+            /**
+             * Client defines operation name of the span which will be used for tracing.
+             */
+            client?: pulumi.Input<string>;
+            /**
+             * Server defines the operation name of the upstream span which will be used for tracing.
+             */
+            server?: pulumi.Input<string>;
+        }
+        /**
+         * SpanName defines the name of the span which will be used for tracing.
+         * Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+         * The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+         *
+         * If not set, the span name is provider specific.
+         * e.g. Datadog use `ingress` as the default client span name,
+         * and `router <UPSTREAM_CLUSTER> egress` as the server span name.
+         */
+        interface EnvoyProxySpecTelemetryTracingSpanNamePatch {
+            /**
+             * Client defines operation name of the span which will be used for tracing.
+             */
+            client?: pulumi.Input<string>;
+            /**
+             * Server defines the operation name of the upstream span which will be used for tracing.
+             */
+            server?: pulumi.Input<string>;
+        }
+        /**
+         * EnvoyProxyStatus defines the actual state of EnvoyProxy.
+         */
+        interface EnvoyProxyStatus {
+            /**
+             * Ancestors represent the status information for all the GatewayClass or Gateway
+             * reference this EnvoyProxy with ParametersReference.
+             */
+            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxyStatusAncestors>[]>;
+        }
+        interface EnvoyProxyStatusAncestors {
+            ancestorRef?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxyStatusAncestorsAncestorRef>;
+            /**
+             * Conditions describes the status of the Policy with respect to the given Ancestor.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.EnvoyProxyStatusAncestorsConditions>[]>;
+        }
+        /**
+         * AncestorRef corresponds a GatewayClass or Gateway use this EnvoyProxy with ParametersReference.
+         */
+        interface EnvoyProxyStatusAncestorsAncestorRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * <gateway:experimental:description>
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             * </gateway:experimental:description>
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * <gateway:experimental:description>
+             * When the parent resource is a Service, this targets a specific port in the
+             * Service spec. When both Port (experimental) and SectionName are specified,
+             * the name and port of the selected port must match both specified values.
+             * </gateway:experimental:description>
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface EnvoyProxyStatusAncestorsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
         }
         /**
          * HTTPRouteFilter is a custom Envoy Gateway HTTPRouteFilter which provides extended
@@ -26604,6 +28072,13 @@ export declare namespace gateway {
         interface HTTPRouteFilterSpec {
             credentialInjection?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecCredentialInjection>;
             directResponse?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponse>;
+            /**
+             * Matches defines additional matching criteria for the HTTPRoute rule.
+             * As with HTTPRouteRule.Matches, the rule is matched if any one match applies.
+             * When both HTTPRouteRule.Matches and HTTPRouteFilter.Matches are set, the
+             * effective matching is the logical AND of the two sets.
+             */
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecMatches>[]>;
             urlRewrite?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewrite>;
         }
         /**
@@ -27039,11 +28514,74 @@ export declare namespace gateway {
             statusCode?: pulumi.Input<number>;
         }
         /**
+         * HTTPRouteMatchFilter defines additional matching criteria for the HTTPRoute rule.
+         * At least one matcher must be specified.
+         */
+        interface HTTPRouteFilterSpecMatches {
+            /**
+             * Cookies is a list of cookie matchers evaluated against the HTTP request.
+             * All specified matchers must match.
+             */
+            cookies?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecMatchesCookies>[]>;
+        }
+        /**
+         * HTTPCookieMatch defines how to match a single cookie.
+         */
+        interface HTTPRouteFilterSpecMatchesCookies {
+            /**
+             * Name is the cookie name to evaluate.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the cookie.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value is the cookie value to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPCookieMatch defines how to match a single cookie.
+         */
+        interface HTTPRouteFilterSpecMatchesCookiesPatch {
+            /**
+             * Name is the cookie name to evaluate.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type specifies how to match against the value of the cookie.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value is the cookie value to be matched.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * HTTPRouteMatchFilter defines additional matching criteria for the HTTPRoute rule.
+         * At least one matcher must be specified.
+         */
+        interface HTTPRouteFilterSpecMatchesPatch {
+            /**
+             * Cookies is a list of cookie matchers evaluated against the HTTP request.
+             * All specified matchers must match.
+             */
+            cookies?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecMatchesCookiesPatch>[]>;
+        }
+        /**
          * Spec defines the desired state of HTTPRouteFilter.
          */
         interface HTTPRouteFilterSpecPatch {
             credentialInjection?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecCredentialInjectionPatch>;
             directResponse?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecDirectResponsePatch>;
+            /**
+             * Matches defines additional matching criteria for the HTTPRoute rule.
+             * As with HTTPRouteRule.Matches, the rule is matched if any one match applies.
+             * When both HTTPRouteRule.Matches and HTTPRouteFilter.Matches are set, the
+             * effective matching is the logical AND of the two sets.
+             */
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecMatchesPatch>[]>;
             urlRewrite?: pulumi.Input<inputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewritePatch>;
         }
         /**
@@ -27519,6 +29057,22 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalHeaders>[]>;
             jwt?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalJwt>;
+            /**
+             * SourceCIDRs are the IP CIDR ranges of the source (L4 peer IP).
+             * Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+             *
+             * If multiple CIDR ranges are specified, one of the CIDR ranges must match
+             * the source IP for the rule to match.
+             *
+             * The source IP is the IP address of the peer that connected to Envoy.
+             * This IP is obtained from the TCP connection's peer address and is not
+             * affected by X-Forwarded-For or other IP detection headers.
+             * If intermediaries (load balancers, NAT) terminate or proxy TCP,
+             * the original client IP will only be available if the intermediary
+             * preserves the source address (for example by enabling the PROXY protocol
+             * or avoiding SNAT).
+             */
+            sourceCIDRs?: pulumi.Input<pulumi.Input<string>[]>;
         }
         /**
          * AuthorizationHeaderMatch specifies how to match against the value of an HTTP header within a authorization rule.
@@ -27575,8 +29129,8 @@ export declare namespace gateway {
             /**
              * Scopes are a special type of claim in a JWT token that represents the permissions of the client.
              *
-             * The value of the scopes field should be a space delimited string that is expected in the scope parameter,
-             * as defined in RFC 6749: https://datatracker.ietf.org/doc/html/rfc6749#page-23.
+             * The value of the scopes field should be a space delimited string that is expected in the
+             * scope (or scp) claim, as defined in RFC 6749: https://datatracker.ietf.org/doc/html/rfc6749#page-23.
              *
              * If multiple scopes are specified, all scopes must match for the rule to match.
              */
@@ -27655,8 +29209,8 @@ export declare namespace gateway {
             /**
              * Scopes are a special type of claim in a JWT token that represents the permissions of the client.
              *
-             * The value of the scopes field should be a space delimited string that is expected in the scope parameter,
-             * as defined in RFC 6749: https://datatracker.ietf.org/doc/html/rfc6749#page-23.
+             * The value of the scopes field should be a space delimited string that is expected in the
+             * scope (or scp) claim, as defined in RFC 6749: https://datatracker.ietf.org/doc/html/rfc6749#page-23.
              *
              * If multiple scopes are specified, all scopes must match for the rule to match.
              */
@@ -27697,6 +29251,22 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalHeadersPatch>[]>;
             jwt?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalJwtPatch>;
+            /**
+             * SourceCIDRs are the IP CIDR ranges of the source (L4 peer IP).
+             * Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+             *
+             * If multiple CIDR ranges are specified, one of the CIDR ranges must match
+             * the source IP for the rule to match.
+             *
+             * The source IP is the IP address of the peer that connected to Envoy.
+             * This IP is obtained from the TCP connection's peer address and is not
+             * affected by X-Forwarded-For or other IP detection headers.
+             * If intermediaries (load balancers, NAT) terminate or proxy TCP,
+             * the original client IP will only be available if the intermediary
+             * preserves the source address (for example by enabling the PROXY protocol
+             * or avoiding SNAT).
+             */
+            sourceCIDRs?: pulumi.Input<pulumi.Input<string>[]>;
         }
         /**
          * BasicAuth defines the configuration for the HTTP Basic Authentication.
@@ -27894,6 +29464,14 @@ export declare namespace gateway {
         interface SecurityPolicySpecExtAuth {
             bodyToExtAuth?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthBodyToExtAuth>;
             /**
+             * ContextExtensions are analogous to http_request.headers, however these
+             * contents will not be sent to the upstream server. This provides an
+             * extension mechanism for sending additional information to the auth server
+             * without modifying the proto definition. It maps to the internal opaque
+             * context in the filter chain.
+             */
+            contextExtensions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthContextExtensions>[]>;
+            /**
              * FailOpen is a switch used to control the behavior when a response from the External Authorization service cannot be obtained.
              * If FailOpen is set to true, the system allows the traffic to pass through.
              * Otherwise, if it is set to false or not set (defaulting to false),
@@ -27954,6 +29532,96 @@ export declare namespace gateway {
              * Note that this setting will have precedence over failOpen mode.
              */
             maxRequestBytes?: pulumi.Input<number>;
+        }
+        /**
+         * ContextExtension is analogous to http_request.headers, however these
+         * contents will not be sent to the upstream server. This provides an
+         * extension mechanism for sending additional information to the auth server
+         * without modifying the proto definition. It maps to the internal opaque
+         * context in the filter chain.
+         */
+        interface SecurityPolicySpecExtAuthContextExtensions {
+            /**
+             * Name of the context extension.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type is the type of method to use to read the ContextExtension value.
+             * Valid values are Value and ValueRef, default is Value.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the context extension.
+             */
+            value?: pulumi.Input<string>;
+            valueRef?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthContextExtensionsValueRef>;
+        }
+        /**
+         * ContextExtension is analogous to http_request.headers, however these
+         * contents will not be sent to the upstream server. This provides an
+         * extension mechanism for sending additional information to the auth server
+         * without modifying the proto definition. It maps to the internal opaque
+         * context in the filter chain.
+         */
+        interface SecurityPolicySpecExtAuthContextExtensionsPatch {
+            /**
+             * Name of the context extension.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Type is the type of method to use to read the ContextExtension value.
+             * Valid values are Value and ValueRef, default is Value.
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * Value of the context extension.
+             */
+            value?: pulumi.Input<string>;
+            valueRef?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthContextExtensionsValueRefPatch>;
+        }
+        /**
+         * ValueRef for the context extension's value.
+         */
+        interface SecurityPolicySpecExtAuthContextExtensionsValueRef {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * The key to select.
+             */
+            key?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "HTTPRoute" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * ValueRef for the context extension's value.
+         */
+        interface SecurityPolicySpecExtAuthContextExtensionsValueRefPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * The key to select.
+             */
+            key?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "HTTPRoute" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * GRPC defines the gRPC External Authorization service.
@@ -28136,6 +29804,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -28196,6 +29880,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -28886,6 +30586,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -28895,6 +30599,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -29000,6 +30705,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -29009,8 +30718,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -29677,6 +31407,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -29737,6 +31483,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -30427,6 +32189,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -30436,6 +32202,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -30541,6 +32308,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -30550,8 +32321,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -31042,6 +32834,14 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthPatch {
             bodyToExtAuth?: pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthBodyToExtAuthPatch>;
+            /**
+             * ContextExtensions are analogous to http_request.headers, however these
+             * contents will not be sent to the upstream server. This provides an
+             * extension mechanism for sending additional information to the auth server
+             * without modifying the proto definition. It maps to the internal opaque
+             * context in the filter chain.
+             */
+            contextExtensions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecExtAuthContextExtensionsPatch>[]>;
             /**
              * FailOpen is a switch used to control the behavior when a response from the External Authorization service cannot be obtained.
              * If FailOpen is set to true, the system allows the traffic to pass through.
@@ -31552,6 +33352,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -31612,6 +33428,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -32302,6 +34134,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -32311,6 +34147,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -32416,6 +34253,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -32425,8 +34266,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.
@@ -33567,6 +35429,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendRef defines how an ObjectReference that is specific to BackendRef.
@@ -33627,6 +35505,22 @@ export declare namespace gateway {
              * resource or this field.
              */
             port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
         }
         /**
          * BackendSettings holds configuration for managing the connection
@@ -34317,6 +36211,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeaders>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashQueryParams>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -34326,6 +36224,7 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
         }
@@ -34431,6 +36330,10 @@ export declare namespace gateway {
              */
             headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashHeadersPatch>[]>;
             /**
+             * QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+             */
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashQueryParamsPatch>[]>;
+            /**
              * The table size for consistent hashing, must be prime number limited to 5000011.
              */
             tableSize?: pulumi.Input<number>;
@@ -34440,8 +36343,29 @@ export declare namespace gateway {
              * "Header",
              * "Headers",
              * "Cookie".
+             * "QueryParams".
              */
             type?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashQueryParams {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * QueryParam defines the query parameter name hashing configuration for consistent hash based
+         * load balancing.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashQueryParamsPatch {
+            /**
+             * Name of the query param to hash.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * EndpointOverride defines the configuration for endpoint override.

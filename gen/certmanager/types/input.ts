@@ -868,8 +868,8 @@ export namespace acme {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -916,8 +916,8 @@ export namespace acme {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ChallengeSpecSolverDns01Route53AccessKeyIDSecretRef {
@@ -938,8 +938,8 @@ export namespace acme {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ChallengeSpecSolverDns01Route53AccessKeyIDSecretRefPatch {
@@ -1031,8 +1031,8 @@ export namespace acme {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -1077,8 +1077,8 @@ export namespace acme {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ChallengeSpecSolverDns01Route53SecretAccessKeySecretRef {
@@ -1097,8 +1097,8 @@ export namespace acme {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ChallengeSpecSolverDns01Route53SecretAccessKeySecretRefPatch {
@@ -3549,9 +3549,10 @@ export namespace acme {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -3585,9 +3586,10 @@ export namespace acme {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -5783,9 +5785,10 @@ export namespace acme {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -5819,9 +5822,10 @@ export namespace acme {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -7348,9 +7352,6 @@ export namespace cert_manager {
              * will be generated whenever a re-issuance occurs.
              * Default is `Always`.
              * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
-             * The new default can be disabled by setting the
-             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
-             * the controller component.
              */
             rotationPolicy?: pulumi.Input<string>;
             /**
@@ -7403,9 +7404,6 @@ export namespace cert_manager {
              * will be generated whenever a re-issuance occurs.
              * Default is `Always`.
              * The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
-             * The new default can be disabled by setting the
-             * `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
-             * the controller component.
              */
             rotationPolicy?: pulumi.Input<string>;
             /**
@@ -8687,8 +8685,8 @@ export namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -8735,8 +8733,8 @@ export namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ClusterIssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRef {
@@ -8757,8 +8755,8 @@ export namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ClusterIssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRefPatch {
@@ -8850,8 +8848,8 @@ export namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -8896,8 +8894,8 @@ export namespace cert_manager {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
@@ -8916,8 +8914,8 @@ export namespace cert_manager {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRefPatch {
@@ -11368,9 +11366,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -11404,9 +11403,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -13602,9 +13602,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -13638,9 +13639,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -14122,8 +14124,8 @@ export namespace cert_manager {
          */
         export interface ClusterIssuerSpecVaultAuthKubernetesServiceAccountRef {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -14141,8 +14143,8 @@ export namespace cert_manager {
          */
         export interface ClusterIssuerSpecVaultAuthKubernetesServiceAccountRefPatch {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -14351,15 +14353,15 @@ export namespace cert_manager {
         }
 
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         export interface ClusterIssuerSpecVenafi {
             cloud?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloud>;
             tpp?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTpp>;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
@@ -14367,20 +14369,20 @@ export namespace cert_manager {
         }
 
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface ClusterIssuerSpecVenafiCloud {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRef>;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
 
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         export interface ClusterIssuerSpecVenafiCloudApiTokenSecretRef {
             /**
@@ -14397,7 +14399,7 @@ export namespace cert_manager {
         }
 
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         export interface ClusterIssuerSpecVenafiCloudApiTokenSecretRefPatch {
             /**
@@ -14414,28 +14416,28 @@ export namespace cert_manager {
         }
 
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface ClusterIssuerSpecVenafiCloudPatch {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudApiTokenSecretRefPatch>;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
 
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         export interface ClusterIssuerSpecVenafiPatch {
             cloud?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudPatch>;
             tpp?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTppPatch>;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
@@ -14443,13 +14445,13 @@ export namespace cert_manager {
         }
 
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface ClusterIssuerSpecVenafiTpp {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -14457,7 +14459,7 @@ export namespace cert_manager {
             caBundleSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCaBundleSecretRef>;
             credentialsRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCredentialsRef>;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url?: pulumi.Input<string>;
@@ -14465,7 +14467,7 @@ export namespace cert_manager {
 
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -14486,7 +14488,7 @@ export namespace cert_manager {
 
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -14506,7 +14508,7 @@ export namespace cert_manager {
         }
 
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -14519,7 +14521,7 @@ export namespace cert_manager {
         }
 
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -14532,13 +14534,13 @@ export namespace cert_manager {
         }
 
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface ClusterIssuerSpecVenafiTppPatch {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -14546,7 +14548,7 @@ export namespace cert_manager {
             caBundleSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCaBundleSecretRefPatch>;
             credentialsRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVenafiTppCredentialsRefPatch>;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url?: pulumi.Input<string>;
@@ -15662,8 +15664,8 @@ export namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -15710,8 +15712,8 @@ export namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface IssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRef {
@@ -15732,8 +15734,8 @@ export namespace cert_manager {
          * The SecretAccessKey is used for authentication. If set, pull the AWS
          * access key ID from a key within a Kubernetes Secret.
          * Cannot be set when AccessKeyID is set.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface IssuerSpecAcmeSolversDns01Route53AccessKeyIDSecretRefPatch {
@@ -15825,8 +15827,8 @@ export namespace cert_manager {
             /**
              * The AccessKeyID is used for authentication.
              * Cannot be set when SecretAccessKeyID is set.
-             * If neither the Access Key nor Key ID are set, we fall-back to using env
-             * vars, shared credentials file or AWS Instance metadata,
+             * If neither the Access Key nor Key ID are set, we fall back to using env
+             * vars, shared credentials file, or AWS Instance metadata,
              * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
              */
             accessKeyID?: pulumi.Input<string>;
@@ -15871,8 +15873,8 @@ export namespace cert_manager {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
@@ -15891,8 +15893,8 @@ export namespace cert_manager {
 
         /**
          * The SecretAccessKey is used for authentication.
-         * If neither the Access Key nor Key ID are set, we fall-back to using env
-         * vars, shared credentials file or AWS Instance metadata,
+         * If neither the Access Key nor Key ID are set, we fall back to using env
+         * vars, shared credentials file, or AWS Instance metadata,
          * see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
          */
         export interface IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRefPatch {
@@ -18343,9 +18345,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -18379,9 +18382,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -20577,9 +20581,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -20613,9 +20618,10 @@ export namespace cert_manager {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -21097,8 +21103,8 @@ export namespace cert_manager {
          */
         export interface IssuerSpecVaultAuthKubernetesServiceAccountRef {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -21116,8 +21122,8 @@ export namespace cert_manager {
          */
         export interface IssuerSpecVaultAuthKubernetesServiceAccountRefPatch {
             /**
-             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-             * consisting of the issuer's namespace and name is always included.
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
              */
             audiences?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -21326,15 +21332,15 @@ export namespace cert_manager {
         }
 
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         export interface IssuerSpecVenafi {
             cloud?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloud>;
             tpp?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTpp>;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
@@ -21342,20 +21348,20 @@ export namespace cert_manager {
         }
 
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface IssuerSpecVenafiCloud {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRef>;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
 
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         export interface IssuerSpecVenafiCloudApiTokenSecretRef {
             /**
@@ -21372,7 +21378,7 @@ export namespace cert_manager {
         }
 
         /**
-         * APITokenSecretRef is a secret key selector for the Venafi Cloud API token.
+         * APITokenSecretRef is a secret key selector for the CyberArk Certificate Manager SaaS API token.
          */
         export interface IssuerSpecVenafiCloudApiTokenSecretRefPatch {
             /**
@@ -21389,28 +21395,28 @@ export namespace cert_manager {
         }
 
         /**
-         * Cloud specifies the Venafi cloud configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface IssuerSpecVenafiCloudPatch {
             apiTokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloudApiTokenSecretRefPatch>;
             /**
-             * URL is the base URL for Venafi Cloud.
+             * URL is the base URL for CyberArk Certificate Manager SaaS.
              * Defaults to "https://api.venafi.cloud/".
              */
             url?: pulumi.Input<string>;
         }
 
         /**
-         * Venafi configures this issuer to sign certificates using a Venafi TPP
-         * or Venafi Cloud policy zone.
+         * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+         * or SaaS policy zone.
          */
         export interface IssuerSpecVenafiPatch {
             cloud?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiCloudPatch>;
             tpp?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTppPatch>;
             /**
-             * Zone is the Venafi Policy Zone to use for this issuer.
-             * All requests made to the Venafi platform will be restricted by the named
+             * Zone is the Certificate Manager Policy Zone to use for this issuer.
+             * All requests made to the Certificate Manager platform will be restricted by the named
              * zone policy.
              * This field is required.
              */
@@ -21418,13 +21424,13 @@ export namespace cert_manager {
         }
 
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface IssuerSpecVenafiTpp {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -21432,7 +21438,7 @@ export namespace cert_manager {
             caBundleSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTppCaBundleSecretRef>;
             credentialsRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTppCredentialsRef>;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url?: pulumi.Input<string>;
@@ -21440,7 +21446,7 @@ export namespace cert_manager {
 
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -21461,7 +21467,7 @@ export namespace cert_manager {
 
         /**
          * Reference to a Secret containing a base64-encoded bundle of PEM CAs
-         * which will be used to validate the certificate chain presented by the TPP server.
+         * which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
          * Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
          * If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
          * the cert-manager controller container is used to validate the TLS connection.
@@ -21481,7 +21487,7 @@ export namespace cert_manager {
         }
 
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -21494,7 +21500,7 @@ export namespace cert_manager {
         }
 
         /**
-         * CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+         * CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
          * The secret must contain the key 'access-token' for the Access Token Authentication,
          * or two keys, 'username' and 'password' for the API Keys Authentication.
          */
@@ -21507,13 +21513,13 @@ export namespace cert_manager {
         }
 
         /**
-         * TPP specifies Trust Protection Platform configuration settings.
-         * Only one of TPP or Cloud may be specified.
+         * TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+         * Only one of CyberArk Certificate Manager may be specified.
          */
         export interface IssuerSpecVenafiTppPatch {
             /**
              * Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-             * chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+             * chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
              * If undefined, the certificate bundle in the cert-manager controller container
              * is used to validate the chain.
              */
@@ -21521,7 +21527,7 @@ export namespace cert_manager {
             caBundleSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTppCaBundleSecretRefPatch>;
             credentialsRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVenafiTppCredentialsRefPatch>;
             /**
-             * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+             * URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
              * for example: "https://tpp.example.com/vedsdk".
              */
             url?: pulumi.Input<string>;

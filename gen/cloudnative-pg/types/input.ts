@@ -630,6 +630,11 @@ export namespace postgresql {
             storageAccount?: pulumi.Input<inputs.postgresql.v1.BackupStatusAzureCredentialsStorageAccount>;
             storageKey?: pulumi.Input<inputs.postgresql.v1.BackupStatusAzureCredentialsStorageKey>;
             storageSasToken?: pulumi.Input<inputs.postgresql.v1.BackupStatusAzureCredentialsStorageSasToken>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -744,6 +749,13 @@ export namespace postgresql {
              * The pod name
              */
             podName?: pulumi.Input<string>;
+            /**
+             * The instance manager session ID. This is a unique identifier generated at instance manager
+             * startup and changes on every restart (including container reboots). Used to detect if
+             * the instance manager was restarted during long-running operations like backups, which
+             * would terminate any running backup process.
+             */
+            sessionID?: pulumi.Input<string>;
         }
 
         /**
@@ -2778,9 +2790,10 @@ export namespace postgresql {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -2814,9 +2827,10 @@ export namespace postgresql {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -2906,6 +2920,11 @@ export namespace postgresql {
             storageAccount?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageAccount>;
             storageKey?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageKey>;
             storageSasToken?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageSasToken>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -2948,6 +2967,11 @@ export namespace postgresql {
             storageAccount?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageAccountPatch>;
             storageKey?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageKeyPatch>;
             storageSasToken?: pulumi.Input<inputs.postgresql.v1.ClusterSpecBackupBarmanObjectStoreAzureCredentialsStorageSasTokenPatch>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -4604,7 +4628,8 @@ export namespace postgresql {
              */
             targetTLI?: pulumi.Input<string>;
             /**
-             * The target time as a timestamp in the RFC3339 standard
+             * The target time as a timestamp in RFC3339 format or PostgreSQL timestamp format.
+             * Timestamps without an explicit timezone are interpreted as UTC.
              */
             targetTime?: pulumi.Input<string>;
             /**
@@ -4652,7 +4677,8 @@ export namespace postgresql {
              */
             targetTLI?: pulumi.Input<string>;
             /**
-             * The target time as a timestamp in the RFC3339 standard
+             * The target time as a timestamp in RFC3339 format or PostgreSQL timestamp format.
+             * Timestamps without an explicit timezone are interpreted as UTC.
              */
             targetTime?: pulumi.Input<string>;
             /**
@@ -5609,7 +5635,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -5631,7 +5657,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -5830,6 +5856,11 @@ export namespace postgresql {
             storageAccount?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageAccount>;
             storageKey?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageKey>;
             storageSasToken?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageSasToken>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -5872,6 +5903,11 @@ export namespace postgresql {
             storageAccount?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageAccountPatch>;
             storageKey?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageKeyPatch>;
             storageSasToken?: pulumi.Input<inputs.postgresql.v1.ClusterSpecExternalClustersBarmanObjectStoreAzureCredentialsStorageSasTokenPatch>;
+            /**
+             * Use the default Azure authentication flow, which includes DefaultAzureCredential.
+             * This allows authentication using environment variables and managed identities.
+             */
+            useDefaultAzureCredentials?: pulumi.Input<boolean>;
         }
 
         /**
@@ -10363,6 +10399,22 @@ export namespace postgresql {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -10465,6 +10517,22 @@ export namespace postgresql {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -11699,7 +11767,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -11721,7 +11789,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -12179,7 +12247,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -12201,7 +12269,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -12895,7 +12963,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -12917,7 +12985,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -16027,8 +16095,8 @@ export namespace postgresql {
              * will be made available to those containers which consume them
              * by name.
              *
-             * This is an alpha field and requires enabling the
-             * DynamicResourceAllocation feature gate.
+             * This is a stable field but requires that the
+             * DynamicResourceAllocation feature gate is enabled.
              *
              * This field is immutable.
              */
@@ -16120,6 +16188,7 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/storage/volumes
              */
             volumes?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecVolumes>[]>;
+            workloadRef?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecWorkloadRef>;
         }
 
         /**
@@ -17762,6 +17831,7 @@ export namespace postgresql {
             readinessProbe?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersReadinessProbe>;
             /**
              * Resources resize policy for the container.
+             * This field cannot be set on ephemeral containers.
              */
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersResources>;
@@ -19050,6 +19120,7 @@ export namespace postgresql {
             readinessProbe?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersReadinessProbePatch>;
             /**
              * Resources resize policy for the container.
+             * This field cannot be set on ephemeral containers.
              */
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersResizePolicyPatch>[]>;
             resources?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecContainersResourcesPatch>;
@@ -23518,6 +23589,7 @@ export namespace postgresql {
             readinessProbe?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersReadinessProbe>;
             /**
              * Resources resize policy for the container.
+             * This field cannot be set on ephemeral containers.
              */
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResizePolicy>[]>;
             resources?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResources>;
@@ -24806,6 +24878,7 @@ export namespace postgresql {
             readinessProbe?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersReadinessProbePatch>;
             /**
              * Resources resize policy for the container.
+             * This field cannot be set on ephemeral containers.
              */
             resizePolicy?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResizePolicyPatch>[]>;
             resources?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecInitContainersResourcesPatch>;
@@ -26546,8 +26619,8 @@ export namespace postgresql {
              * will be made available to those containers which consume them
              * by name.
              *
-             * This is an alpha field and requires enabling the
-             * DynamicResourceAllocation feature gate.
+             * This is a stable field but requires that the
+             * DynamicResourceAllocation feature gate is enabled.
              *
              * This field is immutable.
              */
@@ -26639,6 +26712,7 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/storage/volumes
              */
             volumes?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecVolumesPatch>[]>;
+            workloadRef?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplateSpecWorkloadRefPatch>;
         }
 
         /**
@@ -27356,9 +27430,10 @@ export namespace postgresql {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -27392,9 +27467,10 @@ export namespace postgresql {
             key?: pulumi.Input<string>;
             /**
              * Operator represents a key's relationship to the value.
-             * Valid operators are Exists and Equal. Defaults to Equal.
+             * Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
              * Exists is equivalent to wildcard for value, so that a pod can
              * tolerate all taints of a particular category.
+             * Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
              */
             operator?: pulumi.Input<string>;
             /**
@@ -28911,7 +28987,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -28933,7 +29009,7 @@ export namespace postgresql {
 
         /**
          * resources represents the minimum resources the volume should have.
-         * If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+         * Users are allowed to specify resource requirements
          * that are lower than previous value but must still be higher than capacity recorded in the
          * status field of the claim.
          * More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
@@ -30415,6 +30491,22 @@ export namespace postgresql {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -30517,6 +30609,22 @@ export namespace postgresql {
              * Kubelet's generated CSRs will be addressed to this signer.
              */
             signerName?: pulumi.Input<string>;
+            /**
+             * userAnnotations allow pod authors to pass additional information to
+             * the signer implementation.  Kubernetes does not restrict or validate this
+             * metadata in any way.
+             *
+             * These values are copied verbatim into the `spec.unverifiedUserAnnotations` field of
+             * the PodCertificateRequest objects that Kubelet creates.
+             *
+             * Entries are subject to the same validation as object metadata annotations,
+             * with the addition that all keys must be domain-prefixed. No restrictions
+             * are placed on values, except an overall size limitation on the entire field.
+             *
+             * Signers should document the keys and values they support. Signers should
+             * deny requests that contain keys they do not recognize.
+             */
+            userAnnotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -31287,6 +31395,74 @@ export namespace postgresql {
              * volumePath is the path that identifies vSphere volume vmdk
              */
             volumePath?: pulumi.Input<string>;
+        }
+
+        /**
+         * WorkloadRef provides a reference to the Workload object that this Pod belongs to.
+         * This field is used by the scheduler to identify the PodGroup and apply the
+         * correct group scheduling policies. The Workload object referenced
+         * by this field may not exist at the time the Pod is created.
+         * This field is immutable, but a Workload object with the same name
+         * may be recreated with different policies. Doing this during pod scheduling
+         * may result in the placement not conforming to the expected policies.
+         */
+        export interface PoolerSpecTemplateSpecWorkloadRef {
+            /**
+             * Name defines the name of the Workload object this Pod belongs to.
+             * Workload must be in the same namespace as the Pod.
+             * If it doesn't match any existing Workload, the Pod will remain unschedulable
+             * until a Workload object is created and observed by the kube-scheduler.
+             * It must be a DNS subdomain.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * PodGroup is the name of the PodGroup within the Workload that this Pod
+             * belongs to. If it doesn't match any existing PodGroup within the Workload,
+             * the Pod will remain unschedulable until the Workload object is recreated
+             * and observed by the kube-scheduler. It must be a DNS label.
+             */
+            podGroup?: pulumi.Input<string>;
+            /**
+             * PodGroupReplicaKey specifies the replica key of the PodGroup to which this
+             * Pod belongs. It is used to distinguish pods belonging to different replicas
+             * of the same pod group. The pod group policy is applied separately to each replica.
+             * When set, it must be a DNS label.
+             */
+            podGroupReplicaKey?: pulumi.Input<string>;
+        }
+
+        /**
+         * WorkloadRef provides a reference to the Workload object that this Pod belongs to.
+         * This field is used by the scheduler to identify the PodGroup and apply the
+         * correct group scheduling policies. The Workload object referenced
+         * by this field may not exist at the time the Pod is created.
+         * This field is immutable, but a Workload object with the same name
+         * may be recreated with different policies. Doing this during pod scheduling
+         * may result in the placement not conforming to the expected policies.
+         */
+        export interface PoolerSpecTemplateSpecWorkloadRefPatch {
+            /**
+             * Name defines the name of the Workload object this Pod belongs to.
+             * Workload must be in the same namespace as the Pod.
+             * If it doesn't match any existing Workload, the Pod will remain unschedulable
+             * until a Workload object is created and observed by the kube-scheduler.
+             * It must be a DNS subdomain.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * PodGroup is the name of the PodGroup within the Workload that this Pod
+             * belongs to. If it doesn't match any existing PodGroup within the Workload,
+             * the Pod will remain unschedulable until the Workload object is recreated
+             * and observed by the kube-scheduler. It must be a DNS label.
+             */
+            podGroup?: pulumi.Input<string>;
+            /**
+             * PodGroupReplicaKey specifies the replica key of the PodGroup to which this
+             * Pod belongs. It is used to distinguish pods belonging to different replicas
+             * of the same pod group. The pod group policy is applied separately to each replica.
+             * When set, it must be a DNS label.
+             */
+            podGroupReplicaKey?: pulumi.Input<string>;
         }
 
         /**

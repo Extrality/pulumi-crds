@@ -55,10 +55,7 @@ export class EnvoyProxyPatch extends pulumi.CustomResource {
      */
     public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     public readonly spec!: pulumi.Output<outputs.gateway.v1alpha1.EnvoyProxySpecPatch>;
-    /**
-     * EnvoyProxyStatus defines the actual state of EnvoyProxy.
-     */
-    public /*out*/ readonly status!: pulumi.Output<{[key: string]: string}>;
+    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1alpha1.EnvoyProxyStatusPatch>;
 
     /**
      * Create a EnvoyProxyPatch resource with the given unique name, arguments, and options.

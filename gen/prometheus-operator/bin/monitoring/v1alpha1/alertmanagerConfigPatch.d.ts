@@ -39,6 +39,7 @@ export declare class AlertmanagerConfigPatch extends pulumi.CustomResource {
      */
     readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
     readonly spec: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigSpecPatch>;
+    readonly status: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigStatusPatch>;
     /**
      * Create a AlertmanagerConfigPatch resource with the given unique name, arguments, and options.
      *
