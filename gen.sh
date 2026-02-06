@@ -86,7 +86,6 @@ gen "rabbitmq/cluster-operator" "config/crd/bases/*.yaml" "rabbitmq-cluster-oper
 gen "rabbitmq/messaging-topology-operator" "config/crd/bases/*.yaml" "rabbitmq-topology-operator"
 gen "cert-manager/cert-manager" "deploy/crds/*.yaml" "certmanager"
 gen "prometheus-operator/prometheus-operator" "example/prometheus-operator-crd/*.yaml" "prometheus-operator"
-gen "authzed/spicedb-operator" "config/crds/*.yaml" "spicedb-operator"
 gen "aws/karpenter-provider-aws" "pkg/apis/crds/*.yaml" "karpenter-aws"
 gen "actions/actions-runner-controller" "charts/gha-runner-scale-set-controller/crds/*.yaml" "github-actions-scale-set"
 gen "envoyproxy/gateway" "charts/gateway-crds-helm/templates/generated/*.yaml" "envoy-proxy"
