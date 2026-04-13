@@ -389,6 +389,19 @@ export declare namespace acme {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Auth: Azure Service Principal:
@@ -500,6 +513,19 @@ export declare namespace acme {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Use the Google Cloud DNS API to manage DNS01 challenge records.
@@ -725,7 +751,7 @@ export declare namespace acme {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -755,7 +781,7 @@ export declare namespace acme {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -6701,6 +6727,7 @@ export declare namespace cert_manager {
              * Cannot be set if the `renewBefore` field is set.
              */
             renewBeforePercentage: number;
+            renewal: outputs.cert_manager.v1.CertificateSpecRenewal;
             /**
              * The maximum number of CertificateRequest revisions that are maintained in
              * the Certificate's history. Each revision represents a single `CertificateRequest`
@@ -7305,6 +7332,7 @@ export declare namespace cert_manager {
              * Cannot be set if the `renewBefore` field is set.
              */
             renewBeforePercentage: number;
+            renewal: outputs.cert_manager.v1.CertificateSpecRenewalPatch;
             /**
              * The maximum number of CertificateRequest revisions that are maintained in
              * the Certificate's history. Each revision represents a single `CertificateRequest`
@@ -7447,6 +7475,86 @@ export declare namespace cert_manager {
              * No other values are allowed.
              */
             size: number;
+        }
+        /**
+         * `renewal` allows configuration of how your certificate is renewed. If the policy mentioned is
+         * `RenewBefore` then the controller respects `renewBefore` and `renewBeforePercentage`.
+         */
+        interface CertificateSpecRenewal {
+            /**
+             * `policy` must be one of `Disabled`, `RenewBefore`.
+             */
+            policy: string;
+            /**
+             * `windows` mentions the behavior of when the renewal must happen.
+             */
+            windows: outputs.cert_manager.v1.CertificateSpecRenewalWindows[];
+        }
+        /**
+         * `renewal` allows configuration of how your certificate is renewed. If the policy mentioned is
+         * `RenewBefore` then the controller respects `renewBefore` and `renewBeforePercentage`.
+         */
+        interface CertificateSpecRenewalPatch {
+            /**
+             * `policy` must be one of `Disabled`, `RenewBefore`.
+             */
+            policy: string;
+            /**
+             * `windows` mentions the behavior of when the renewal must happen.
+             */
+            windows: outputs.cert_manager.v1.CertificateSpecRenewalWindowsPatch[];
+        }
+        /**
+         * CertificateRenewalWindows is the definition for renewal windows
+         */
+        interface CertificateSpecRenewalWindows {
+            /**
+             * `cron` is a cron compliant string to allow when the renewal should be allowed. Format is as shown below:
+             * * * * * *
+             * | | | | |
+             * | | | | day of the week (0–6) (Sunday to Saturday;
+             * | | | month (1–12)             7 is also Sunday on some systems)
+             * | | day of the month (1–31)
+             * | hour (0–23)
+             * minute (0–59)
+             */
+            cron: string;
+            /**
+             * `timezone` is IANA compliant timezone. For example America/Denver.
+             * If this field is not set, timezone is treated as UTC.
+             */
+            timezone: string;
+            /**
+             * `windowDuration` is how long the cron definition is active for.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
+             */
+            windowDuration: string;
+        }
+        /**
+         * CertificateRenewalWindows is the definition for renewal windows
+         */
+        interface CertificateSpecRenewalWindowsPatch {
+            /**
+             * `cron` is a cron compliant string to allow when the renewal should be allowed. Format is as shown below:
+             * * * * * *
+             * | | | | |
+             * | | | | day of the week (0–6) (Sunday to Saturday;
+             * | | | month (1–12)             7 is also Sunday on some systems)
+             * | | day of the month (1–31)
+             * | hour (0–23)
+             * minute (0–59)
+             */
+            cron: string;
+            /**
+             * `timezone` is IANA compliant timezone. For example America/Denver.
+             * If this field is not set, timezone is treated as UTC.
+             */
+            timezone: string;
+            /**
+             * `windowDuration` is how long the cron definition is active for.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
+             */
+            windowDuration: string;
         }
         /**
          * Defines annotations and labels to be copied to the Certificate's Secret.
@@ -8345,6 +8453,19 @@ export declare namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Auth: Azure Service Principal:
@@ -8456,6 +8577,19 @@ export declare namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Use the Google Cloud DNS API to manage DNS01 challenge records.
@@ -8681,7 +8815,7 @@ export declare namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -8711,7 +8845,7 @@ export declare namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -13904,6 +14038,7 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecVaultAuth {
             appRole: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAppRole;
+            aws: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAws;
             clientCertificate: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthClientCertificate;
             kubernetes: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthKubernetes;
             tokenSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthTokenSecretRef;
@@ -13977,6 +14112,108 @@ export declare namespace cert_manager {
             /**
              * Name of the resource being referred to.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        interface ClusterIssuerSpecVaultAuthAws {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn: string;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath: string;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region: string;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role: string;
+            serviceAccountRef: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsServiceAccountRef;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue: string;
+        }
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        interface ClusterIssuerSpecVaultAuthAwsPatch {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn: string;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath: string;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region: string;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role: string;
+            serviceAccountRef: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsServiceAccountRefPatch;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue: string;
+        }
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        interface ClusterIssuerSpecVaultAuthAwsServiceAccountRef {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences: string[];
+            /**
+             * Name of the ServiceAccount used to request a token.
+             */
+            name: string;
+        }
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        interface ClusterIssuerSpecVaultAuthAwsServiceAccountRefPatch {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences: string[];
+            /**
+             * Name of the ServiceAccount used to request a token.
              */
             name: string;
         }
@@ -14147,6 +14384,7 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecVaultAuthPatch {
             appRole: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAppRolePatch;
+            aws: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsPatch;
             clientCertificate: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthClientCertificatePatch;
             kubernetes: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthKubernetesPatch;
             tokenSecretRef: outputs.cert_manager.v1.ClusterIssuerSpecVaultAuthTokenSecretRefPatch;
@@ -15221,6 +15459,19 @@ export declare namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Auth: Azure Service Principal:
@@ -15332,6 +15583,19 @@ export declare namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID: string;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType: string;
         }
         /**
          * Use the Google Cloud DNS API to manage DNS01 challenge records.
@@ -15557,7 +15821,7 @@ export declare namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -15587,7 +15851,7 @@ export declare namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver: string;
@@ -20780,6 +21044,7 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecVaultAuth {
             appRole: outputs.cert_manager.v1.IssuerSpecVaultAuthAppRole;
+            aws: outputs.cert_manager.v1.IssuerSpecVaultAuthAws;
             clientCertificate: outputs.cert_manager.v1.IssuerSpecVaultAuthClientCertificate;
             kubernetes: outputs.cert_manager.v1.IssuerSpecVaultAuthKubernetes;
             tokenSecretRef: outputs.cert_manager.v1.IssuerSpecVaultAuthTokenSecretRef;
@@ -20853,6 +21118,108 @@ export declare namespace cert_manager {
             /**
              * Name of the resource being referred to.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        interface IssuerSpecVaultAuthAws {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn: string;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath: string;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region: string;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role: string;
+            serviceAccountRef: outputs.cert_manager.v1.IssuerSpecVaultAuthAwsServiceAccountRef;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue: string;
+        }
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        interface IssuerSpecVaultAuthAwsPatch {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn: string;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath: string;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region: string;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role: string;
+            serviceAccountRef: outputs.cert_manager.v1.IssuerSpecVaultAuthAwsServiceAccountRefPatch;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue: string;
+        }
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        interface IssuerSpecVaultAuthAwsServiceAccountRef {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences: string[];
+            /**
+             * Name of the ServiceAccount used to request a token.
+             */
+            name: string;
+        }
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        interface IssuerSpecVaultAuthAwsServiceAccountRefPatch {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences: string[];
+            /**
+             * Name of the ServiceAccount used to request a token.
              */
             name: string;
         }
@@ -21023,6 +21390,7 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecVaultAuthPatch {
             appRole: outputs.cert_manager.v1.IssuerSpecVaultAuthAppRolePatch;
+            aws: outputs.cert_manager.v1.IssuerSpecVaultAuthAwsPatch;
             clientCertificate: outputs.cert_manager.v1.IssuerSpecVaultAuthClientCertificatePatch;
             kubernetes: outputs.cert_manager.v1.IssuerSpecVaultAuthKubernetesPatch;
             tokenSecretRef: outputs.cert_manager.v1.IssuerSpecVaultAuthTokenSecretRefPatch;

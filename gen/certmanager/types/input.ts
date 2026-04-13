@@ -414,6 +414,19 @@ export namespace acme {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -530,6 +543,19 @@ export namespace acme {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -771,7 +797,7 @@ export namespace acme {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -802,7 +828,7 @@ export namespace acme {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -6646,6 +6672,7 @@ export namespace cert_manager {
              * Cannot be set if the `renewBefore` field is set.
              */
             renewBeforePercentage?: pulumi.Input<number>;
+            renewal?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecRenewal>;
             /**
              * The maximum number of CertificateRequest revisions that are maintained in
              * the Certificate's history. Each revision represents a single `CertificateRequest`
@@ -7273,6 +7300,7 @@ export namespace cert_manager {
              * Cannot be set if the `renewBefore` field is set.
              */
             renewBeforePercentage?: pulumi.Input<number>;
+            renewal?: pulumi.Input<inputs.cert_manager.v1.CertificateSpecRenewalPatch>;
             /**
              * The maximum number of CertificateRequest revisions that are maintained in
              * the Certificate's history. Each revision represents a single `CertificateRequest`
@@ -7417,6 +7445,90 @@ export namespace cert_manager {
              * No other values are allowed.
              */
             size?: pulumi.Input<number>;
+        }
+
+        /**
+         * `renewal` allows configuration of how your certificate is renewed. If the policy mentioned is
+         * `RenewBefore` then the controller respects `renewBefore` and `renewBeforePercentage`.
+         */
+        export interface CertificateSpecRenewal {
+            /**
+             * `policy` must be one of `Disabled`, `RenewBefore`.
+             */
+            policy?: pulumi.Input<string>;
+            /**
+             * `windows` mentions the behavior of when the renewal must happen.
+             */
+            windows?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.CertificateSpecRenewalWindows>[]>;
+        }
+
+        /**
+         * `renewal` allows configuration of how your certificate is renewed. If the policy mentioned is
+         * `RenewBefore` then the controller respects `renewBefore` and `renewBeforePercentage`.
+         */
+        export interface CertificateSpecRenewalPatch {
+            /**
+             * `policy` must be one of `Disabled`, `RenewBefore`.
+             */
+            policy?: pulumi.Input<string>;
+            /**
+             * `windows` mentions the behavior of when the renewal must happen.
+             */
+            windows?: pulumi.Input<pulumi.Input<inputs.cert_manager.v1.CertificateSpecRenewalWindowsPatch>[]>;
+        }
+
+        /**
+         * CertificateRenewalWindows is the definition for renewal windows
+         */
+        export interface CertificateSpecRenewalWindows {
+            /**
+             * `cron` is a cron compliant string to allow when the renewal should be allowed. Format is as shown below:
+             * * * * * *
+             * | | | | |
+             * | | | | day of the week (0–6) (Sunday to Saturday;
+             * | | | month (1–12)             7 is also Sunday on some systems)
+             * | | day of the month (1–31)
+             * | hour (0–23)
+             * minute (0–59)
+             */
+            cron?: pulumi.Input<string>;
+            /**
+             * `timezone` is IANA compliant timezone. For example America/Denver.
+             * If this field is not set, timezone is treated as UTC.
+             */
+            timezone?: pulumi.Input<string>;
+            /**
+             * `windowDuration` is how long the cron definition is active for.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
+             */
+            windowDuration?: pulumi.Input<string>;
+        }
+
+        /**
+         * CertificateRenewalWindows is the definition for renewal windows
+         */
+        export interface CertificateSpecRenewalWindowsPatch {
+            /**
+             * `cron` is a cron compliant string to allow when the renewal should be allowed. Format is as shown below:
+             * * * * * *
+             * | | | | |
+             * | | | | day of the week (0–6) (Sunday to Saturday;
+             * | | | month (1–12)             7 is also Sunday on some systems)
+             * | | day of the month (1–31)
+             * | hour (0–23)
+             * minute (0–59)
+             */
+            cron?: pulumi.Input<string>;
+            /**
+             * `timezone` is IANA compliant timezone. For example America/Denver.
+             * If this field is not set, timezone is treated as UTC.
+             */
+            timezone?: pulumi.Input<string>;
+            /**
+             * `windowDuration` is how long the cron definition is active for.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
+             */
+            windowDuration?: pulumi.Input<string>;
         }
 
         /**
@@ -8231,6 +8343,19 @@ export namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -8347,6 +8472,19 @@ export namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -8588,7 +8726,7 @@ export namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -8619,7 +8757,7 @@ export namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -13902,6 +14040,7 @@ export namespace cert_manager {
          */
         export interface ClusterIssuerSpecVaultAuth {
             appRole?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAppRole>;
+            aws?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAws>;
             clientCertificate?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthClientCertificate>;
             kubernetes?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthKubernetes>;
             tokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthTokenSecretRef>;
@@ -13979,6 +14118,112 @@ export namespace cert_manager {
             /**
              * Name of the resource being referred to.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        export interface ClusterIssuerSpecVaultAuthAws {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn?: pulumi.Input<string>;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath?: pulumi.Input<string>;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region?: pulumi.Input<string>;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role?: pulumi.Input<string>;
+            serviceAccountRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsServiceAccountRef>;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue?: pulumi.Input<string>;
+        }
+
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        export interface ClusterIssuerSpecVaultAuthAwsPatch {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn?: pulumi.Input<string>;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath?: pulumi.Input<string>;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region?: pulumi.Input<string>;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role?: pulumi.Input<string>;
+            serviceAccountRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsServiceAccountRefPatch>;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue?: pulumi.Input<string>;
+        }
+
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        export interface ClusterIssuerSpecVaultAuthAwsServiceAccountRef {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Name of the ServiceAccount used to request a token.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        export interface ClusterIssuerSpecVaultAuthAwsServiceAccountRefPatch {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Name of the ServiceAccount used to request a token.
              */
             name?: pulumi.Input<string>;
         }
@@ -14158,6 +14403,7 @@ export namespace cert_manager {
          */
         export interface ClusterIssuerSpecVaultAuthPatch {
             appRole?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAppRolePatch>;
+            aws?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthAwsPatch>;
             clientCertificate?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthClientCertificatePatch>;
             kubernetes?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthKubernetesPatch>;
             tokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.ClusterIssuerSpecVaultAuthTokenSecretRefPatch>;
@@ -15210,6 +15456,19 @@ export namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -15326,6 +15585,19 @@ export namespace cert_manager {
              * If set, ClientID and ClientSecret must also be set.
              */
             tenantID?: pulumi.Input<string>;
+            /**
+             * ZoneType determines which type of Azure DNS zone to use.
+             *
+             * Valid values are:
+             *   - AzurePublicZone  (default): Use a public Azure DNS zone.
+             *   - AzurePrivateZone: Use an Azure Private DNS zone.
+             *
+             * If not specified, AzurePublicZone is used.
+             *
+             * Support for Azure Private DNS zones is currently
+             * experimental and may change in future releases.
+             */
+            zoneType?: pulumi.Input<string>;
         }
 
         /**
@@ -15567,7 +15839,7 @@ export namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -15598,7 +15870,7 @@ export namespace cert_manager {
             /**
              * The IP address or hostname of an authoritative DNS server supporting
              * RFC2136 in the form host:port. If the host is an IPv6 address it must be
-             * enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+             * enclosed in square brackets (e.g [2001:db8::1]); port is optional.
              * This field is required.
              */
             nameserver?: pulumi.Input<string>;
@@ -20881,6 +21153,7 @@ export namespace cert_manager {
          */
         export interface IssuerSpecVaultAuth {
             appRole?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAppRole>;
+            aws?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAws>;
             clientCertificate?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthClientCertificate>;
             kubernetes?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthKubernetes>;
             tokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthTokenSecretRef>;
@@ -20958,6 +21231,112 @@ export namespace cert_manager {
             /**
              * Name of the resource being referred to.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        export interface IssuerSpecVaultAuthAws {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn?: pulumi.Input<string>;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath?: pulumi.Input<string>;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region?: pulumi.Input<string>;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role?: pulumi.Input<string>;
+            serviceAccountRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAwsServiceAccountRef>;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue?: pulumi.Input<string>;
+        }
+
+        /**
+         * AWS authenticates with Vault using AWS IAM authentication.
+         * This allows authentication using IAM roles for service accounts (IRSA),
+         * EKS Pod Identity (PIA), or ambient credentials (EC2 instance profiles, ECS task role).
+         */
+        export interface IssuerSpecVaultAuthAwsPatch {
+            /**
+             * The ARN of the AWS IAM role to assume using the Kubernetes service account
+             * token. Required when using IRSA (serviceAccountRef is set).
+             * This role must have a trust policy that allows the OIDC provider to assume it.
+             */
+            iamRoleArn?: pulumi.Input<string>;
+            /**
+             * The Vault mountPath here is the mount path to use when authenticating with
+             * Vault. For example, setting a value to `/v1/auth/foo`, will use the path
+             * `/v1/auth/foo/login` to authenticate with Vault. If unspecified, the
+             * default value "/v1/auth/aws" will be used.
+             */
+            mountPath?: pulumi.Input<string>;
+            /**
+             * The AWS region to use for authentication. If not specified, the region
+             * will be determined from AWS_REGION or AWS_DEFAULT_REGION environment
+             * variables, falling back to "us-east-1" if not set.
+             */
+            region?: pulumi.Input<string>;
+            /**
+             * A required field containing the Vault Role to assume when authenticating.
+             */
+            role?: pulumi.Input<string>;
+            serviceAccountRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAwsServiceAccountRefPatch>;
+            /**
+             * The Vault header value to include in the STS signing request.
+             * This is used to prevent replay attacks.
+             */
+            vaultHeaderValue?: pulumi.Input<string>;
+        }
+
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        export interface IssuerSpecVaultAuthAwsServiceAccountRef {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Name of the ServiceAccount used to request a token.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * A reference to a service account that will be used to request a web identity
+         * token for IRSA (IAM Roles for Service Accounts) authentication.
+         */
+        export interface IssuerSpecVaultAuthAwsServiceAccountRefPatch {
+            /**
+             * TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+             * The default audiences are always included in the token.
+             */
+            audiences?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Name of the ServiceAccount used to request a token.
              */
             name?: pulumi.Input<string>;
         }
@@ -21137,6 +21516,7 @@ export namespace cert_manager {
          */
         export interface IssuerSpecVaultAuthPatch {
             appRole?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAppRolePatch>;
+            aws?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthAwsPatch>;
             clientCertificate?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthClientCertificatePatch>;
             kubernetes?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthKubernetesPatch>;
             tokenSecretRef?: pulumi.Input<inputs.cert_manager.v1.IssuerSpecVaultAuthTokenSecretRefPatch>;

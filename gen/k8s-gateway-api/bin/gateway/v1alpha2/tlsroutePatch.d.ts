@@ -11,9 +11,6 @@ import * as outputs from "../../types/output";
  * The TLSRoute resource is similar to TCPRoute, but can be configured
  * to match against TLS-specific metadata. This allows more flexibility
  * in matching streams for a given TLS listener.
- *
- * If you need to forward traffic to a single target for a TLS listener, you
- * could choose to use a TCPRoute with a TLS listener.
  */
 export declare class TLSRoutePatch extends pulumi.CustomResource {
     /**

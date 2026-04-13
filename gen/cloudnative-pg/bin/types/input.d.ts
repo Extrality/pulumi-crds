@@ -588,6 +588,14 @@ export declare namespace postgresql {
             pluginMetadata?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
             }>;
+            /**
+             * When the backup process was started by the operator
+             */
+            reconciliationStartedAt?: pulumi.Input<string>;
+            /**
+             * When the reconciliation was terminated by the operator (either successfully or not)
+             */
+            reconciliationTerminatedAt?: pulumi.Input<string>;
             s3Credentials?: pulumi.Input<inputs.postgresql.v1.BackupStatusS3Credentials>;
             /**
              * The server name on S3, the cluster name is used if this
@@ -596,11 +604,11 @@ export declare namespace postgresql {
             serverName?: pulumi.Input<string>;
             snapshotBackupStatus?: pulumi.Input<inputs.postgresql.v1.BackupStatusSnapshotBackupStatus>;
             /**
-             * When the backup was started
+             * When the backup execution was started by the backup tool
              */
             startedAt?: pulumi.Input<string>;
             /**
-             * When the backup was terminated
+             * When the backup execution was terminated by the backup tool
              */
             stoppedAt?: pulumi.Input<string>;
             /**
@@ -884,6 +892,10 @@ export declare namespace postgresql {
          */
         interface ClusterImageCatalogSpecImages {
             /**
+             * The configuration of the extensions to be added
+             */
+            extensions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensions>[]>;
+            /**
              * The image reference
              */
             image?: pulumi.Input<string>;
@@ -893,9 +905,177 @@ export declare namespace postgresql {
             major?: pulumi.Input<number>;
         }
         /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ClusterImageCatalogSpecImagesExtensions {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensionsEnv>[]>;
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path?: pulumi.Input<pulumi.Input<string>[]>;
+            image?: pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensionsImage>;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The name of the extension, required
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ClusterImageCatalogSpecImagesExtensionsEnv {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ClusterImageCatalogSpecImagesExtensionsEnvPatch {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
+         */
+        interface ClusterImageCatalogSpecImagesExtensionsImage {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy?: pulumi.Input<string>;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
+         */
+        interface ClusterImageCatalogSpecImagesExtensionsImagePatch {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy?: pulumi.Input<string>;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ClusterImageCatalogSpecImagesExtensionsPatch {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensionsEnvPatch>[]>;
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path?: pulumi.Input<pulumi.Input<string>[]>;
+            image?: pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensionsImagePatch>;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The name of the extension, required
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
          * CatalogImage defines the image and major version
          */
         interface ClusterImageCatalogSpecImagesPatch {
+            /**
+             * The configuration of the extensions to be added
+             */
+            extensions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterImageCatalogSpecImagesExtensionsPatch>[]>;
             /**
              * The image reference
              */
@@ -1027,6 +1207,13 @@ export declare namespace postgresql {
             plugins?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPlugins>[]>;
             podSecurityContext?: pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSecurityContext>;
             /**
+             * PodSelectorRefs defines named pod label selectors that can be referenced
+             * in pg_hba rules using the ${podselector:NAME} syntax in the address field.
+             * The operator resolves matching pod IPs and the instance manager expands
+             * pg_hba lines accordingly. Only pods in the Cluster's own namespace are considered.
+             */
+            podSelectorRefs?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefs>[]>;
+            /**
              * The GID of the `postgres` user inside the image, defaults to `26`
              */
             postgresGID?: pulumi.Input<number>;
@@ -1071,6 +1258,15 @@ export declare namespace postgresql {
             schedulerName?: pulumi.Input<string>;
             seccompProfile?: pulumi.Input<inputs.postgresql.v1.ClusterSpecSeccompProfile>;
             securityContext?: pulumi.Input<inputs.postgresql.v1.ClusterSpecSecurityContext>;
+            /**
+             * Name of an existing ServiceAccount in the same namespace to use for the cluster.
+             * When specified, the operator will not create a new ServiceAccount
+             * but will use the provided one. This is useful for sharing a single
+             * ServiceAccount across multiple clusters (e.g., for cloud IAM configurations).
+             * If not specified, a ServiceAccount will be created with the cluster name.
+             * Mutually exclusive with ServiceAccountTemplate.
+             */
+            serviceAccountName?: pulumi.Input<string>;
             serviceAccountTemplate?: pulumi.Input<inputs.postgresql.v1.ClusterSpecServiceAccountTemplate>;
             /**
              * The time in seconds that controls the window of time reserved for the smart shutdown of Postgres to complete.
@@ -8172,6 +8368,13 @@ export declare namespace postgresql {
             plugins?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPluginsPatch>[]>;
             podSecurityContext?: pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSecurityContextPatch>;
             /**
+             * PodSelectorRefs defines named pod label selectors that can be referenced
+             * in pg_hba rules using the ${podselector:NAME} syntax in the address field.
+             * The operator resolves matching pod IPs and the instance manager expands
+             * pg_hba lines accordingly. Only pods in the Cluster's own namespace are considered.
+             */
+            podSelectorRefs?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefsPatch>[]>;
+            /**
              * The GID of the `postgres` user inside the image, defaults to `26`
              */
             postgresGID?: pulumi.Input<number>;
@@ -8216,6 +8419,15 @@ export declare namespace postgresql {
             schedulerName?: pulumi.Input<string>;
             seccompProfile?: pulumi.Input<inputs.postgresql.v1.ClusterSpecSeccompProfilePatch>;
             securityContext?: pulumi.Input<inputs.postgresql.v1.ClusterSpecSecurityContextPatch>;
+            /**
+             * Name of an existing ServiceAccount in the same namespace to use for the cluster.
+             * When specified, the operator will not create a new ServiceAccount
+             * but will use the provided one. This is useful for sharing a single
+             * ServiceAccount across multiple clusters (e.g., for cloud IAM configurations).
+             * If not specified, a ServiceAccount will be created with the cluster name.
+             * Mutually exclusive with ServiceAccountTemplate.
+             */
+            serviceAccountName?: pulumi.Input<string>;
             serviceAccountTemplate?: pulumi.Input<inputs.postgresql.v1.ClusterSpecServiceAccountTemplatePatch>;
             /**
              * The time in seconds that controls the window of time reserved for the smart shutdown of Postgres to complete.
@@ -8764,6 +8976,114 @@ export declare namespace postgresql {
             runAsUserName?: pulumi.Input<string>;
         }
         /**
+         * PodSelectorRef defines a named pod label selector for use in pg_hba rules.
+         * Pods matching the selector in the Cluster's namespace will have their IPs
+         * resolved and made available for pg_hba address expansion via the
+         * `${podselector:NAME}` syntax.
+         */
+        interface ClusterSpecPodSelectorRefs {
+            /**
+             * Name is the identifier used to reference this selector in pg_hba rules
+             * via the ${podselector:NAME} syntax in the address field.
+             */
+            name?: pulumi.Input<string>;
+            selector?: pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefsSelector>;
+        }
+        /**
+         * PodSelectorRef defines a named pod label selector for use in pg_hba rules.
+         * Pods matching the selector in the Cluster's namespace will have their IPs
+         * resolved and made available for pg_hba address expansion via the
+         * `${podselector:NAME}` syntax.
+         */
+        interface ClusterSpecPodSelectorRefsPatch {
+            /**
+             * Name is the identifier used to reference this selector in pg_hba rules
+             * via the ${podselector:NAME} syntax in the address field.
+             */
+            name?: pulumi.Input<string>;
+            selector?: pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefsSelectorPatch>;
+        }
+        /**
+         * Selector is a label selector that identifies the pods whose IPs
+         * should be resolved. Only pods in the Cluster's namespace are considered.
+         */
+        interface ClusterSpecPodSelectorRefsSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefsSelectorMatchExpressions>[]>;
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+        }
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        interface ClusterSpecPodSelectorRefsSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key?: pulumi.Input<string>;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator?: pulumi.Input<string>;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values?: pulumi.Input<pulumi.Input<string>[]>;
+        }
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        interface ClusterSpecPodSelectorRefsSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key?: pulumi.Input<string>;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator?: pulumi.Input<string>;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values?: pulumi.Input<pulumi.Input<string>[]>;
+        }
+        /**
+         * Selector is a label selector that identifies the pods whose IPs
+         * should be resolved. Only pods in the Cluster's namespace are considered.
+         */
+        interface ClusterSpecPodSelectorRefsSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPodSelectorRefsSelectorMatchExpressionsPatch>[]>;
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels?: pulumi.Input<{
+                [key: string]: pulumi.Input<string>;
+            }>;
+        }
+        /**
          * Configuration of the PostgreSQL server
          */
         interface ClusterSpecPostgresql {
@@ -8787,7 +9107,9 @@ export declare namespace postgresql {
             }>;
             /**
              * PostgreSQL Host Based Authentication rules (lines to be appended
-             * to the pg_hba.conf file)
+             * to the pg_hba.conf file).
+             * Use the ${podselector:NAME} syntax to reference a pod selector;
+             * the rule will be expanded for each Pod IP matching that selector.
              */
             pg_hba?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -8814,10 +9136,23 @@ export declare namespace postgresql {
          */
         interface ClusterSpecPostgresqlExtensions {
             /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
              * The list of directories inside the image which should be added to dynamic_library_path.
              * If not defined, defaults to "/lib".
              */
             dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPostgresqlExtensionsEnv>[]>;
             /**
              * The list of directories inside the image which should be added to extension_control_path.
              * If not defined, defaults to "/share".
@@ -8834,7 +9169,51 @@ export declare namespace postgresql {
             name?: pulumi.Input<string>;
         }
         /**
-         * The image containing the extension, required
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ClusterSpecPostgresqlExtensionsEnv {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ClusterSpecPostgresqlExtensionsEnvPatch {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
          */
         interface ClusterSpecPostgresqlExtensionsImage {
             /**
@@ -8856,7 +9235,7 @@ export declare namespace postgresql {
             reference?: pulumi.Input<string>;
         }
         /**
-         * The image containing the extension, required
+         * The image containing the extension.
          */
         interface ClusterSpecPostgresqlExtensionsImagePatch {
             /**
@@ -8883,10 +9262,23 @@ export declare namespace postgresql {
          */
         interface ClusterSpecPostgresqlExtensionsPatch {
             /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
              * The list of directories inside the image which should be added to dynamic_library_path.
              * If not defined, defaults to "/lib".
              */
             dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterSpecPostgresqlExtensionsEnvPatch>[]>;
             /**
              * The list of directories inside the image which should be added to extension_control_path.
              * If not defined, defaults to "/share".
@@ -9084,7 +9476,9 @@ export declare namespace postgresql {
             }>;
             /**
              * PostgreSQL Host Based Authentication rules (lines to be appended
-             * to the pg_hba.conf file)
+             * to the pg_hba.conf file).
+             * Use the ${podselector:NAME} syntax to reference a pod selector;
+             * the rule will be expanded for each Pod IP matching that selector.
              */
             pg_hba?: pulumi.Input<pulumi.Input<string>[]>;
             /**
@@ -12949,6 +13343,11 @@ export declare namespace postgresql {
              * PluginStatus is the status of the loaded plugins
              */
             pluginStatus?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterStatusPluginStatus>[]>;
+            /**
+             * PodSelectorRefs contains the resolved pod IPs for each named selector
+             * defined in spec.podSelectorRefs.
+             */
+            podSelectorRefs?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterStatusPodSelectorRefs>[]>;
             poolerIntegrations?: pulumi.Input<inputs.postgresql.v1.ClusterStatusPoolerIntegrations>;
             /**
              * How many PVCs have been created by this cluster
@@ -13148,6 +13547,10 @@ export declare namespace postgresql {
          */
         interface ClusterStatusPgDataImageInfo {
             /**
+             * Extensions contains the container image extensions available for the current Image
+             */
+            extensions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterStatusPgDataImageInfoExtensions>[]>;
+            /**
              * Image is the image name
              */
             image?: pulumi.Input<string>;
@@ -13155,6 +13558,88 @@ export declare namespace postgresql {
              * MajorVersion is the major version of the image
              */
             majorVersion?: pulumi.Input<number>;
+        }
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ClusterStatusPgDataImageInfoExtensions {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ClusterStatusPgDataImageInfoExtensionsEnv>[]>;
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path?: pulumi.Input<pulumi.Input<string>[]>;
+            image?: pulumi.Input<inputs.postgresql.v1.ClusterStatusPgDataImageInfoExtensionsImage>;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The name of the extension, required
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ClusterStatusPgDataImageInfoExtensionsEnv {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
+         */
+        interface ClusterStatusPgDataImageInfoExtensionsImage {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy?: pulumi.Input<string>;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference?: pulumi.Input<string>;
         }
         /**
          * PluginStatus is the status of a loaded plugin
@@ -13198,6 +13683,20 @@ export declare namespace postgresql {
              * plugin regarding the WAL management
              */
             walCapabilities?: pulumi.Input<pulumi.Input<string>[]>;
+        }
+        /**
+         * PodSelectorRefStatus contains the resolved pod IPs for a named selector.
+         */
+        interface ClusterStatusPodSelectorRefs {
+            /**
+             * IPs is the list of pod IPs matching the selector.
+             * Each IP is a single address (no CIDR notation).
+             */
+            ips?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Name corresponds to the name in the spec's PodSelectorRef.
+             */
+            name?: pulumi.Input<string>;
         }
         /**
          * The integration needed by poolers referencing the cluster
@@ -14183,6 +14682,10 @@ export declare namespace postgresql {
          */
         interface ImageCatalogSpecImages {
             /**
+             * The configuration of the extensions to be added
+             */
+            extensions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensions>[]>;
+            /**
              * The image reference
              */
             image?: pulumi.Input<string>;
@@ -14192,9 +14695,177 @@ export declare namespace postgresql {
             major?: pulumi.Input<number>;
         }
         /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ImageCatalogSpecImagesExtensions {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensionsEnv>[]>;
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path?: pulumi.Input<pulumi.Input<string>[]>;
+            image?: pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensionsImage>;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The name of the extension, required
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ImageCatalogSpecImagesExtensionsEnv {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        interface ImageCatalogSpecImagesExtensionsEnvPatch {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
+         */
+        interface ImageCatalogSpecImagesExtensionsImage {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy?: pulumi.Input<string>;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference?: pulumi.Input<string>;
+        }
+        /**
+         * The image containing the extension.
+         */
+        interface ImageCatalogSpecImagesExtensionsImagePatch {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy?: pulumi.Input<string>;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference?: pulumi.Input<string>;
+        }
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        interface ImageCatalogSpecImagesExtensionsPatch {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensionsEnvPatch>[]>;
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path?: pulumi.Input<pulumi.Input<string>[]>;
+            image?: pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensionsImagePatch>;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * The name of the extension, required
+             */
+            name?: pulumi.Input<string>;
+        }
+        /**
          * CatalogImage defines the image and major version
          */
         interface ImageCatalogSpecImagesPatch {
+            /**
+             * The configuration of the extensions to be added
+             */
+            extensions?: pulumi.Input<pulumi.Input<inputs.postgresql.v1.ImageCatalogSpecImagesExtensionsPatch>[]>;
             /**
              * The image reference
              */
@@ -14246,6 +14917,14 @@ export declare namespace postgresql {
             instances?: pulumi.Input<number>;
             monitoring?: pulumi.Input<inputs.postgresql.v1.PoolerSpecMonitoring>;
             pgbouncer?: pulumi.Input<inputs.postgresql.v1.PoolerSpecPgbouncer>;
+            /**
+             * Name of an existing ServiceAccount in the same namespace to use for the pooler.
+             * When specified, the operator will not create a new ServiceAccount
+             * but will use the provided one. This is useful for sharing a single
+             * ServiceAccount across multiple poolers (e.g., for cloud IAM configurations).
+             * If not specified, a ServiceAccount will be created with the pooler name.
+             */
+            serviceAccountName?: pulumi.Input<string>;
             serviceTemplate?: pulumi.Input<inputs.postgresql.v1.PoolerSpecServiceTemplate>;
             template?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplate>;
             /**
@@ -14624,6 +15303,14 @@ export declare namespace postgresql {
             instances?: pulumi.Input<number>;
             monitoring?: pulumi.Input<inputs.postgresql.v1.PoolerSpecMonitoringPatch>;
             pgbouncer?: pulumi.Input<inputs.postgresql.v1.PoolerSpecPgbouncerPatch>;
+            /**
+             * Name of an existing ServiceAccount in the same namespace to use for the pooler.
+             * When specified, the operator will not create a new ServiceAccount
+             * but will use the provided one. This is useful for sharing a single
+             * ServiceAccount across multiple poolers (e.g., for cloud IAM configurations).
+             * If not specified, a ServiceAccount will be created with the pooler name.
+             */
+            serviceAccountName?: pulumi.Input<string>;
             serviceTemplate?: pulumi.Input<inputs.postgresql.v1.PoolerSpecServiceTemplatePatch>;
             template?: pulumi.Input<inputs.postgresql.v1.PoolerSpecTemplatePatch>;
             /**

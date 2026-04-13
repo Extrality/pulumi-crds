@@ -221,6 +221,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -243,6 +245,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * InsecureSkipVerify indicates whether the upstream's certificate verification
              * should be skipped. Defaults to "false".
@@ -440,6 +455,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -462,6 +479,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * InsecureSkipVerify indicates whether the upstream's certificate verification
              * should be skipped. Defaults to "false".
@@ -638,7 +668,9 @@ export declare namespace gateway {
             http2: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttp2;
             /**
              * HTTPUpgrade defines the configuration for HTTP protocol upgrades.
-             * If not specified, the default upgrade configuration(websocket) will be used.
+             * If not specified, the default upgrade configuration (websocket) will be used.
+             * However, if requestBuffer is configured, the default upgrade configuration
+             * will be ignored.
              */
             httpUpgrade: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttpUpgrade[];
             loadBalancer: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancer;
@@ -662,7 +694,7 @@ export declare namespace gateway {
             /**
              * RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
              * or it can be set to "Endpoint" to use Endpoint routing.
-             * When specified, this overrides the EnvoyProxy-level setting for the relevant targeRefs.
+             * When specified, this overrides the EnvoyProxy-level setting for the relevant targetRefs.
              * If not specified, the EnvoyProxy-level setting is used.
              */
             routingType: string;
@@ -713,6 +745,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -741,6 +774,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -759,6 +793,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface BackendTrafficPolicySpecCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface BackendTrafficPolicySpecCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface BackendTrafficPolicySpecCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface BackendTrafficPolicySpecCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Compression defines the config of enabling compression.
@@ -1159,6 +1241,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -1170,6 +1253,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -1222,6 +1308,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -1282,6 +1375,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface BackendTrafficPolicySpecHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface BackendTrafficPolicySpecHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -1302,6 +1430,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -1313,6 +1442,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -1405,6 +1537,11 @@ export declare namespace gateway {
          */
         interface BackendTrafficPolicySpecHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -1444,6 +1581,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface BackendTrafficPolicySpecHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -1498,6 +1640,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface BackendTrafficPolicySpecHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -1522,9 +1665,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface BackendTrafficPolicySpecHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface BackendTrafficPolicySpecHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface BackendTrafficPolicySpecHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -1595,6 +1783,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface BackendTrafficPolicySpecLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerSlowStart;
@@ -1604,10 +1793,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -1830,6 +2102,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface BackendTrafficPolicySpecLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerSlowStartPatch;
@@ -1839,7 +2112,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwarePatch;
@@ -1847,7 +2121,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface BackendTrafficPolicySpecLoadBalancerSlowStart {
             /**
@@ -1861,7 +2135,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface BackendTrafficPolicySpecLoadBalancerSlowStartPatch {
             /**
@@ -1877,12 +2151,22 @@ export declare namespace gateway {
          */
         interface BackendTrafficPolicySpecLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface BackendTrafficPolicySpecLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -1935,6 +2219,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface BackendTrafficPolicySpecLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * spec defines the desired state of BackendTrafficPolicy.
          */
         interface BackendTrafficPolicySpecPatch {
@@ -1957,7 +2277,9 @@ export declare namespace gateway {
             http2: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttp2Patch;
             /**
              * HTTPUpgrade defines the configuration for HTTP protocol upgrades.
-             * If not specified, the default upgrade configuration(websocket) will be used.
+             * If not specified, the default upgrade configuration (websocket) will be used.
+             * However, if requestBuffer is configured, the default upgrade configuration
+             * will be ignored.
              */
             httpUpgrade: outputs.gateway.v1alpha1.BackendTrafficPolicySpecHttpUpgradePatch[];
             loadBalancer: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerPatch;
@@ -1981,7 +2303,7 @@ export declare namespace gateway {
             /**
              * RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
              * or it can be set to "Endpoint" to use Endpoint routing.
-             * When specified, this overrides the EnvoyProxy-level setting for the relevant targeRefs.
+             * When specified, this overrides the EnvoyProxy-level setting for the relevant targetRefs.
              * If not specified, the EnvoyProxy-level setting is used.
              */
             routingType: string;
@@ -2010,7 +2332,7 @@ export declare namespace gateway {
          */
         interface BackendTrafficPolicySpecProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -2022,7 +2344,7 @@ export declare namespace gateway {
          */
         interface BackendTrafficPolicySpecProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -2334,6 +2656,11 @@ export declare namespace gateway {
          * SourceCIDR is the client IP Address range to match on.
          */
         interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDR {
+            /**
+             * Invert specifies whether the source range match result will be inverted.
+             * When true, the rule matches when the client IP is not in the specified range(s).
+             */
+            invert: boolean;
             type: string;
             /**
              * Value is the IP CIDR that represents the range of Source IP Addresses of the client.
@@ -2346,6 +2673,11 @@ export declare namespace gateway {
          * SourceCIDR is the client IP Address range to match on.
          */
         interface BackendTrafficPolicySpecRateLimitGlobalRulesClientSelectorsSourceCIDRPatch {
+            /**
+             * Invert specifies whether the source range match result will be inverted.
+             * When true, the rule matches when the client IP is not in the specified range(s).
+             */
+            invert: boolean;
             type: string;
             /**
              * Value is the IP CIDR that represents the range of Source IP Addresses of the client.
@@ -2870,6 +3202,11 @@ export declare namespace gateway {
          * SourceCIDR is the client IP Address range to match on.
          */
         interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDR {
+            /**
+             * Invert specifies whether the source range match result will be inverted.
+             * When true, the rule matches when the client IP is not in the specified range(s).
+             */
+            invert: boolean;
             type: string;
             /**
              * Value is the IP CIDR that represents the range of Source IP Addresses of the client.
@@ -2882,6 +3219,11 @@ export declare namespace gateway {
          * SourceCIDR is the client IP Address range to match on.
          */
         interface BackendTrafficPolicySpecRateLimitLocalRulesClientSelectorsSourceCIDRPatch {
+            /**
+             * Invert specifies whether the source range match result will be inverted.
+             * When true, the rule matches when the client IP is not in the specified range(s).
+             */
+            invert: boolean;
             type: string;
             /**
              * Value is the IP CIDR that represents the range of Source IP Addresses of the client.
@@ -3148,6 +3490,9 @@ export declare namespace gateway {
          *
          * When enabling this option, you should also configure your connection buffer size to account for these request buffers. There will also be an
          * increase in memory usage for Envoy that should be accounted for in your deployment settings.
+         *
+         * Request buffering is incompatible with streaming APIs and protocol upgrades such as gRPC streaming and WebSocket. Do not enable this option
+         * on routes that need those protocols, because requests can hang instead of being forwarded upstream.
          */
         interface BackendTrafficPolicySpecRequestBuffer {
             /**
@@ -3167,6 +3512,9 @@ export declare namespace gateway {
          *
          * When enabling this option, you should also configure your connection buffer size to account for these request buffers. There will also be an
          * increase in memory usage for Envoy that should be accounted for in your deployment settings.
+         *
+         * Request buffering is incompatible with streaming APIs and protocol upgrades such as gRPC streaming and WebSocket. Do not enable this option
+         * on routes that need those protocols, because requests can hang instead of being forwarded upstream.
          */
         interface BackendTrafficPolicySpecRequestBufferPatch {
             /**
@@ -3597,6 +3945,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -3617,6 +3971,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -3702,6 +4062,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -3722,6 +4088,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -4337,6 +4709,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -4363,6 +4740,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -4978,6 +5360,7 @@ export declare namespace gateway {
              * Deprecated: Use ProxyProtocol instead.
              */
             enableProxyProtocol: boolean;
+            grpc: outputs.gateway.v1alpha1.ClientTrafficPolicySpecGrpc;
             headers: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeaders;
             healthCheck: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHealthCheck;
             http1: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1;
@@ -5247,6 +5630,38 @@ export declare namespace gateway {
             socketBufferLimit: number | string;
         }
         /**
+         * GRPC provides gRPC configuration on the listener.
+         */
+        interface ClientTrafficPolicySpecGrpc {
+            /**
+             * EnableWeb configures the gRPC-web filter on the listener.
+             * The gRPC-web filter allows clients (typically browsers) to make gRPC calls
+             * using HTTP/1.1 or HTTP/2.
+             *
+             * This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+             * In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+             * users want to route gRPC using HTTPRoute for its richer matching capabilities.
+             * Therefore, we enable this behavior only when it is explicitly opted in.
+             */
+            enableWeb: boolean;
+        }
+        /**
+         * GRPC provides gRPC configuration on the listener.
+         */
+        interface ClientTrafficPolicySpecGrpcPatch {
+            /**
+             * EnableWeb configures the gRPC-web filter on the listener.
+             * The gRPC-web filter allows clients (typically browsers) to make gRPC calls
+             * using HTTP/1.1 or HTTP/2.
+             *
+             * This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+             * In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+             * users want to route gRPC using HTTPRoute for its richer matching capabilities.
+             * Therefore, we enable this behavior only when it is explicitly opted in.
+             */
+            enableWeb: boolean;
+        }
+        /**
          * HeaderSettings provides configuration for header management.
          */
         interface ClientTrafficPolicySpecHeaders {
@@ -5387,6 +5802,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5407,6 +5828,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5427,6 +5854,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5447,6 +5880,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5584,6 +6023,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5604,6 +6049,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5710,6 +6161,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5730,6 +6187,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5750,6 +6213,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5770,6 +6239,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5906,6 +6381,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -5926,6 +6407,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -6058,6 +6545,17 @@ export declare namespace gateway {
             enableTrailers: boolean;
             http10: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1Http10;
             /**
+             * IgnoredUpgradeTypes specifies a list of upgrade types for which
+             * HTTP/1.1 Upgrade requests should be ignored by Envoy instead of being
+             * rejected with a 403 response. When a client sends an HTTP/1.1 request
+             * with Connection: Upgrade and an Upgrade header matching one of these
+             * matchers, Envoy will strip the upgrade headers and process the request
+             * as a normal HTTP/1.1 request.
+             *
+             * Example: To ignore TLS upgrade requests (RFC 2817), use a Prefix match with value "TLS/".
+             */
+            ignoredUpgradeTypes: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1IgnoredUpgradeTypes[];
+            /**
              * PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
              * By default, Envoy will lowercase all the headers.
              */
@@ -6104,6 +6602,36 @@ export declare namespace gateway {
             useDefaultHost: boolean;
         }
         /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHttp1IgnoredUpgradeTypes {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type: string;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value: string;
+        }
+        /**
+         * StringMatch defines how to match any strings.
+         * This is a general purpose match condition that can be used by other EG APIs
+         * that need to match against a string.
+         */
+        interface ClientTrafficPolicySpecHttp1IgnoredUpgradeTypesPatch {
+            /**
+             * Type specifies how to match against a string.
+             */
+            type: string;
+            /**
+             * Value specifies the string value that the match must have.
+             */
+            value: string;
+        }
+        /**
          * HTTP1 provides HTTP/1 configuration on the listener.
          */
         interface ClientTrafficPolicySpecHttp1Patch {
@@ -6121,6 +6649,17 @@ export declare namespace gateway {
             enableTrailers: boolean;
             http10: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1Http10Patch;
             /**
+             * IgnoredUpgradeTypes specifies a list of upgrade types for which
+             * HTTP/1.1 Upgrade requests should be ignored by Envoy instead of being
+             * rejected with a 403 response. When a client sends an HTTP/1.1 request
+             * with Connection: Upgrade and an Upgrade header matching one of these
+             * matchers, Envoy will strip the upgrade headers and process the request
+             * as a normal HTTP/1.1 request.
+             *
+             * Example: To ignore TLS upgrade requests (RFC 2817), use a Prefix match with value "TLS/".
+             */
+            ignoredUpgradeTypes: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1IgnoredUpgradeTypesPatch[];
+            /**
              * PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
              * By default, Envoy will lowercase all the headers.
              */
@@ -6130,6 +6669,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration on the listener.
          */
         interface ClientTrafficPolicySpecHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -6154,9 +6694,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface ClientTrafficPolicySpecHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface ClientTrafficPolicySpecHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration on the listener.
          */
         interface ClientTrafficPolicySpecHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -6195,6 +6780,7 @@ export declare namespace gateway {
              * Deprecated: Use ProxyProtocol instead.
              */
             enableProxyProtocol: boolean;
+            grpc: outputs.gateway.v1alpha1.ClientTrafficPolicySpecGrpcPatch;
             headers: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHeadersPatch;
             healthCheck: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHealthCheckPatch;
             http1: outputs.gateway.v1alpha1.ClientTrafficPolicySpecHttp1Patch;
@@ -6683,6 +7269,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -6705,6 +7293,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * Max specifies the maximal TLS protocol version to allow
              * The default is TLS 1.3 if this is not specified.
@@ -6749,8 +7350,15 @@ export declare namespace gateway {
             certificateHashes: string[];
             crl: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrl;
             /**
+             * Mode defines how the Gateway or Listener validates client certificates.
+             * If not specified, defaults to RequireAndVerify.
+             */
+            mode: string;
+            /**
              * Optional set to true accepts connections even when a client doesn't present a certificate.
              * Defaults to false, which rejects connections without a valid client certificate.
+             *
+             * Deprecated: Use Mode instead.
              */
             optional: boolean;
             /**
@@ -6980,8 +7588,15 @@ export declare namespace gateway {
             certificateHashes: string[];
             crl: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTlsClientValidationCrlPatch;
             /**
+             * Mode defines how the Gateway or Listener validates client certificates.
+             * If not specified, defaults to RequireAndVerify.
+             */
+            mode: string;
+            /**
              * Optional set to true accepts connections even when a client doesn't present a certificate.
              * Defaults to false, which rejects connections without a valid client certificate.
+             *
+             * Deprecated: Use Mode instead.
              */
             optional: boolean;
             /**
@@ -7218,6 +7833,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -7240,6 +7857,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * Max specifies the maximal TLS protocol version to allow
              * The default is TLS 1.3 if this is not specified.
@@ -7887,6 +8517,15 @@ export declare namespace gateway {
          */
         interface EnvoyExtensionPolicySpec {
             /**
+             * DynamicModule is an ordered list of dynamic module HTTP filters
+             * that should be added to the envoy filter chain.
+             * Each module must be registered in the EnvoyProxy resource's dynamicModules
+             * allowlist.
+             * Order matters, as the filters will be loaded in the order they are
+             * defined in this list.
+             */
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecDynamicModule[];
+            /**
              * ExtProc is an ordered list of external processing filters
              * that should be added to the envoy filter chain
              */
@@ -7912,6 +8551,76 @@ export declare namespace gateway {
              * defined in this list.
              */
             wasm: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecWasm[];
+        }
+        /**
+         * DynamicModule defines a dynamic module HTTP filter to be loaded by Envoy.
+         * The module must be registered in the EnvoyProxy resource's dynamicModules
+         * allowlist by the infrastructure operator.
+         */
+        interface EnvoyExtensionPolicySpecDynamicModule {
+            /**
+             * Config is the configuration for the dynamic module filter.
+             * This is serialized as JSON and passed to the module's initialization function.
+             */
+            config: {
+                [key: string]: any;
+            };
+            /**
+             * FilterName identifies a specific filter implementation within the dynamic
+             * module. A single shared library can contain multiple filter implementations.
+             * This value is passed to the module's HTTP filter config init function to
+             * select the appropriate implementation.
+             * If not specified, defaults to an empty string.
+             */
+            filterName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+            /**
+             * TerminalFilter indicates that this dynamic module handles requests without
+             * requiring an upstream backend. The module is responsible for generating and
+             * sending the response to downstream directly.
+             * Defaults to false.
+             */
+            terminalFilter: boolean;
+        }
+        /**
+         * DynamicModule defines a dynamic module HTTP filter to be loaded by Envoy.
+         * The module must be registered in the EnvoyProxy resource's dynamicModules
+         * allowlist by the infrastructure operator.
+         */
+        interface EnvoyExtensionPolicySpecDynamicModulePatch {
+            /**
+             * Config is the configuration for the dynamic module filter.
+             * This is serialized as JSON and passed to the module's initialization function.
+             */
+            config: {
+                [key: string]: any;
+            };
+            /**
+             * FilterName identifies a specific filter implementation within the dynamic
+             * module. A single shared library can contain multiple filter implementations.
+             * This value is passed to the module's HTTP filter config init function to
+             * select the appropriate implementation.
+             * If not specified, defaults to an empty string.
+             */
+            filterName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+            /**
+             * TerminalFilter indicates that this dynamic module handles requests without
+             * requiring an upstream backend. The module is responsible for generating and
+             * sending the response to downstream directly.
+             * Defaults to false.
+             */
+            terminalFilter: boolean;
         }
         /**
          * ExtProc defines the configuration for External Processing filter.
@@ -8246,6 +8955,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -8274,6 +8984,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -8292,6 +9003,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -8472,6 +9231,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -8483,6 +9243,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -8535,6 +9298,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -8595,6 +9365,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -8615,6 +9420,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -8626,6 +9432,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -8718,6 +9527,11 @@ export declare namespace gateway {
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -8757,6 +9571,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -8811,6 +9630,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -8835,9 +9655,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -8866,6 +9731,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStart;
@@ -8875,10 +9741,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -9101,6 +10050,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStartPatch;
@@ -9110,7 +10060,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwarePatch;
@@ -9118,7 +10069,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStart {
             /**
@@ -9132,7 +10083,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -9148,12 +10099,22 @@ export declare namespace gateway {
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -9206,6 +10167,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -9226,7 +10223,7 @@ export declare namespace gateway {
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -9238,7 +10235,7 @@ export declare namespace gateway {
          */
         interface EnvoyExtensionPolicySpecExtProcBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -9445,6 +10442,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -9471,6 +10473,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -9737,6 +10744,15 @@ export declare namespace gateway {
          * Spec defines the desired state of EnvoyExtensionPolicy.
          */
         interface EnvoyExtensionPolicySpecPatch {
+            /**
+             * DynamicModule is an ordered list of dynamic module HTTP filters
+             * that should be added to the envoy filter chain.
+             * Each module must be registered in the EnvoyProxy resource's dynamicModules
+             * allowlist.
+             * Order matters, as the filters will be loaded in the order they are
+             * defined in this list.
+             */
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecDynamicModulePatch[];
             /**
              * ExtProc is an ordered list of external processing filters
              * that should be added to the envoy filter chain
@@ -10108,13 +11124,12 @@ export declare namespace gateway {
             caCertificateRef: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecWasmCodeHttpTlsCaCertificateRef;
         }
         /**
-         * CACertificateRef contains a references to
+         * CACertificateRef contains a reference to
          * Kubernetes objects that contain TLS certificates of
          * the Certificate Authorities that can be used
          * as a trust anchor to validate the certificates presented by the Wasm code source.
          *
-         * Kubernetes ConfigMap and Kubernetes Secret are supported.
-         * Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+         * Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
          */
         interface EnvoyExtensionPolicySpecWasmCodeHttpTlsCaCertificateRef {
             /**
@@ -10144,13 +11159,12 @@ export declare namespace gateway {
             namespace: string;
         }
         /**
-         * CACertificateRef contains a references to
+         * CACertificateRef contains a reference to
          * Kubernetes objects that contain TLS certificates of
          * the Certificate Authorities that can be used
          * as a trust anchor to validate the certificates presented by the Wasm code source.
          *
-         * Kubernetes ConfigMap and Kubernetes Secret are supported.
-         * Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+         * Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
          */
         interface EnvoyExtensionPolicySpecWasmCodeHttpTlsCaCertificateRefPatch {
             /**
@@ -10233,7 +11247,6 @@ export declare namespace gateway {
         }
         /**
          * PullSecretRef is a reference to the secret containing the credentials to pull the image.
-         * Only support Kubernetes Secret resource from the same namespace.
          */
         interface EnvoyExtensionPolicySpecWasmCodeImagePullSecretRef {
             /**
@@ -10264,7 +11277,6 @@ export declare namespace gateway {
         }
         /**
          * PullSecretRef is a reference to the secret containing the credentials to pull the image.
-         * Only support Kubernetes Secret resource from the same namespace.
          */
         interface EnvoyExtensionPolicySpecWasmCodeImagePullSecretRefPatch {
             /**
@@ -10300,13 +11312,12 @@ export declare namespace gateway {
             caCertificateRef: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecWasmCodeImageTlsCaCertificateRef;
         }
         /**
-         * CACertificateRef contains a references to
+         * CACertificateRef contains a reference to
          * Kubernetes objects that contain TLS certificates of
          * the Certificate Authorities that can be used
          * as a trust anchor to validate the certificates presented by the Wasm code source.
          *
-         * Kubernetes ConfigMap and Kubernetes Secret are supported.
-         * Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+         * Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
          */
         interface EnvoyExtensionPolicySpecWasmCodeImageTlsCaCertificateRef {
             /**
@@ -10336,13 +11347,12 @@ export declare namespace gateway {
             namespace: string;
         }
         /**
-         * CACertificateRef contains a references to
+         * CACertificateRef contains a reference to
          * Kubernetes objects that contain TLS certificates of
          * the Certificate Authorities that can be used
          * as a trust anchor to validate the certificates presented by the Wasm code source.
          *
-         * Kubernetes ConfigMap and Kubernetes Secret are supported.
-         * Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+         * Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
          */
         interface EnvoyExtensionPolicySpecWasmCodeImageTlsCaCertificateRefPatch {
             /**
@@ -11815,6 +12825,16 @@ export declare namespace gateway {
              */
             concurrency: number;
             /**
+             * DynamicModules defines the set of dynamic modules that are allowed to be
+             * used by EnvoyExtensionPolicy resources. Each entry registers a module by
+             * a logical name and specifies the shared library that Envoy will load.
+             *
+             * The EnvoyProxy owner is responsible for ensuring the module .so files are available
+             * on the proxy container's filesystem (e.g., via init containers, custom images,
+             * or shared volumes).
+             */
+            dynamicModules: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModules[];
+            /**
              * ExtraArgs defines additional command line options that are provided to Envoy.
              * More info: https://www.envoyproxy.io/docs/envoy/latest/operations/cli#command-line-options
              * Note: some command line options are used internally(e.g. --log-level) so they cannot be provided here.
@@ -11856,6 +12876,10 @@ export declare namespace gateway {
              *
              * - envoy.filters.http.wasm
              *
+             * - envoy.filters.http.dynamic_modules
+             *
+             * - envoy.filters.http.geoip
+             *
              * - envoy.filters.http.rbac
              *
              * - envoy.filters.http.local_ratelimit
@@ -11877,6 +12901,7 @@ export declare namespace gateway {
              * Note: "envoy.filters.http.router" cannot be reordered, it's always the last filter in the chain.
              */
             filterOrder: outputs.gateway.v1alpha1.EnvoyProxySpecFilterOrder[];
+            geoIP: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIP;
             /**
              * IPFamily specifies the IP family for the EnvoyProxy fleet.
              * This setting only affects the Gateway listener port and does not impact
@@ -11941,6 +12966,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -11963,6 +12990,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * Max specifies the maximal TLS protocol version to allow
              * The default is TLS 1.3 if this is not specified.
@@ -12070,6 +13110,8 @@ export declare namespace gateway {
             /**
              * Ciphers specifies the set of cipher suites supported when
              * negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+             * For the list of supported ciphers, please refer to the Envoy documentation:
+             * https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
              * In non-FIPS Envoy Proxy builds the default cipher list is:
              * - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
              * - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -12092,6 +13134,19 @@ export declare namespace gateway {
              * - P-256
              */
             ecdhCurves: string[];
+            /**
+             * Fingerprints specifies TLS client fingerprinting.
+             * When specified, a JAX fingerprint derived from the client’s TLS handshake
+             * is generated. The fingerprint can be logged in access logs or
+             * forwarded to upstream services using request headers.
+             *
+             * Fingerprinting is disabled if not specified.
+             *
+             * Supported values are:
+             * - JA3
+             * - JA4
+             */
+            fingerprints: string[];
             /**
              * Max specifies the maximal TLS protocol version to allow
              * The default is TLS 1.3 if this is not specified.
@@ -12239,6 +13294,132 @@ export declare namespace gateway {
             value: string;
         }
         /**
+         * DynamicModuleEntry defines a dynamic module that is registered and allowed
+         * for use by EnvoyExtensionPolicy resources.
+         */
+        interface EnvoyProxySpecDynamicModules {
+            /**
+             * DoNotClose prevents the module from being unloaded with dlclose when no
+             * more references exist. This is useful for modules that maintain global
+             * state that should not be destroyed on configuration updates.
+             * Defaults to false.
+             */
+            doNotClose: boolean;
+            /**
+             * LoadGlobally loads the dynamic module with the RTLD_GLOBAL flag.
+             * By default, modules are loaded with RTLD_LOCAL to avoid symbol conflicts.
+             * Set this to true when the module needs to share symbols with other
+             * dynamic libraries it loads.
+             * Defaults to false.
+             */
+            loadGlobally: boolean;
+            /**
+             * Name is the logical name for this module. EnvoyExtensionPolicy resources
+             * reference modules by this name.
+             */
+            name: string;
+            source: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSource;
+        }
+        /**
+         * DynamicModuleEntry defines a dynamic module that is registered and allowed
+         * for use by EnvoyExtensionPolicy resources.
+         */
+        interface EnvoyProxySpecDynamicModulesPatch {
+            /**
+             * DoNotClose prevents the module from being unloaded with dlclose when no
+             * more references exist. This is useful for modules that maintain global
+             * state that should not be destroyed on configuration updates.
+             * Defaults to false.
+             */
+            doNotClose: boolean;
+            /**
+             * LoadGlobally loads the dynamic module with the RTLD_GLOBAL flag.
+             * By default, modules are loaded with RTLD_LOCAL to avoid symbol conflicts.
+             * Set this to true when the module needs to share symbols with other
+             * dynamic libraries it loads.
+             * Defaults to false.
+             */
+            loadGlobally: boolean;
+            /**
+             * Name is the logical name for this module. EnvoyExtensionPolicy resources
+             * reference modules by this name.
+             */
+            name: string;
+            source: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSourcePatch;
+        }
+        /**
+         * Source defines where the dynamic module code is loaded from.
+         */
+        interface EnvoyProxySpecDynamicModulesSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSourceLocal;
+            remote: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSourceRemote;
+            /**
+             * Type is the type of the source of the dynamic module code.
+             * Defaults to Local.
+             */
+            type: string;
+        }
+        /**
+         * Local specifies a module loaded from the proxy's local filesystem
+         * by absolute path.
+         */
+        interface EnvoyProxySpecDynamicModulesSourceLocal {
+            /**
+             * Path is the absolute filesystem path to the dynamic module shared library (.so file).
+             */
+            path: string;
+        }
+        /**
+         * Local specifies a module loaded from the proxy's local filesystem
+         * by absolute path.
+         */
+        interface EnvoyProxySpecDynamicModulesSourceLocalPatch {
+            /**
+             * Path is the absolute filesystem path to the dynamic module shared library (.so file).
+             */
+            path: string;
+        }
+        /**
+         * Source defines where the dynamic module code is loaded from.
+         */
+        interface EnvoyProxySpecDynamicModulesSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSourceLocalPatch;
+            remote: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesSourceRemotePatch;
+            /**
+             * Type is the type of the source of the dynamic module code.
+             * Defaults to Local.
+             */
+            type: string;
+        }
+        /**
+         * Remote specifies a module fetched from a remote source.
+         * The module binary is downloaded and cached by Envoy.
+         */
+        interface EnvoyProxySpecDynamicModulesSourceRemote {
+            /**
+             * SHA256 checksum that Envoy will use to verify the downloaded module binary.
+             */
+            sha256: string;
+            /**
+             * URL is the HTTP or HTTPS URL of the dynamic module shared library (.so file).
+             */
+            url: string;
+        }
+        /**
+         * Remote specifies a module fetched from a remote source.
+         * The module binary is downloaded and cached by Envoy.
+         */
+        interface EnvoyProxySpecDynamicModulesSourceRemotePatch {
+            /**
+             * SHA256 checksum that Envoy will use to verify the downloaded module binary.
+             */
+            sha256: string;
+            /**
+             * URL is the HTTP or HTTPS URL of the dynamic module shared library (.so file).
+             */
+            url: string;
+        }
+        /**
          * FilterPosition defines the position of an Envoy HTTP filter in the filter chain.
          */
         interface EnvoyProxySpecFilterOrder {
@@ -12277,6 +13458,208 @@ export declare namespace gateway {
             name: string;
         }
         /**
+         * GeoIP defines shared GeoIP provider configuration for this EnvoyProxy fleet.
+         */
+        interface EnvoyProxySpecGeoIP {
+            provider: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProvider;
+        }
+        /**
+         * GeoIP defines shared GeoIP provider configuration for this EnvoyProxy fleet.
+         */
+        interface EnvoyProxySpecGeoIPPatch {
+            provider: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderPatch;
+        }
+        /**
+         * Provider defines the GeoIP provider configuration used by GeoIP filter instances.
+         */
+        interface EnvoyProxySpecGeoIPProvider {
+            maxMind: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMind;
+            /**
+             * GeoIPProviderType enumerates GeoIP providers supported by Envoy Gateway.
+             */
+            type: string;
+        }
+        /**
+         * MaxMind configures the MaxMind provider.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMind {
+            anonymousIpDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSource;
+            asnDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAsnDbSource;
+            cityDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCityDbSource;
+            countryDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCountryDbSource;
+            ispDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindIspDbSource;
+        }
+        /**
+         * AnonymousIPDBSource configures the Anonymous IP database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourceLocal;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourceLocal {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourceLocalPatch {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * AnonymousIPDBSource configures the Anonymous IP database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourceLocalPatch;
+        }
+        /**
+         * ASNDBSource configures the ASN database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAsnDbSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourceLocal;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourceLocal {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourceLocalPatch {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * ASNDBSource configures the ASN database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourceLocalPatch;
+        }
+        /**
+         * CityDBSource configures the City database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCityDbSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCityDbSourceLocal;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCityDbSourceLocal {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCityDbSourceLocalPatch {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * CityDBSource configures the City database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCityDbSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCityDbSourceLocalPatch;
+        }
+        /**
+         * CountryDBSource configures the Country database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCountryDbSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourceLocal;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourceLocal {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourceLocalPatch {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * CountryDBSource configures the Country database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourceLocalPatch;
+        }
+        /**
+         * ISPDBSource configures the ISP database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindIspDbSource {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindIspDbSourceLocal;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindIspDbSourceLocal {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * Local is a database source from a local file.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindIspDbSourceLocalPatch {
+            /**
+             * Path is the path to the database file.
+             */
+            path: string;
+        }
+        /**
+         * ISPDBSource configures the ISP database source.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindIspDbSourcePatch {
+            local: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindIspDbSourceLocalPatch;
+        }
+        /**
+         * MaxMind configures the MaxMind provider.
+         */
+        interface EnvoyProxySpecGeoIPProviderMaxMindPatch {
+            anonymousIpDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAnonymousIpDbSourcePatch;
+            asnDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindAsnDbSourcePatch;
+            cityDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCityDbSourcePatch;
+            countryDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindCountryDbSourcePatch;
+            ispDbSource: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindIspDbSourcePatch;
+        }
+        /**
+         * Provider defines the GeoIP provider configuration used by GeoIP filter instances.
+         */
+        interface EnvoyProxySpecGeoIPProviderPatch {
+            maxMind: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPProviderMaxMindPatch;
+            /**
+             * GeoIPProviderType enumerates GeoIP providers supported by Envoy Gateway.
+             */
+            type: string;
+        }
+        /**
          * Logging defines logging parameters for managed proxies.
          */
         interface EnvoyProxySpecLogging {
@@ -12311,6 +13694,16 @@ export declare namespace gateway {
              * the number of cpuset threads on the platform.
              */
             concurrency: number;
+            /**
+             * DynamicModules defines the set of dynamic modules that are allowed to be
+             * used by EnvoyExtensionPolicy resources. Each entry registers a module by
+             * a logical name and specifies the shared library that Envoy will load.
+             *
+             * The EnvoyProxy owner is responsible for ensuring the module .so files are available
+             * on the proxy container's filesystem (e.g., via init containers, custom images,
+             * or shared volumes).
+             */
+            dynamicModules: outputs.gateway.v1alpha1.EnvoyProxySpecDynamicModulesPatch[];
             /**
              * ExtraArgs defines additional command line options that are provided to Envoy.
              * More info: https://www.envoyproxy.io/docs/envoy/latest/operations/cli#command-line-options
@@ -12353,6 +13746,10 @@ export declare namespace gateway {
              *
              * - envoy.filters.http.wasm
              *
+             * - envoy.filters.http.dynamic_modules
+             *
+             * - envoy.filters.http.geoip
+             *
              * - envoy.filters.http.rbac
              *
              * - envoy.filters.http.local_ratelimit
@@ -12374,6 +13771,7 @@ export declare namespace gateway {
              * Note: "envoy.filters.http.router" cannot be reordered, it's always the last filter in the chain.
              */
             filterOrder: outputs.gateway.v1alpha1.EnvoyProxySpecFilterOrderPatch[];
+            geoIP: outputs.gateway.v1alpha1.EnvoyProxySpecGeoIPPatch;
             /**
              * IPFamily specifies the IP family for the EnvoyProxy fleet.
              * This setting only affects the Gateway listener port and does not impact
@@ -22169,6 +23567,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -22197,6 +23596,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -22215,6 +23615,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -22395,6 +23843,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -22406,6 +23855,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -22458,6 +23910,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -22518,6 +23977,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -22538,6 +24032,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -22549,6 +24044,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -22641,6 +24139,11 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -22680,6 +24183,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -22734,6 +24242,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -22758,9 +24267,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -22789,6 +24343,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStart;
@@ -22798,10 +24353,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -23024,6 +24662,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStartPatch;
@@ -23033,7 +24672,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwarePatch;
@@ -23041,7 +24681,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStart {
             /**
@@ -23055,7 +24695,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -23071,12 +24711,22 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -23129,6 +24779,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -23149,7 +24835,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -23161,7 +24847,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -23368,6 +25054,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -23394,6 +25085,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -23843,6 +25539,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -23871,6 +25568,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -23889,6 +25587,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -24069,6 +25815,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -24080,6 +25827,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -24132,6 +25882,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -24192,6 +25949,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -24212,6 +26004,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -24223,6 +26016,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -24315,6 +26111,11 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -24354,6 +26155,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -24408,6 +26214,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -24432,9 +26239,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -24463,6 +26315,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart;
@@ -24472,10 +26325,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -24698,6 +26634,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch;
@@ -24707,7 +26644,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch;
@@ -24715,7 +26653,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart {
             /**
@@ -24729,7 +26667,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -24745,12 +26683,22 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -24803,6 +26751,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -24823,7 +26807,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -24835,7 +26819,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -25042,6 +27026,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -25068,6 +27057,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -25113,6 +27107,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -25133,6 +27133,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -25766,6 +27772,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -25794,6 +27801,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -25812,6 +27820,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -25992,6 +28048,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -26003,6 +28060,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -26055,6 +28115,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -26115,6 +28182,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -26135,6 +28237,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -26146,6 +28249,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -26238,6 +28344,11 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -26277,6 +28388,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -26331,6 +28447,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -26355,9 +28472,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -26386,6 +28548,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart;
@@ -26395,10 +28558,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -26621,6 +28867,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch;
@@ -26630,7 +28877,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch;
@@ -26638,7 +28886,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart {
             /**
@@ -26652,7 +28900,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -26668,12 +28916,22 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -26726,6 +28984,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -26746,7 +29040,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -26758,7 +29052,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -26965,6 +29259,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -26991,6 +29290,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -27036,6 +29340,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -27056,6 +29366,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -27576,6 +29892,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -27604,6 +29921,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -27622,6 +29940,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -27802,6 +30168,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -27813,6 +30180,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -27865,6 +30235,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -27925,6 +30302,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -27945,6 +30357,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -27956,6 +30369,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -28048,6 +30464,11 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -28087,6 +30508,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -28141,6 +30567,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -28165,9 +30592,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -28196,6 +30668,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStart;
@@ -28205,10 +30678,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -28431,6 +30987,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStartPatch;
@@ -28440,7 +30997,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwarePatch;
@@ -28448,7 +31006,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStart {
             /**
@@ -28462,7 +31020,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -28478,12 +31036,22 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -28536,6 +31104,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -28556,7 +31160,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -28568,7 +31172,7 @@ export declare namespace gateway {
          */
         interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -28775,6 +31379,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -28801,6 +31410,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -28845,6 +31459,7 @@ export declare namespace gateway {
             resourceAttributes: {
                 [key: string]: string;
             };
+            sampler: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySampler;
         }
         /**
          * HTTPHeader represents an HTTP Header name and value as defined by RFC 7230.
@@ -28863,6 +31478,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -28883,6 +31504,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -28902,6 +31529,43 @@ export declare namespace gateway {
             resourceAttributes: {
                 [key: string]: string;
             };
+            sampler: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerPatch;
+        }
+        /**
+         * Sampler controls whether spans are exported.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySampler {
+            samplingPercentage: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerSamplingPercentage;
+            /**
+             * Type is the sampler type.
+             */
+            type: string;
+        }
+        /**
+         * Sampler controls whether spans are exported.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerPatch {
+            samplingPercentage: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerSamplingPercentagePatch;
+            /**
+             * Type is the sampler type.
+             */
+            type: string;
+        }
+        /**
+         * SamplingPercentage controls the percentage of traces to sample.
+         * Defaults to 100% when not set.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerSamplingPercentage {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * SamplingPercentage controls the percentage of traces to sample.
+         * Defaults to 100% when not set.
+         */
+        interface EnvoyProxySpecTelemetryTracingProviderOpenTelemetrySamplerSamplingPercentagePatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Provider defines the tracing provider.
@@ -29437,7 +32101,6 @@ export declare namespace gateway {
          * "credential", and the value should be the credential to be injected.
          * For example, for basic authentication, the value should be "Basic <base64 encoded username:password>".
          * for bearer token, the value should be "Bearer <token>".
-         * Note: The secret must be in the same namespace as the HTTPRouteFilter.
          */
         interface HTTPRouteFilterSpecCredentialInjectionCredentialValueRef {
             /**
@@ -29472,7 +32135,6 @@ export declare namespace gateway {
          * "credential", and the value should be the credential to be injected.
          * For example, for basic authentication, the value should be "Basic <base64 encoded username:password>".
          * for bearer token, the value should be "Bearer <token>".
-         * Note: The secret must be in the same namespace as the HTTPRouteFilter.
          */
         interface HTTPRouteFilterSpecCredentialInjectionCredentialValueRefPatch {
             /**
@@ -29538,6 +32200,7 @@ export declare namespace gateway {
         }
         /**
          * Body of the direct response.
+         * Supports Envoy command operators for dynamic content (see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators).
          */
         interface HTTPRouteFilterSpecDirectResponseBody {
             /**
@@ -29553,6 +32216,7 @@ export declare namespace gateway {
         }
         /**
          * Body of the direct response.
+         * Supports Envoy command operators for dynamic content (see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators).
          */
         interface HTTPRouteFilterSpecDirectResponseBodyPatch {
             /**
@@ -29691,6 +32355,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -29711,6 +32381,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -29793,6 +32469,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -29813,6 +32495,12 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             * <gateway:experimental:description>
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+             * </gateway:experimental:description>
+             *
+             * <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
              */
             value: string;
         }
@@ -29907,6 +32595,12 @@ export declare namespace gateway {
          * HTTPURLRewriteFilter define rewrites of HTTP URL components such as path and host
          */
         interface HTTPRouteFilterSpecUrlRewrite {
+            /**
+             * AppendXForwardedHost controls whether the original Host header value is
+             * appended to the X-Forwarded-Host header when hostname rewriting is configured.
+             * Defaults to true for backward compatibility.
+             */
+            appendXForwardedHost: boolean;
             hostname: outputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewriteHostname;
             path: outputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewritePath;
         }
@@ -29942,6 +32636,12 @@ export declare namespace gateway {
          * HTTPURLRewriteFilter define rewrites of HTTP URL components such as path and host
          */
         interface HTTPRouteFilterSpecUrlRewritePatch {
+            /**
+             * AppendXForwardedHost controls whether the original Host header value is
+             * appended to the X-Forwarded-Host header when hostname rewriting is configured.
+             * Defaults to true for backward compatibility.
+             */
+            appendXForwardedHost: boolean;
             hostname: outputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewriteHostnamePatch;
             path: outputs.gateway.v1alpha1.HTTPRouteFilterSpecUrlRewritePathPatch;
         }
@@ -30061,6 +32761,14 @@ export declare namespace gateway {
             cors: outputs.gateway.v1alpha1.SecurityPolicySpecCors;
             extAuth: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuth;
             jwt: outputs.gateway.v1alpha1.SecurityPolicySpecJwt;
+            /**
+             * MergeType determines how this configuration is merged with existing SecurityPolicy
+             * configurations targeting a parent resource. When set, this configuration will be merged
+             * into a parent SecurityPolicy (i.e. the one targeting a Gateway or Listener).
+             * This field cannot be set when targeting a parent resource (Gateway).
+             * If unset, no merging occurs, and only the most specific configuration takes effect.
+             */
+            mergeType: string;
             oidc: outputs.gateway.v1alpha1.SecurityPolicySpecOidc;
             targetRef: outputs.gateway.v1alpha1.SecurityPolicySpecTargetRef;
             /**
@@ -30371,27 +33079,124 @@ export declare namespace gateway {
              */
             clientCIDRs: string[];
             /**
+             * ClientIPGeoLocations authorizes the request based on geolocation metadata derived from the client IP.
+             * This field is supported for HTTPRoute and GRPCRoute authorization.
+             * It is not supported for TCPRoute targets.
+             *
+             * If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
+             *
+             * The client IP is inferred from the X-Forwarded-For header or a custom header.
+             * You can use the `ClientIPDetection` field in the `ClientTrafficPolicy` to configure the client IP detection.
+             */
+            clientIPGeoLocations: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocations[];
+            /**
              * Headers authorize the request based on user identity extracted from custom headers.
              * If multiple headers are specified, all headers must match for the rule to match.
              */
             headers: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalHeaders[];
             jwt: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalJwt;
+        }
+        /**
+         * ClientIPGeoLocation specifies geolocation-based match criteria for authorization.
+         */
+        interface SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocations {
+            anonymous: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsAnonymous;
             /**
-             * SourceCIDRs are the IP CIDR ranges of the source (L4 peer IP).
-             * Valid examples are "192.168.1.0/24" or "2001:db8::/64"
-             *
-             * If multiple CIDR ranges are specified, one of the CIDR ranges must match
-             * the source IP for the rule to match.
-             *
-             * The source IP is the IP address of the peer that connected to Envoy.
-             * This IP is obtained from the TCP connection's peer address and is not
-             * affected by X-Forwarded-For or other IP detection headers.
-             * If intermediaries (load balancers, NAT) terminate or proxy TCP,
-             * the original client IP will only be available if the intermediary
-             * preserves the source address (for example by enabling the PROXY protocol
-             * or avoiding SNAT).
+             * ASN is the autonomous system number associated with the client IP.
              */
-            sourceCIDRs: string[];
+            asn: number;
+            /**
+             * City is the city associated with the client IP.
+             */
+            city: string;
+            /**
+             * Country is the country ISO code associated with the client IP.
+             */
+            country: string;
+            /**
+             * ISP is the internet service provider associated with the client IP.
+             */
+            isp: string;
+            /**
+             * Region is the region ISO code associated with the client IP.
+             */
+            region: string;
+        }
+        /**
+         * Anonymous matches anonymous network detection signals.
+         */
+        interface SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsAnonymous {
+            /**
+             * IsAnonymous matches whether the client IP is considered anonymous.
+             */
+            isAnonymous: boolean;
+            /**
+             * IsHosting matches whether the client IP belongs to a hosting provider.
+             */
+            isHosting: boolean;
+            /**
+             * IsProxy matches whether the client IP belongs to a public proxy.
+             */
+            isProxy: boolean;
+            /**
+             * IsTor matches whether the client IP belongs to a Tor exit node.
+             */
+            isTor: boolean;
+            /**
+             * IsVPN matches whether the client IP is detected as VPN.
+             */
+            isVPN: boolean;
+        }
+        /**
+         * Anonymous matches anonymous network detection signals.
+         */
+        interface SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsAnonymousPatch {
+            /**
+             * IsAnonymous matches whether the client IP is considered anonymous.
+             */
+            isAnonymous: boolean;
+            /**
+             * IsHosting matches whether the client IP belongs to a hosting provider.
+             */
+            isHosting: boolean;
+            /**
+             * IsProxy matches whether the client IP belongs to a public proxy.
+             */
+            isProxy: boolean;
+            /**
+             * IsTor matches whether the client IP belongs to a Tor exit node.
+             */
+            isTor: boolean;
+            /**
+             * IsVPN matches whether the client IP is detected as VPN.
+             */
+            isVPN: boolean;
+        }
+        /**
+         * ClientIPGeoLocation specifies geolocation-based match criteria for authorization.
+         */
+        interface SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsPatch {
+            anonymous: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsAnonymousPatch;
+            /**
+             * ASN is the autonomous system number associated with the client IP.
+             */
+            asn: number;
+            /**
+             * City is the city associated with the client IP.
+             */
+            city: string;
+            /**
+             * Country is the country ISO code associated with the client IP.
+             */
+            country: string;
+            /**
+             * ISP is the internet service provider associated with the client IP.
+             */
+            isp: string;
+            /**
+             * Region is the region ISO code associated with the client IP.
+             */
+            region: string;
         }
         /**
          * AuthorizationHeaderMatch specifies how to match against the value of an HTTP header within a authorization rule.
@@ -30565,27 +33370,22 @@ export declare namespace gateway {
              */
             clientCIDRs: string[];
             /**
+             * ClientIPGeoLocations authorizes the request based on geolocation metadata derived from the client IP.
+             * This field is supported for HTTPRoute and GRPCRoute authorization.
+             * It is not supported for TCPRoute targets.
+             *
+             * If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
+             *
+             * The client IP is inferred from the X-Forwarded-For header or a custom header.
+             * You can use the `ClientIPDetection` field in the `ClientTrafficPolicy` to configure the client IP detection.
+             */
+            clientIPGeoLocations: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalClientIPGeoLocationsPatch[];
+            /**
              * Headers authorize the request based on user identity extracted from custom headers.
              * If multiple headers are specified, all headers must match for the rule to match.
              */
             headers: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalHeadersPatch[];
             jwt: outputs.gateway.v1alpha1.SecurityPolicySpecAuthorizationRulesPrincipalJwtPatch;
-            /**
-             * SourceCIDRs are the IP CIDR ranges of the source (L4 peer IP).
-             * Valid examples are "192.168.1.0/24" or "2001:db8::/64"
-             *
-             * If multiple CIDR ranges are specified, one of the CIDR ranges must match
-             * the source IP for the rule to match.
-             *
-             * The source IP is the IP address of the peer that connected to Envoy.
-             * This IP is obtained from the TCP connection's peer address and is not
-             * affected by X-Forwarded-For or other IP detection headers.
-             * If intermediaries (load balancers, NAT) terminate or proxy TCP,
-             * the original client IP will only be available if the intermediary
-             * preserves the source address (for example by enabling the PROXY protocol
-             * or avoiding SNAT).
-             */
-            sourceCIDRs: string[];
         }
         /**
          * BasicAuth defines the configuration for the HTTP Basic Authentication.
@@ -30624,8 +33424,6 @@ export declare namespace gateway {
          * Right now, only SHA hash algorithm is supported.
          * Reference to https://httpd.apache.org/docs/2.4/programs/htpasswd.html
          * for more details.
-         *
-         * Note: The secret must be in the same namespace as the SecurityPolicy.
          */
         interface SecurityPolicySpecBasicAuthUsers {
             /**
@@ -30665,8 +33463,6 @@ export declare namespace gateway {
          * Right now, only SHA hash algorithm is supported.
          * Reference to https://httpd.apache.org/docs/2.4/programs/htpasswd.html
          * for more details.
-         *
-         * Note: The secret must be in the same namespace as the SecurityPolicy.
          */
         interface SecurityPolicySpecBasicAuthUsersPatch {
             /**
@@ -30822,6 +33618,12 @@ export declare namespace gateway {
              * the new matched route will be applied.
              */
             recomputeRoute: boolean;
+            /**
+             * Sets the HTTP status that is returned when the authorization service returns an error
+             * or cannot be reached. Defaults to 403 Forbidden.
+             * Only 4xx and 5xx status codes are supported.
+             */
+            statusOnError: number;
             /**
              * Timeout defines the timeout for requests to the external authorization service.
              * If not specified, defaults to 10 seconds.
@@ -31259,6 +34061,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -31287,6 +34090,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -31305,6 +34109,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -31485,6 +34337,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -31496,6 +34349,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -31548,6 +34404,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -31608,6 +34471,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -31628,6 +34526,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -31639,6 +34538,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -31731,6 +34633,11 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -31770,6 +34677,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -31824,6 +34736,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -31848,9 +34761,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -31879,6 +34837,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStart;
@@ -31888,10 +34847,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -32114,6 +35156,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStartPatch;
@@ -32123,7 +35166,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwarePatch;
@@ -32131,7 +35175,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStart {
             /**
@@ -32145,7 +35189,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -32161,12 +35205,22 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -32219,6 +35273,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -32239,7 +35329,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -32251,7 +35341,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthGrpcBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -32458,6 +35548,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -32484,6 +35579,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -32862,6 +35962,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -32890,6 +35991,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -32908,6 +36010,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -33088,6 +36238,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -33099,6 +36250,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -33151,6 +36305,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -33211,6 +36372,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -33231,6 +36427,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -33242,6 +36439,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -33334,6 +36534,11 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -33373,6 +36578,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -33427,6 +36637,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -33451,9 +36662,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -33482,6 +36738,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStart;
@@ -33491,10 +36748,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -33717,6 +37057,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStartPatch;
@@ -33726,7 +37067,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwarePatch;
@@ -33734,7 +37076,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStart {
             /**
@@ -33748,7 +37090,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -33764,12 +37106,22 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -33822,6 +37174,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -33842,7 +37230,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -33854,7 +37242,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecExtAuthHttpBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -34061,6 +37449,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -34087,6 +37480,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -34193,6 +37591,12 @@ export declare namespace gateway {
              * the new matched route will be applied.
              */
             recomputeRoute: boolean;
+            /**
+             * Sets the HTTP status that is returned when the authorization service returns an error
+             * or cannot be reached. Defaults to 403 Forbidden.
+             * Only 4xx and 5xx status codes are supported.
+             */
+            statusOnError: number;
             /**
              * Timeout defines the timeout for requests to the external authorization service.
              * If not specified, defaults to 10 seconds.
@@ -34807,6 +38211,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -34835,6 +38240,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -34853,6 +38259,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -35033,6 +38487,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -35044,6 +38499,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -35096,6 +38554,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -35156,6 +38621,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -35176,6 +38676,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -35187,6 +38688,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -35279,6 +38783,11 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -35318,6 +38827,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -35372,6 +38886,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -35396,9 +38911,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -35427,6 +38987,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStart;
@@ -35436,10 +38997,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -35662,6 +39306,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStartPatch;
@@ -35671,7 +39316,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwarePatch;
@@ -35679,7 +39325,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStart {
             /**
@@ -35693,7 +39339,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -35709,12 +39355,22 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -35767,6 +39423,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -35787,7 +39479,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -35799,7 +39491,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -36006,6 +39698,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -36032,6 +39729,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -36884,6 +40586,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerPerEndpoint;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudget;
         }
         /**
          * Circuit Breaker settings for the upstream connections and requests.
@@ -36912,6 +40615,7 @@ export declare namespace gateway {
              */
             maxRequestsPerConnection: number;
             perEndpoint: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerPerEndpointPatch;
+            retryBudget: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPatch;
         }
         /**
          * PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -36930,6 +40634,54 @@ export declare namespace gateway {
              * MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule.
              */
             maxConnections: number;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudget {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPercent;
+        }
+        /**
+         * RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+         * RetryBudget take precedence over maxParallelRetries.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPatch {
+            /**
+             * MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+             * For example, a budget of 20% with a minimum retry concurrency of 3
+             * will allow 5 active retries while there are 25 active requests.
+             * If there are 2 active requests, there are still 3 active retries
+             * allowed because of the minimum retry concurrency.
+             * Defaults to 3.
+             */
+            minRetryConcurrency: number;
+            percent: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPercentPatch;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPercent {
+            denominator: number;
+            numerator: number;
+        }
+        /**
+         * Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+         * the sum of active requests and active pending requests.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsCircuitBreakerRetryBudgetPercentPatch {
+            denominator: number;
+            numerator: number;
         }
         /**
          * Connection includes backend connection settings.
@@ -37110,6 +40862,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveOverrides;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveTcp;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -37121,6 +40874,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -37173,6 +40929,13 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
         }
         /**
          * ExpectedResponse defines a list of HTTP expected responses to match.
@@ -37233,6 +40996,41 @@ export declare namespace gateway {
              * Path defines the HTTP path that will be requested during health checking.
              */
             path: string;
+            /**
+             * RetriableStatuses defines a list of HTTP response statuses considered retriable.
+             * Responses matching these statuses count towards the unhealthy threshold but
+             * do not result in the host being considered immediately unhealthy.
+             * The expected statuses take precedence for any range overlaps with this field.
+             */
+            retriableStatuses: number[];
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveOverrides {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
+        }
+        /**
+         * Overrides defines the configuration of the overriding health check settings for all endpoints
+         * in the backend cluster. This allows customization of port and other settings that may differ
+         * from the main service configuration.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveOverridesPatch {
+            /**
+             * Port overrides the health check port.
+             * If not set, the endpoint's serving port is used for health checks.
+             * This is useful when health checks are served on a different port than
+             * the main service port (e.g., port 443 for service, port 9090 for health checks).
+             */
+            port: number;
         }
         /**
          * Active health check configuration
@@ -37253,6 +41051,7 @@ export declare namespace gateway {
              * Interval defines the time between active health checks.
              */
             interval: string;
+            overrides: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveOverridesPatch;
             tcp: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHealthCheckActiveTcpPatch;
             /**
              * Timeout defines the time to wait for a health check response.
@@ -37264,6 +41063,9 @@ export declare namespace gateway {
             type: string;
             /**
              * UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+             * Without RetriableStatuses configured, any health check failure results in the host being immediately
+             * considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+             * up to this threshold before the host is marked unhealthy.
              */
             unhealthyThreshold: number;
         }
@@ -37356,6 +41158,11 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsHealthCheckPassive {
             /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
+            /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
             baseEjectionTime: string;
@@ -37395,6 +41202,11 @@ export declare namespace gateway {
          * Passive passive check configuration
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsHealthCheckPassivePatch {
+            /**
+             * AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+             * regardless of MaxEjectionPercent.
+             */
+            alwaysEjectOneEndpoint: boolean;
             /**
              * BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
              */
@@ -37449,6 +41261,7 @@ export declare namespace gateway {
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsHttp2 {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHttp2ConnectionKeepalive;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -37473,9 +41286,54 @@ export declare namespace gateway {
             onInvalidMessage: string;
         }
         /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsHttp2ConnectionKeepalive {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
+         * ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsHttp2ConnectionKeepalivePatch {
+            /**
+             * IdleInterval specifies how long a connection must be idle before a PING is sent.
+             */
+            idleInterval: string;
+            /**
+             * Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+             */
+            interval: string;
+            /**
+             * IntervalJitter specifies a random jitter percentage added to each interval.
+             * Defaults to 15% if not specified.
+             */
+            intervalJitter: number;
+            /**
+             * Timeout specifies how long to wait for a PING response before considering the connection dead.
+             */
+            timeout: string;
+        }
+        /**
          * HTTP2 provides HTTP/2 configuration for backend connections.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsHttp2Patch {
+            connectionKeepalive: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsHttp2ConnectionKeepalivePatch;
             /**
              * InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
              * If not set, the default value is 1 MiB.
@@ -37504,6 +41362,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancer {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHash;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStart;
@@ -37513,10 +41372,93 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAware;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilization {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
+        }
+        /**
+         * BackendUtilization defines the configuration when the load balancer type is
+         * set to BackendUtilization.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilizationPatch {
+            /**
+             * A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+             * Default is 10s.
+             */
+            blackoutPeriod: string;
+            /**
+             * ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+             * This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+             *
+             * For example:
+             * - 100 => 1.0x
+             * - 120 => 1.2x
+             * - 200 => 2.0x
+             *
+             * Must be non-negative.
+             */
+            errorUtilizationPenaltyPercent: number;
+            /**
+             * KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+             * Defaults to false.
+             */
+            keepResponseHeaders: boolean;
+            /**
+             * Metric names used to compute utilization if application_utilization is not set.
+             * For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+             */
+            metricNamesForComputingUtilization: string[];
+            /**
+             * If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+             */
+            weightExpirationPeriod: string;
+            /**
+             * How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+             */
+            weightUpdatePeriod: string;
         }
         /**
          * ConsistentHash defines the configuration when the load balancer type is
@@ -37739,6 +41681,7 @@ export declare namespace gateway {
          * the backend endpoints. Defaults to `LeastRequest`.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerPatch {
+            backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashPatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStartPatch;
@@ -37748,7 +41691,8 @@ export declare namespace gateway {
              * "ConsistentHash",
              * "LeastRequest",
              * "Random",
-             * "RoundRobin".
+             * "RoundRobin",
+             * "BackendUtilization".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwarePatch;
@@ -37756,7 +41700,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStart {
             /**
@@ -37770,7 +41714,7 @@ export declare namespace gateway {
         /**
          * SlowStart defines the configuration related to the slow start load balancer policy.
          * If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-         * Currently this is only supported for RoundRobin and LeastRequest load balancers
+         * Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStartPatch {
             /**
@@ -37786,12 +41730,22 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAware {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwarePreferLocal;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwareWeightedZones[];
         }
         /**
          * ZoneAware defines the configuration related to the distribution of requests between locality zones.
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwarePatch {
             preferLocal: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwarePreferLocalPatch;
+            /**
+             * WeightedZones configures weight-based traffic distribution across locality zones.
+             * Traffic is distributed proportionally based on the sum of all zone weights.
+             */
+            weightedZones: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch[];
         }
         /**
          * PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
@@ -37844,6 +41798,42 @@ export declare namespace gateway {
             percentageEnabled: number;
         }
         /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwareWeightedZones {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
+         * WeightedZoneConfig defines the weight for a specific locality zone.
+         */
+        interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwareWeightedZonesPatch {
+            /**
+             * Weight defines the weight for this locality.
+             * Higher values receive more traffic. The actual traffic distribution
+             * is proportional to this value relative to other localities.
+             */
+            weight: number;
+            /**
+             * Zone specifies the topology zone this weight applies to.
+             * The value should match the topology.kubernetes.io/zone label
+             * of the nodes where endpoints are running.
+             * Zones not listed in the configuration receive a default weight of 1.
+             */
+            zone: string;
+        }
+        /**
          * BackendSettings holds configuration for managing the connection
          * to the backend.
          */
@@ -37864,7 +41854,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsProxyProtocol {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -37876,7 +41866,7 @@ export declare namespace gateway {
          */
         interface SecurityPolicySpecOidcProviderBackendSettingsProxyProtocolPatch {
             /**
-             * Version of ProxyProtol
+             * Version of ProxyProtocol
              * Valid ProxyProtocolVersion values are
              * "V1"
              * "V2"
@@ -38083,6 +42073,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for HTTP.
@@ -38109,6 +42104,11 @@ export declare namespace gateway {
              * RequestTimeout is the time until which entire response is received from the upstream.
              */
             requestTimeout: string;
+            /**
+             *  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+             *  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+             */
+            streamIdleTimeout: string;
         }
         /**
          * Timeout settings for the backend connections.
@@ -38183,6 +42183,14 @@ export declare namespace gateway {
             cors: outputs.gateway.v1alpha1.SecurityPolicySpecCorsPatch;
             extAuth: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthPatch;
             jwt: outputs.gateway.v1alpha1.SecurityPolicySpecJwtPatch;
+            /**
+             * MergeType determines how this configuration is merged with existing SecurityPolicy
+             * configurations targeting a parent resource. When set, this configuration will be merged
+             * into a parent SecurityPolicy (i.e. the one targeting a Gateway or Listener).
+             * This field cannot be set when targeting a parent resource (Gateway).
+             * If unset, no merging occurs, and only the most specific configuration takes effect.
+             */
+            mergeType: string;
             oidc: outputs.gateway.v1alpha1.SecurityPolicySpecOidcPatch;
             targetRef: outputs.gateway.v1alpha1.SecurityPolicySpecTargetRefPatch;
             /**

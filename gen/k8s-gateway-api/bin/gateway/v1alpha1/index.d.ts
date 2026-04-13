@@ -7,15 +7,6 @@ export declare const XBackendTrafficPolicyList: typeof import("./xbackendTraffic
 export { XBackendTrafficPolicyPatchArgs } from "./xbackendTrafficPolicyPatch";
 export type XBackendTrafficPolicyPatch = import("./xbackendTrafficPolicyPatch").XBackendTrafficPolicyPatch;
 export declare const XBackendTrafficPolicyPatch: typeof import("./xbackendTrafficPolicyPatch").XBackendTrafficPolicyPatch;
-export { XListenerSetArgs } from "./xlistenerSet";
-export type XListenerSet = import("./xlistenerSet").XListenerSet;
-export declare const XListenerSet: typeof import("./xlistenerSet").XListenerSet;
-export { XListenerSetListArgs } from "./xlistenerSetList";
-export type XListenerSetList = import("./xlistenerSetList").XListenerSetList;
-export declare const XListenerSetList: typeof import("./xlistenerSetList").XListenerSetList;
-export { XListenerSetPatchArgs } from "./xlistenerSetPatch";
-export type XListenerSetPatch = import("./xlistenerSetPatch").XListenerSetPatch;
-export declare const XListenerSetPatch: typeof import("./xlistenerSetPatch").XListenerSetPatch;
 export { XMeshArgs } from "./xmesh";
 export type XMesh = import("./xmesh").XMesh;
 export declare const XMesh: typeof import("./xmesh").XMesh;

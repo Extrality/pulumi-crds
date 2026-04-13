@@ -42,8 +42,6 @@ export declare namespace gateway {
             };
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -64,9 +62,9 @@ export declare namespace gateway {
              *   example, a policy with a creation timestamp of "2021-07-15
              *   01:02:03" MUST be given precedence over a policy with a
              *   creation timestamp of "2021-07-15 01:02:04".
-             * * The policy appearing first in alphabetical order by {name}.
-             *   For example, a policy named `bar` is given precedence over a
-             *   policy named `baz`.
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
              *
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
@@ -78,9 +76,28 @@ export declare namespace gateway {
              * clarified in a future release, the safest approach is to support a single
              * targetRef.
              *
-             * Support: Extended for Kubernetes Service
+             * Support Levels:
              *
-             * Support: Implementation-specific for any other resource
+             * * Extended: Kubernetes Service referenced by HTTPRoute backendRefs.
+             *
+             * * Implementation-Specific: Services not connected via HTTPRoute, and any
+             *   other kind of backend. Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Gateway feature backends (e.g., ExternalAuth, rate-limiting services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs: outputs.gateway.v1.BackendTLSPolicySpecTargetRefs[];
             validation: outputs.gateway.v1.BackendTLSPolicySpecValidation;
@@ -106,8 +123,6 @@ export declare namespace gateway {
             };
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -128,9 +143,9 @@ export declare namespace gateway {
              *   example, a policy with a creation timestamp of "2021-07-15
              *   01:02:03" MUST be given precedence over a policy with a
              *   creation timestamp of "2021-07-15 01:02:04".
-             * * The policy appearing first in alphabetical order by {name}.
-             *   For example, a policy named `bar` is given precedence over a
-             *   policy named `baz`.
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
              *
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
@@ -142,9 +157,28 @@ export declare namespace gateway {
              * clarified in a future release, the safest approach is to support a single
              * targetRef.
              *
-             * Support: Extended for Kubernetes Service
+             * Support Levels:
              *
-             * Support: Implementation-specific for any other resource
+             * * Extended: Kubernetes Service referenced by HTTPRoute backendRefs.
+             *
+             * * Implementation-Specific: Services not connected via HTTPRoute, and any
+             *   other kind of backend. Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Gateway feature backends (e.g., ExternalAuth, rate-limiting services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs: outputs.gateway.v1.BackendTLSPolicySpecTargetRefsPatch[];
             validation: outputs.gateway.v1.BackendTLSPolicySpecValidationPatch;
@@ -301,8 +335,8 @@ export declare namespace gateway {
              */
             subjectAltNames: outputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNames[];
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
@@ -311,6 +345,13 @@ export declare namespace gateway {
              * the supplied value is not recognized, the implementation MUST ensure the
              * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
              * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -440,8 +481,8 @@ export declare namespace gateway {
              */
             subjectAltNames: outputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNamesPatch[];
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
@@ -450,6 +491,13 @@ export declare namespace gateway {
              * the supplied value is not recognized, the implementation MUST ensure the
              * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
              * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -2015,6 +2063,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2035,6 +2086,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2120,6 +2174,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2140,6 +2197,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2441,6 +2501,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2461,6 +2524,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2546,6 +2612,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2566,6 +2635,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2878,6 +2950,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2898,6 +2973,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -2983,6 +3061,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3003,6 +3084,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3304,6 +3388,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3324,6 +3411,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3409,6 +3499,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3429,6 +3522,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -3445,8 +3541,8 @@ export declare namespace gateway {
          *   - method:
          *     type: Exact
          *     service: "foo"
-         *     headers:
-         *   - name: "version"
+         *   - headers:
+         *     name: "version"
          *     value "v1"
          *
          * ```
@@ -3579,8 +3675,8 @@ export declare namespace gateway {
          *   - method:
          *     type: Exact
          *     service: "foo"
-         *     headers:
-         *   - name: "version"
+         *   - headers:
+         *     name: "version"
          *     value "v1"
          *
          * ```
@@ -3753,7 +3849,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -3857,7 +3953,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -3912,7 +4008,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1.GRPCRouteStatusParentsConditions[];
             /**
@@ -4265,7 +4361,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1.GRPCRouteStatusParentsConditionsPatch[];
             /**
@@ -4875,14 +4971,14 @@ export declare namespace gateway {
         }
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListeners {
             namespaces: outputs.gateway.v1.GatewaySpecAllowedListenersNamespaces;
         }
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersNamespaces {
             /**
@@ -4894,14 +4990,14 @@ export declare namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from: string;
             selector: outputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelector;
         }
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersNamespacesPatch {
             /**
@@ -4913,7 +5009,7 @@ export declare namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from: string;
             selector: outputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorPatch;
@@ -5002,7 +5098,7 @@ export declare namespace gateway {
         }
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersPatch {
             namespaces: outputs.gateway.v1.GatewaySpecAllowedListenersNamespacesPatch;
@@ -5183,7 +5279,7 @@ export declare namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -5501,7 +5597,7 @@ export declare namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -6006,19 +6102,30 @@ export declare namespace gateway {
             clientCertificateRef: outputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRef;
         }
         /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
          *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
+         * A ClientCertificateRef is considered invalid if:
          *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
          *
-         * Support: Core
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
          */
         interface GatewaySpecTlsBackendClientCertificateRef {
             /**
@@ -6048,19 +6155,30 @@ export declare namespace gateway {
             namespace: string;
         }
         /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
          *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
+         * A ClientCertificateRef is considered invalid if:
          *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
          *
-         * Support: Core
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
          */
         interface GatewaySpecTlsBackendClientCertificateRefPatch {
             /**
@@ -6150,27 +6268,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendDefaultValidation {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs[];
             /**
@@ -6278,27 +6418,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendDefaultValidationPatch {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch[];
             /**
@@ -6389,27 +6551,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendPerPortTlsValidation {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs[];
             /**
@@ -6517,27 +6701,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendPerPortTlsValidationPatch {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch[];
             /**
@@ -6585,6 +6791,19 @@ export declare namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses: outputs.gateway.v1.GatewayStatusAddresses[];
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets: number;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -6728,8 +6947,11 @@ export declare namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -6745,7 +6967,7 @@ export declare namespace gateway {
             name: string;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -6847,8 +7069,11 @@ export declare namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -6864,7 +7089,7 @@ export declare namespace gateway {
             name: string;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -6917,6 +7142,19 @@ export declare namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses: outputs.gateway.v1.GatewayStatusAddressesPatch[];
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets: number;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -7826,7 +8064,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -7845,18 +8083,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -7868,7 +8109,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -7888,18 +8129,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -7947,10 +8191,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -7981,14 +8234,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -8003,6 +8260,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -8031,7 +8291,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -8050,18 +8310,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -8073,7 +8336,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -8093,18 +8356,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -8152,10 +8418,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -8186,14 +8461,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -8208,6 +8487,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -8790,6 +9072,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -8810,6 +9095,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -8895,6 +9183,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -8915,6 +9206,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -9450,6 +9744,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -9470,6 +9767,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -9555,6 +9855,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -9575,6 +9878,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -9867,7 +10173,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -9886,18 +10192,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -9909,7 +10218,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -9929,18 +10238,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -9988,10 +10300,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -10022,14 +10343,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -10044,6 +10369,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -10072,7 +10400,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -10091,18 +10419,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -10114,7 +10445,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -10134,18 +10465,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -10193,10 +10527,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -10227,14 +10570,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -10249,6 +10596,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -10831,6 +11181,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -10851,6 +11204,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -10936,6 +11292,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -10956,6 +11315,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11491,6 +11853,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11511,6 +11876,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11596,6 +11964,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11616,6 +11987,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11816,6 +12190,9 @@ export declare namespace gateway {
             type: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -11856,6 +12233,9 @@ export declare namespace gateway {
             type: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -12203,7 +12583,7 @@ export declare namespace gateway {
              * For example, setting the `rules[].retry.backoff` field to the value
              * `100ms` will cause a backend request to first be retried approximately
              * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
+             * to be retriable.
              *
              * An implementation MAY use an exponential or alternative backoff strategy
              * for subsequent retry attempts, MAY cap the maximum backoff duration to
@@ -12269,7 +12649,7 @@ export declare namespace gateway {
              * For example, setting the `rules[].retry.backoff` field to the value
              * `100ms` will cause a backend request to first be retried approximately
              * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
+             * to be retriable.
              *
              * An implementation MAY use an exponential or alternative backoff strategy
              * for subsequent retry attempts, MAY cap the maximum backoff duration to
@@ -12344,7 +12724,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -12448,7 +12828,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -12611,7 +12991,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1.HTTPRouteStatusParentsConditions[];
             /**
@@ -12964,7 +13344,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1.HTTPRouteStatusParentsConditionsPatch[];
             /**
@@ -13007,6 +13387,2401 @@ export declare namespace gateway {
              */
             parents: outputs.gateway.v1.HTTPRouteStatusParentsPatch[];
         }
+        /**
+         * ListenerSet defines a set of additional listeners to attach to an existing Gateway.
+         * This resource provides a mechanism to merge multiple listeners into a single Gateway.
+         *
+         * The parent Gateway must explicitly allow ListenerSet attachment through its
+         * AllowedListeners configuration. By default, Gateways do not allow ListenerSet
+         * attachment.
+         *
+         * Routes can attach to a ListenerSet by specifying it as a parentRef, and can
+         * optionally target specific listeners using the sectionName field.
+         *
+         * Policy Attachment:
+         * - Policies that attach to a ListenerSet apply to all listeners defined in that resource
+         * - Policies do not impact listeners in the parent Gateway
+         * - Different ListenerSets attached to the same Gateway can have different policies
+         * - If an implementation cannot apply a policy to specific listeners, it should reject the policy
+         *
+         * ReferenceGrant Semantics:
+         * - ReferenceGrants applied to a Gateway are not inherited by child ListenerSets
+         * - ReferenceGrants applied to a ListenerSet do not grant permission to the parent Gateway's listeners
+         * - A ListenerSet can reference secrets/backends in its own namespace without a ReferenceGrant
+         *
+         * Gateway Integration:
+         *   - The parent Gateway's status will include "AttachedListenerSets"
+         *     which is the count of ListenerSets that have successfully attached to a Gateway
+         *     A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+         *   - The ListenerSet is selected by the Gateway's AllowedListeners field
+         *   - The ListenerSet has a valid ParentRef selecting the Gateway
+         *   - The ListenerSet's status has the condition "Accepted: true"
+         */
+        interface ListenerSet {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "gateway.networking.k8s.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "ListenerSet";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.gateway.v1.ListenerSetSpec;
+            status: outputs.gateway.v1.ListenerSetStatus;
+        }
+        /**
+         * Spec defines the desired state of ListenerSet.
+         */
+        interface ListenerSetSpec {
+            /**
+             * Listeners associated with this ListenerSet. Listeners define
+             * logical endpoints that are bound on this referenced parent Gateway's addresses.
+             *
+             * Listeners in a `Gateway` and their attached `ListenerSets` are concatenated
+             * as a list when programming the underlying infrastructure. Each listener
+             * name does not need to be unique across the Gateway and ListenerSets.
+             * See ListenerEntry.Name for more details.
+             *
+             * Implementations MUST treat the parent Gateway as having the merged
+             * list of all listeners from itself and attached ListenerSets using
+             * the following precedence:
+             *
+             * 1. "parent" Gateway
+             * 2. ListenerSet ordered by creation time (oldest first)
+             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
+             *
+             * An implementation MAY reject listeners by setting the ListenerEntryStatus
+             * `Accepted` condition to False with the Reason `TooManyListeners`
+             *
+             * If a listener has a conflict, this will be reported in the
+             * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
+             *
+             * Implementations SHOULD be cautious about what information from the
+             * parent or siblings are reported to avoid accidentally leaking
+             * sensitive information that the child would not otherwise have access
+             * to. This can include contents of secrets etc.
+             */
+            listeners: outputs.gateway.v1.ListenerSetSpecListeners[];
+            parentRef: outputs.gateway.v1.ListenerSetSpecParentRef;
+        }
+        interface ListenerSetSpecListeners {
+            allowedRoutes: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutes;
+            /**
+             * Hostname specifies the virtual hostname to match for protocol types that
+             * define this concept. When unspecified, all hostnames are matched. This
+             * field is ignored for protocols that don't require hostname based
+             * matching.
+             *
+             * Implementations MUST apply Hostname matching appropriately for each of
+             * the following protocols:
+             *
+             * * TLS: The Listener Hostname MUST match the SNI.
+             * * HTTP: The Listener Hostname MUST match the Host header of the request.
+             * * HTTPS: The Listener Hostname SHOULD match at both the TLS and HTTP
+             *   protocol layers as described above. If an implementation does not
+             *   ensure that both the SNI and Host header match the Listener hostname,
+             *   it MUST clearly document that.
+             *
+             * For HTTPRoute and TLSRoute resources, there is an interaction with the
+             * `spec.hostnames` array. When both listener and route specify hostnames,
+             * there MUST be an intersection between the values for a Route to be
+             * accepted. For more information, refer to the Route specific Hostnames
+             * documentation.
+             *
+             * Hostnames that are prefixed with a wildcard label (`*.`) are interpreted
+             * as a suffix match. That means that a match for `*.example.com` would match
+             * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
+             */
+            hostname: string;
+            /**
+             * Name is the name of the Listener. This name MUST be unique within a
+             * ListenerSet.
+             *
+             * Name is not required to be unique across a Gateway and ListenerSets.
+             * Routes can attach to a Listener by having a ListenerSet as a parentRef
+             * and setting the SectionName
+             */
+            name: string;
+            /**
+             * Port is the network port. Multiple listeners may use the
+             * same port, subject to the Listener compatibility rules.
+             */
+            port: number;
+            /**
+             * Protocol specifies the network protocol this listener expects to receive.
+             */
+            protocol: string;
+            tls: outputs.gateway.v1.ListenerSetSpecListenersTls;
+        }
+        /**
+         * AllowedRoutes defines the types of routes that MAY be attached to a
+         * Listener and the trusted namespaces where those Route resources MAY be
+         * present.
+         *
+         * Although a client request may match multiple route rules, only one rule
+         * may ultimately receive the request. Matching precedence MUST be
+         * determined in order of the following criteria:
+         *
+         * * The most specific match as defined by the Route type.
+         * * The oldest Route based on creation timestamp. For example, a Route with
+         *   a creation timestamp of "2020-09-08 01:02:03" is given precedence over
+         *   a Route with a creation timestamp of "2020-09-08 01:02:04".
+         * * If everything else is equivalent, the Route appearing first in
+         *   alphabetical order (namespace/name) should be given precedence. For
+         *   example, foo/bar is given precedence over foo/baz.
+         *
+         * All valid rules within a Route attached to this Listener should be
+         * implemented. Invalid Route rules can be ignored (sometimes that will mean
+         * the full Route). If a Route rule transitions from valid to invalid,
+         * support for that Route rule should be dropped to ensure consistency. For
+         * example, even if a filter specified by a Route rule is invalid, the rest
+         * of the rules within that Route should still be supported.
+         */
+        interface ListenerSetSpecListenersAllowedRoutes {
+            /**
+             * Kinds specifies the groups and kinds of Routes that are allowed to bind
+             * to this Gateway Listener. When unspecified or empty, the kinds of Routes
+             * selected are determined using the Listener protocol.
+             *
+             * A RouteGroupKind MUST correspond to kinds of Routes that are compatible
+             * with the application protocol specified in the Listener's Protocol field.
+             * If an implementation does not support or recognize this resource type, it
+             * MUST set the "ResolvedRefs" condition to False for this Listener with the
+             * "InvalidRouteKinds" reason.
+             *
+             * Support: Core
+             */
+            kinds: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKinds[];
+            namespaces: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespaces;
+        }
+        /**
+         * RouteGroupKind indicates the group and kind of a Route resource.
+         */
+        interface ListenerSetSpecListenersAllowedRoutesKinds {
+            /**
+             * Group is the group of the Route.
+             */
+            group: string;
+            /**
+             * Kind is the kind of the Route.
+             */
+            kind: string;
+        }
+        /**
+         * RouteGroupKind indicates the group and kind of a Route resource.
+         */
+        interface ListenerSetSpecListenersAllowedRoutesKindsPatch {
+            /**
+             * Group is the group of the Route.
+             */
+            group: string;
+            /**
+             * Kind is the kind of the Route.
+             */
+            kind: string;
+        }
+        /**
+         * Namespaces indicates namespaces from which Routes may be attached to this
+         * Listener. This is restricted to the namespace of this Gateway by default.
+         *
+         * Support: Core
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespaces {
+            /**
+             * From indicates where Routes will be selected for this Gateway. Possible
+             * values are:
+             *
+             * * All: Routes in all namespaces may be used by this Gateway.
+             * * Selector: Routes in namespaces selected by the selector may be used by
+             *   this Gateway.
+             * * Same: Only Routes in the same namespace may be used by this Gateway.
+             *
+             * Support: Core
+             */
+            from: string;
+            selector: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelector;
+        }
+        /**
+         * Namespaces indicates namespaces from which Routes may be attached to this
+         * Listener. This is restricted to the namespace of this Gateway by default.
+         *
+         * Support: Core
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespacesPatch {
+            /**
+             * From indicates where Routes will be selected for this Gateway. Possible
+             * values are:
+             *
+             * * All: Routes in all namespaces may be used by this Gateway.
+             * * Selector: Routes in namespaces selected by the selector may be used by
+             *   this Gateway.
+             * * Same: Only Routes in the same namespace may be used by this Gateway.
+             *
+             * Support: Core
+             */
+            from: string;
+            selector: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch;
+        }
+        /**
+         * Selector must be specified when From is set to "Selector". In that case,
+         * only Routes in Namespaces matching this Selector will be selected by this
+         * Gateway. This field is ignored for other values of "From".
+         *
+         * Support: Core
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespacesSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {
+                [key: string]: string;
+            };
+        }
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+        /**
+         * Selector must be specified when From is set to "Selector". In that case,
+         * only Routes in Namespaces matching this Selector will be selected by this
+         * Gateway. This field is ignored for other values of "From".
+         *
+         * Support: Core
+         */
+        interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {
+                [key: string]: string;
+            };
+        }
+        /**
+         * AllowedRoutes defines the types of routes that MAY be attached to a
+         * Listener and the trusted namespaces where those Route resources MAY be
+         * present.
+         *
+         * Although a client request may match multiple route rules, only one rule
+         * may ultimately receive the request. Matching precedence MUST be
+         * determined in order of the following criteria:
+         *
+         * * The most specific match as defined by the Route type.
+         * * The oldest Route based on creation timestamp. For example, a Route with
+         *   a creation timestamp of "2020-09-08 01:02:03" is given precedence over
+         *   a Route with a creation timestamp of "2020-09-08 01:02:04".
+         * * If everything else is equivalent, the Route appearing first in
+         *   alphabetical order (namespace/name) should be given precedence. For
+         *   example, foo/bar is given precedence over foo/baz.
+         *
+         * All valid rules within a Route attached to this Listener should be
+         * implemented. Invalid Route rules can be ignored (sometimes that will mean
+         * the full Route). If a Route rule transitions from valid to invalid,
+         * support for that Route rule should be dropped to ensure consistency. For
+         * example, even if a filter specified by a Route rule is invalid, the rest
+         * of the rules within that Route should still be supported.
+         */
+        interface ListenerSetSpecListenersAllowedRoutesPatch {
+            /**
+             * Kinds specifies the groups and kinds of Routes that are allowed to bind
+             * to this Gateway Listener. When unspecified or empty, the kinds of Routes
+             * selected are determined using the Listener protocol.
+             *
+             * A RouteGroupKind MUST correspond to kinds of Routes that are compatible
+             * with the application protocol specified in the Listener's Protocol field.
+             * If an implementation does not support or recognize this resource type, it
+             * MUST set the "ResolvedRefs" condition to False for this Listener with the
+             * "InvalidRouteKinds" reason.
+             *
+             * Support: Core
+             */
+            kinds: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKindsPatch[];
+            namespaces: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesPatch;
+        }
+        interface ListenerSetSpecListenersPatch {
+            allowedRoutes: outputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesPatch;
+            /**
+             * Hostname specifies the virtual hostname to match for protocol types that
+             * define this concept. When unspecified, all hostnames are matched. This
+             * field is ignored for protocols that don't require hostname based
+             * matching.
+             *
+             * Implementations MUST apply Hostname matching appropriately for each of
+             * the following protocols:
+             *
+             * * TLS: The Listener Hostname MUST match the SNI.
+             * * HTTP: The Listener Hostname MUST match the Host header of the request.
+             * * HTTPS: The Listener Hostname SHOULD match at both the TLS and HTTP
+             *   protocol layers as described above. If an implementation does not
+             *   ensure that both the SNI and Host header match the Listener hostname,
+             *   it MUST clearly document that.
+             *
+             * For HTTPRoute and TLSRoute resources, there is an interaction with the
+             * `spec.hostnames` array. When both listener and route specify hostnames,
+             * there MUST be an intersection between the values for a Route to be
+             * accepted. For more information, refer to the Route specific Hostnames
+             * documentation.
+             *
+             * Hostnames that are prefixed with a wildcard label (`*.`) are interpreted
+             * as a suffix match. That means that a match for `*.example.com` would match
+             * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
+             */
+            hostname: string;
+            /**
+             * Name is the name of the Listener. This name MUST be unique within a
+             * ListenerSet.
+             *
+             * Name is not required to be unique across a Gateway and ListenerSets.
+             * Routes can attach to a Listener by having a ListenerSet as a parentRef
+             * and setting the SectionName
+             */
+            name: string;
+            /**
+             * Port is the network port. Multiple listeners may use the
+             * same port, subject to the Listener compatibility rules.
+             */
+            port: number;
+            /**
+             * Protocol specifies the network protocol this listener expects to receive.
+             */
+            protocol: string;
+            tls: outputs.gateway.v1.ListenerSetSpecListenersTlsPatch;
+        }
+        /**
+         * TLS is the TLS configuration for the Listener. This field is required if
+         * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
+         * if the Protocol field is "HTTP", "TCP", or "UDP".
+         *
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
+         * defined based on the Hostname field for this listener.
+         *
+         * The GatewayClass MUST use the longest matching SNI out of all
+         * available certificates for any TLS handshake.
+         */
+        interface ListenerSetSpecListenersTls {
+            /**
+             * CertificateRefs contains a series of references to Kubernetes objects that
+             * contains TLS certificates and private keys. These certificates are used to
+             * establish a TLS handshake for requests that match the hostname of the
+             * associated listener.
+             *
+             * A single CertificateRef to a Kubernetes Secret has "Core" support.
+             * Implementations MAY choose to support attaching multiple certificates to
+             * a Listener, but this behavior is implementation-specific.
+             *
+             * References to a resource in different namespace are invalid UNLESS there
+             * is a ReferenceGrant in the target namespace that allows the certificate
+             * to be attached. If a ReferenceGrant does not allow this reference, the
+             * "ResolvedRefs" condition MUST be set to False for this listener with the
+             * "RefNotPermitted" reason.
+             *
+             * This field is required to have at least one element when the mode is set
+             * to "Terminate" (default) and is optional otherwise.
+             *
+             * CertificateRefs can reference to standard Kubernetes resources, i.e.
+             * Secret, or implementation-specific custom resources.
+             *
+             * Support: Core - A single reference to a Kubernetes Secret of type kubernetes.io/tls
+             *
+             * Support: Implementation-specific (More than one reference or other resource types)
+             */
+            certificateRefs: outputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefs[];
+            /**
+             * Mode defines the TLS behavior for the TLS session initiated by the client.
+             * There are two possible modes:
+             *
+             * - Terminate: The TLS session between the downstream client and the
+             *   Gateway is terminated at the Gateway. This mode requires certificates
+             *   to be specified in some way, such as populating the certificateRefs
+             *   field.
+             * - Passthrough: The TLS session is NOT terminated by the Gateway. This
+             *   implies that the Gateway can't decipher the TLS stream except for
+             *   the ClientHello message of the TLS protocol. The certificateRefs field
+             *   is ignored in this mode.
+             *
+             * Support: Core
+             */
+            mode: string;
+            /**
+             * Options are a list of key/value pairs to enable extended TLS
+             * configuration for each implementation. For example, configuring the
+             * minimum TLS version or supported cipher suites.
+             *
+             * A set of common keys MAY be defined by the API in the future. To avoid
+             * any ambiguity, implementation-specific definitions MUST use
+             * domain-prefixed names, such as `example.com/my-custom-option`.
+             * Un-prefixed names are reserved for key names defined by Gateway API.
+             *
+             * Support: Implementation-specific
+             */
+            options: {
+                [key: string]: string;
+            };
+        }
+        /**
+         * SecretObjectReference identifies an API object including its namespace,
+         * defaulting to Secret.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        interface ListenerSetSpecListenersTlsCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+        /**
+         * SecretObjectReference identifies an API object including its namespace,
+         * defaulting to Secret.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        interface ListenerSetSpecListenersTlsCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+        /**
+         * TLS is the TLS configuration for the Listener. This field is required if
+         * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
+         * if the Protocol field is "HTTP", "TCP", or "UDP".
+         *
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
+         * defined based on the Hostname field for this listener.
+         *
+         * The GatewayClass MUST use the longest matching SNI out of all
+         * available certificates for any TLS handshake.
+         */
+        interface ListenerSetSpecListenersTlsPatch {
+            /**
+             * CertificateRefs contains a series of references to Kubernetes objects that
+             * contains TLS certificates and private keys. These certificates are used to
+             * establish a TLS handshake for requests that match the hostname of the
+             * associated listener.
+             *
+             * A single CertificateRef to a Kubernetes Secret has "Core" support.
+             * Implementations MAY choose to support attaching multiple certificates to
+             * a Listener, but this behavior is implementation-specific.
+             *
+             * References to a resource in different namespace are invalid UNLESS there
+             * is a ReferenceGrant in the target namespace that allows the certificate
+             * to be attached. If a ReferenceGrant does not allow this reference, the
+             * "ResolvedRefs" condition MUST be set to False for this listener with the
+             * "RefNotPermitted" reason.
+             *
+             * This field is required to have at least one element when the mode is set
+             * to "Terminate" (default) and is optional otherwise.
+             *
+             * CertificateRefs can reference to standard Kubernetes resources, i.e.
+             * Secret, or implementation-specific custom resources.
+             *
+             * Support: Core - A single reference to a Kubernetes Secret of type kubernetes.io/tls
+             *
+             * Support: Implementation-specific (More than one reference or other resource types)
+             */
+            certificateRefs: outputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefsPatch[];
+            /**
+             * Mode defines the TLS behavior for the TLS session initiated by the client.
+             * There are two possible modes:
+             *
+             * - Terminate: The TLS session between the downstream client and the
+             *   Gateway is terminated at the Gateway. This mode requires certificates
+             *   to be specified in some way, such as populating the certificateRefs
+             *   field.
+             * - Passthrough: The TLS session is NOT terminated by the Gateway. This
+             *   implies that the Gateway can't decipher the TLS stream except for
+             *   the ClientHello message of the TLS protocol. The certificateRefs field
+             *   is ignored in this mode.
+             *
+             * Support: Core
+             */
+            mode: string;
+            /**
+             * Options are a list of key/value pairs to enable extended TLS
+             * configuration for each implementation. For example, configuring the
+             * minimum TLS version or supported cipher suites.
+             *
+             * A set of common keys MAY be defined by the API in the future. To avoid
+             * any ambiguity, implementation-specific definitions MUST use
+             * domain-prefixed names, such as `example.com/my-custom-option`.
+             * Un-prefixed names are reserved for key names defined by Gateway API.
+             *
+             * Support: Implementation-specific
+             */
+            options: {
+                [key: string]: string;
+            };
+        }
+        /**
+         * ParentRef references the Gateway that the listeners are attached to.
+         */
+        interface ListenerSetSpecParentRef {
+            /**
+             * Group is the group of the referent.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Gateway".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent.  If not present,
+             * the namespace of the referent is assumed to be the same as
+             * the namespace of the referring object.
+             */
+            namespace: string;
+        }
+        /**
+         * ParentRef references the Gateway that the listeners are attached to.
+         */
+        interface ListenerSetSpecParentRefPatch {
+            /**
+             * Group is the group of the referent.
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent. For example "Gateway".
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent.  If not present,
+             * the namespace of the referent is assumed to be the same as
+             * the namespace of the referring object.
+             */
+            namespace: string;
+        }
+        /**
+         * Spec defines the desired state of ListenerSet.
+         */
+        interface ListenerSetSpecPatch {
+            /**
+             * Listeners associated with this ListenerSet. Listeners define
+             * logical endpoints that are bound on this referenced parent Gateway's addresses.
+             *
+             * Listeners in a `Gateway` and their attached `ListenerSets` are concatenated
+             * as a list when programming the underlying infrastructure. Each listener
+             * name does not need to be unique across the Gateway and ListenerSets.
+             * See ListenerEntry.Name for more details.
+             *
+             * Implementations MUST treat the parent Gateway as having the merged
+             * list of all listeners from itself and attached ListenerSets using
+             * the following precedence:
+             *
+             * 1. "parent" Gateway
+             * 2. ListenerSet ordered by creation time (oldest first)
+             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
+             *
+             * An implementation MAY reject listeners by setting the ListenerEntryStatus
+             * `Accepted` condition to False with the Reason `TooManyListeners`
+             *
+             * If a listener has a conflict, this will be reported in the
+             * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
+             *
+             * Implementations SHOULD be cautious about what information from the
+             * parent or siblings are reported to avoid accidentally leaking
+             * sensitive information that the child would not otherwise have access
+             * to. This can include contents of secrets etc.
+             */
+            listeners: outputs.gateway.v1.ListenerSetSpecListenersPatch[];
+            parentRef: outputs.gateway.v1.ListenerSetSpecParentRefPatch;
+        }
+        /**
+         * Status defines the current state of ListenerSet.
+         */
+        interface ListenerSetStatus {
+            /**
+             * Conditions describe the current conditions of the ListenerSet.
+             *
+             * Implementations MUST express ListenerSet conditions using the
+             * `ListenerSetConditionType` and `ListenerSetConditionReason`
+             * constants so that operators and tools can converge on a common
+             * vocabulary to describe ListenerSet state.
+             *
+             * Known condition types are:
+             *
+             * * "Accepted"
+             * * "Programmed"
+             */
+            conditions: outputs.gateway.v1.ListenerSetStatusConditions[];
+            /**
+             * Listeners provide status for each unique listener port defined in the Spec.
+             */
+            listeners: outputs.gateway.v1.ListenerSetStatusListeners[];
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface ListenerSetStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface ListenerSetStatusConditionsPatch {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * ListenerStatus is the status associated with a Listener.
+         */
+        interface ListenerSetStatusListeners {
+            /**
+             * AttachedRoutes represents the total number of Routes that have been
+             * successfully attached to this Listener.
+             *
+             * Successful attachment of a Route to a Listener is based solely on the
+             * combination of the AllowedRoutes field on the corresponding Listener
+             * and the Route's ParentRefs field. A Route is successfully attached to
+             * a Listener when it is selected by the Listener's AllowedRoutes field
+             * AND the Route has a valid ParentRef selecting the whole Gateway
+             * resource or a specific Listener as a parent resource (more detail on
+             * attachment semantics can be found in the documentation on the various
+             * Route kinds ParentRefs fields). Listener status does not impact
+             * successful attachment, i.e. the AttachedRoutes field count MUST be set
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
+             *
+             * Uses for this field include troubleshooting Route attachment and
+             * measuring blast radius/impact of changes to a Listener.
+             */
+            attachedRoutes: number;
+            /**
+             * Conditions describe the current condition of this listener.
+             */
+            conditions: outputs.gateway.v1.ListenerSetStatusListenersConditions[];
+            /**
+             * Name is the name of the Listener that this status corresponds to.
+             */
+            name: string;
+            /**
+             * SupportedKinds is the list indicating the Kinds supported by this
+             * listener. This MUST represent the kinds supported by an implementation for
+             * that Listener configuration.
+             *
+             * If kinds are specified in Spec that are not supported, they MUST NOT
+             * appear in this list and an implementation MUST set the "ResolvedRefs"
+             * condition to "False" with the "InvalidRouteKinds" reason. If both valid
+             * and invalid Route kinds are specified, the implementation MUST
+             * reference the valid Route kinds that have been specified.
+             */
+            supportedKinds: outputs.gateway.v1.ListenerSetStatusListenersSupportedKinds[];
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface ListenerSetStatusListenersConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface ListenerSetStatusListenersConditionsPatch {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * ListenerStatus is the status associated with a Listener.
+         */
+        interface ListenerSetStatusListenersPatch {
+            /**
+             * AttachedRoutes represents the total number of Routes that have been
+             * successfully attached to this Listener.
+             *
+             * Successful attachment of a Route to a Listener is based solely on the
+             * combination of the AllowedRoutes field on the corresponding Listener
+             * and the Route's ParentRefs field. A Route is successfully attached to
+             * a Listener when it is selected by the Listener's AllowedRoutes field
+             * AND the Route has a valid ParentRef selecting the whole Gateway
+             * resource or a specific Listener as a parent resource (more detail on
+             * attachment semantics can be found in the documentation on the various
+             * Route kinds ParentRefs fields). Listener status does not impact
+             * successful attachment, i.e. the AttachedRoutes field count MUST be set
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
+             *
+             * Uses for this field include troubleshooting Route attachment and
+             * measuring blast radius/impact of changes to a Listener.
+             */
+            attachedRoutes: number;
+            /**
+             * Conditions describe the current condition of this listener.
+             */
+            conditions: outputs.gateway.v1.ListenerSetStatusListenersConditionsPatch[];
+            /**
+             * Name is the name of the Listener that this status corresponds to.
+             */
+            name: string;
+            /**
+             * SupportedKinds is the list indicating the Kinds supported by this
+             * listener. This MUST represent the kinds supported by an implementation for
+             * that Listener configuration.
+             *
+             * If kinds are specified in Spec that are not supported, they MUST NOT
+             * appear in this list and an implementation MUST set the "ResolvedRefs"
+             * condition to "False" with the "InvalidRouteKinds" reason. If both valid
+             * and invalid Route kinds are specified, the implementation MUST
+             * reference the valid Route kinds that have been specified.
+             */
+            supportedKinds: outputs.gateway.v1.ListenerSetStatusListenersSupportedKindsPatch[];
+        }
+        /**
+         * RouteGroupKind indicates the group and kind of a Route resource.
+         */
+        interface ListenerSetStatusListenersSupportedKinds {
+            /**
+             * Group is the group of the Route.
+             */
+            group: string;
+            /**
+             * Kind is the kind of the Route.
+             */
+            kind: string;
+        }
+        /**
+         * RouteGroupKind indicates the group and kind of a Route resource.
+         */
+        interface ListenerSetStatusListenersSupportedKindsPatch {
+            /**
+             * Group is the group of the Route.
+             */
+            group: string;
+            /**
+             * Kind is the kind of the Route.
+             */
+            kind: string;
+        }
+        /**
+         * Status defines the current state of ListenerSet.
+         */
+        interface ListenerSetStatusPatch {
+            /**
+             * Conditions describe the current conditions of the ListenerSet.
+             *
+             * Implementations MUST express ListenerSet conditions using the
+             * `ListenerSetConditionType` and `ListenerSetConditionReason`
+             * constants so that operators and tools can converge on a common
+             * vocabulary to describe ListenerSet state.
+             *
+             * Known condition types are:
+             *
+             * * "Accepted"
+             * * "Programmed"
+             */
+            conditions: outputs.gateway.v1.ListenerSetStatusConditionsPatch[];
+            /**
+             * Listeners provide status for each unique listener port defined in the Spec.
+             */
+            listeners: outputs.gateway.v1.ListenerSetStatusListenersPatch[];
+        }
+        /**
+         * ReferenceGrant identifies kinds of resources in other namespaces that are
+         * trusted to reference the specified kinds of resources in the same namespace
+         * as the policy.
+         *
+         * Each ReferenceGrant can be used to represent a unique trust relationship.
+         * Additional Reference Grants can be used to add to the set of trusted
+         * sources of inbound references for the namespace they are defined within.
+         *
+         * All cross-namespace references in Gateway API (with the exception of cross-namespace
+         * Gateway-route attachment) require a ReferenceGrant.
+         *
+         * ReferenceGrant is a form of runtime verification allowing users to assert
+         * which cross-namespace object references are permitted. Implementations that
+         * support ReferenceGrant MUST NOT permit cross-namespace references which have
+         * no grant, and MUST respond to the removal of a grant by revoking the access
+         * that the grant allowed.
+         */
+        interface ReferenceGrant {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "gateway.networking.k8s.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "ReferenceGrant";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.gateway.v1.ReferenceGrantSpec;
+        }
+        /**
+         * Spec defines the desired state of ReferenceGrant.
+         */
+        interface ReferenceGrantSpec {
+            /**
+             * From describes the trusted namespaces and kinds that can reference the
+             * resources described in "To". Each entry in this list MUST be considered
+             * to be an additional place that references can be valid from, or to put
+             * this another way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            from: outputs.gateway.v1.ReferenceGrantSpecFrom[];
+            /**
+             * To describes the resources that may be referenced by the resources
+             * described in "From". Each entry in this list MUST be considered to be an
+             * additional place that references can be valid to, or to put this another
+             * way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            to: outputs.gateway.v1.ReferenceGrantSpecTo[];
+        }
+        /**
+         * ReferenceGrantFrom describes trusted namespaces and kinds.
+         */
+        interface ReferenceGrantSpecFrom {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field.
+             *
+             * When used to permit a SecretObjectReference:
+             *
+             * * Gateway
+             *
+             * When used to permit a BackendObjectReference:
+             *
+             * * GRPCRoute
+             * * HTTPRoute
+             * * TCPRoute
+             * * TLSRoute
+             * * UDPRoute
+             */
+            kind: string;
+            /**
+             * Namespace is the namespace of the referent.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+        /**
+         * ReferenceGrantFrom describes trusted namespaces and kinds.
+         */
+        interface ReferenceGrantSpecFromPatch {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field.
+             *
+             * When used to permit a SecretObjectReference:
+             *
+             * * Gateway
+             *
+             * When used to permit a BackendObjectReference:
+             *
+             * * GRPCRoute
+             * * HTTPRoute
+             * * TCPRoute
+             * * TLSRoute
+             * * UDPRoute
+             */
+            kind: string;
+            /**
+             * Namespace is the namespace of the referent.
+             *
+             * Support: Core
+             */
+            namespace: string;
+        }
+        /**
+         * Spec defines the desired state of ReferenceGrant.
+         */
+        interface ReferenceGrantSpecPatch {
+            /**
+             * From describes the trusted namespaces and kinds that can reference the
+             * resources described in "To". Each entry in this list MUST be considered
+             * to be an additional place that references can be valid from, or to put
+             * this another way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            from: outputs.gateway.v1.ReferenceGrantSpecFromPatch[];
+            /**
+             * To describes the resources that may be referenced by the resources
+             * described in "From". Each entry in this list MUST be considered to be an
+             * additional place that references can be valid to, or to put this another
+             * way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            to: outputs.gateway.v1.ReferenceGrantSpecToPatch[];
+        }
+        /**
+         * ReferenceGrantTo describes what Kinds are allowed as targets of the
+         * references.
+         */
+        interface ReferenceGrantSpecTo {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field:
+             *
+             * * Secret when used to permit a SecretObjectReference
+             * * Service when used to permit a BackendObjectReference
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent. When unspecified, this policy
+             * refers to all resources of the specified Group and Kind in the local
+             * namespace.
+             */
+            name: string;
+        }
+        /**
+         * ReferenceGrantTo describes what Kinds are allowed as targets of the
+         * references.
+         */
+        interface ReferenceGrantSpecToPatch {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field:
+             *
+             * * Secret when used to permit a SecretObjectReference
+             * * Service when used to permit a BackendObjectReference
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent. When unspecified, this policy
+             * refers to all resources of the specified Group and Kind in the local
+             * namespace.
+             */
+            name: string;
+        }
+        /**
+         * The TLSRoute resource is similar to TCPRoute, but can be configured
+         * to match against TLS-specific metadata. This allows more flexibility
+         * in matching streams for a given TLS listener.
+         *
+         * If you need to forward traffic to a single target for a TLS listener, you
+         * could choose to use a TCPRoute with a TLS listener.
+         */
+        interface TLSRoute {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "gateway.networking.k8s.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "TLSRoute";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.gateway.v1.TLSRouteSpec;
+            status: outputs.gateway.v1.TLSRouteStatus;
+        }
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        interface TLSRouteSpec {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames: string[];
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             */
+            parentRefs: outputs.gateway.v1.TLSRouteSpecParentRefs[];
+            /**
+             * Rules are a list of actions.
+             */
+            rules: outputs.gateway.v1.TLSRouteSpecRules[];
+            /**
+             * UseDefaultGateways indicates the default Gateway scope to use for this
+             * Route. If unset (the default) or set to None, the Route will not be
+             * attached to any default Gateway; if set, it will be attached to any
+             * default Gateway supporting the named scope, subject to the usual rules
+             * about which Routes a Gateway is allowed to claim.
+             *
+             * Think carefully before using this functionality! The set of default
+             * Gateways supporting the requested scope can change over time without
+             * any notice to the Route author, and in many situations it will not be
+             * appropriate to request a default Gateway for a given Route -- for
+             * example, a Route with specific security requirements should almost
+             * certainly not use a default Gateway.
+             */
+            useDefaultGateways: string;
+        }
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        interface TLSRouteSpecParentRefs {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             *
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             *
+             * When the parent resource is a Service, this targets a specific port in the
+             * Service spec. When both Port (experimental) and SectionName are specified,
+             * the name and port of the selected port must match both specified values.
+             *
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port: number;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName: string;
+        }
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        interface TLSRouteSpecParentRefsPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             *
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             *
+             * When the parent resource is a Service, this targets a specific port in the
+             * Service spec. When both Port (experimental) and SectionName are specified,
+             * the name and port of the selected port must match both specified values.
+             *
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port: number;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName: string;
+        }
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        interface TLSRouteSpecPatch {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames: string[];
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             */
+            parentRefs: outputs.gateway.v1.TLSRouteSpecParentRefsPatch[];
+            /**
+             * Rules are a list of actions.
+             */
+            rules: outputs.gateway.v1.TLSRouteSpecRulesPatch[];
+            /**
+             * UseDefaultGateways indicates the default Gateway scope to use for this
+             * Route. If unset (the default) or set to None, the Route will not be
+             * attached to any default Gateway; if set, it will be attached to any
+             * default Gateway supporting the named scope, subject to the usual rules
+             * about which Routes a Gateway is allowed to claim.
+             *
+             * Think carefully before using this functionality! The set of default
+             * Gateways supporting the requested scope can change over time without
+             * any notice to the Route author, and in many situations it will not be
+             * appropriate to request a default Gateway for a given Route -- for
+             * example, a Route with specific security requirements should almost
+             * certainly not use a default Gateway.
+             */
+            useDefaultGateways: string;
+        }
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        interface TLSRouteSpecRules {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * Support: Core for Kubernetes Service
+             *
+             * Support: Extended for Kubernetes ServiceImport
+             *
+             * Support: Implementation-specific for any other resource
+             *
+             * Support for weight: Extended
+             */
+            backendRefs: outputs.gateway.v1.TLSRouteSpecRulesBackendRefs[];
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name: string;
+        }
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         *
+         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
+         * honor the appProtocol field if it is set for the target Service Port.
+         *
+         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
+         * Standard Application Protocols defined in KEP-3726.
+         *
+         * If a Service appProtocol isn't specified, an implementation MAY infer the
+         * backend protocol through its own means. Implementations MAY infer the
+         * protocol from the Route type referring to the backend Service.
+         *
+         * If a Route is not able to send traffic to the backend using the specified
+         * protocol then the backend is considered invalid. Implementations MUST set the
+         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
+         *
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        interface TLSRouteSpecRulesBackendRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port: number;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight: number;
+        }
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         *
+         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
+         * honor the appProtocol field if it is set for the target Service Port.
+         *
+         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
+         * Standard Application Protocols defined in KEP-3726.
+         *
+         * If a Service appProtocol isn't specified, an implementation MAY infer the
+         * backend protocol through its own means. Implementations MAY infer the
+         * protocol from the Route type referring to the backend Service.
+         *
+         * If a Route is not able to send traffic to the backend using the specified
+         * protocol then the backend is considered invalid. Implementations MUST set the
+         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
+         *
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        interface TLSRouteSpecRulesBackendRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group: string;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port: number;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight: number;
+        }
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        interface TLSRouteSpecRulesPatch {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * Support: Core for Kubernetes Service
+             *
+             * Support: Extended for Kubernetes ServiceImport
+             *
+             * Support: Implementation-specific for any other resource
+             *
+             * Support for weight: Extended
+             */
+            backendRefs: outputs.gateway.v1.TLSRouteSpecRulesBackendRefsPatch[];
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name: string;
+        }
+        /**
+         * Status defines the current state of TLSRoute.
+         */
+        interface TLSRouteStatus {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents: outputs.gateway.v1.TLSRouteStatusParents[];
+        }
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        interface TLSRouteStatusParents {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions: outputs.gateway.v1.TLSRouteStatusParentsConditions[];
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName: string;
+            parentRef: outputs.gateway.v1.TLSRouteStatusParentsParentRef;
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface TLSRouteStatusParentsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        interface TLSRouteStatusParentsConditionsPatch {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        interface TLSRouteStatusParentsParentRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             *
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             *
+             * When the parent resource is a Service, this targets a specific port in the
+             * Service spec. When both Port (experimental) and SectionName are specified,
+             * the name and port of the selected port must match both specified values.
+             *
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port: number;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName: string;
+        }
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        interface TLSRouteStatusParentsParentRefPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group: string;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind: string;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name: string;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             *
+             * ParentRefs from a Route to a Service in the same namespace are "producer"
+             * routes, which apply default routing rules to inbound connections from
+             * any namespace to the Service.
+             *
+             * ParentRefs from a Route to a Service in a different namespace are
+             * "consumer" routes, and these routing rules are only applied to outbound
+             * connections originating from the same namespace as the Route, for which
+             * the intended destination of the connections are a Service targeted as a
+             * ParentRef of the Route.
+             *
+             *
+             * Support: Core
+             */
+            namespace: string;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             *
+             * When the parent resource is a Service, this targets a specific port in the
+             * Service spec. When both Port (experimental) and SectionName are specified,
+             * the name and port of the selected port must match both specified values.
+             *
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port: number;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName: string;
+        }
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        interface TLSRouteStatusParentsPatch {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions: outputs.gateway.v1.TLSRouteStatusParentsConditionsPatch[];
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName: string;
+            parentRef: outputs.gateway.v1.TLSRouteStatusParentsParentRefPatch;
+        }
+        /**
+         * Status defines the current state of TLSRoute.
+         */
+        interface TLSRouteStatusPatch {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents: outputs.gateway.v1.TLSRouteStatusParentsPatch[];
+        }
     }
     namespace v1alpha1 {
         /**
@@ -13041,7 +15816,7 @@ export declare namespace gateway {
              * ServiceImport, or any implementation-specific backendRef) are the only
              * valid API target references.
              *
-             * Currently, a TargetRef can not be scoped to a specific port on a
+             * Currently, a TargetRef cannot be scoped to a specific port on a
              * Service.
              */
             targetRefs: outputs.gateway.v1alpha1.XBackendTrafficPolicySpecTargetRefs[];
@@ -13058,7 +15833,7 @@ export declare namespace gateway {
              * ServiceImport, or any implementation-specific backendRef) are the only
              * valid API target references.
              *
-             * Currently, a TargetRef can not be scoped to a specific port on a
+             * Currently, a TargetRef cannot be scoped to a specific port on a
              * Service.
              */
             targetRefs: outputs.gateway.v1alpha1.XBackendTrafficPolicySpecTargetRefsPatch[];
@@ -13264,7 +16039,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -13368,7 +16143,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -13910,1047 +16685,6 @@ export declare namespace gateway {
              * the BackendTLSPolicy.
              */
             ancestors: outputs.gateway.v1alpha1.XBackendTrafficPolicyStatusAncestorsPatch[];
-        }
-        /**
-         * XListenerSet defines a set of additional listeners to attach to an existing Gateway.
-         * This resource provides a mechanism to merge multiple listeners into a single Gateway.
-         *
-         * The parent Gateway must explicitly allow ListenerSet attachment through its
-         * AllowedListeners configuration. By default, Gateways do not allow ListenerSet
-         * attachment.
-         *
-         * Routes can attach to a ListenerSet by specifying it as a parentRef, and can
-         * optionally target specific listeners using the sectionName field.
-         *
-         * Policy Attachment:
-         * - Policies that attach to a ListenerSet apply to all listeners defined in that resource
-         * - Policies do not impact listeners in the parent Gateway
-         * - Different ListenerSets attached to the same Gateway can have different policies
-         * - If an implementation cannot apply a policy to specific listeners, it should reject the policy
-         *
-         * ReferenceGrant Semantics:
-         * - ReferenceGrants applied to a Gateway are not inherited by child ListenerSets
-         * - ReferenceGrants applied to a ListenerSet do not grant permission to the parent Gateway's listeners
-         * - A ListenerSet can reference secrets/backends in its own namespace without a ReferenceGrant
-         *
-         * Gateway Integration:
-         * - The parent Gateway's status will include an "AttachedListenerSets" condition
-         * - This condition will be:
-         *   - True: when AllowedListeners is set and at least one child ListenerSet is attached
-         *   - False: when AllowedListeners is set but no valid listeners are attached, or when AllowedListeners is not set or false
-         *   - Unknown: when no AllowedListeners config is present
-         */
-        interface XListenerSet {
-            /**
-             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-             */
-            apiVersion: "gateway.networking.x-k8s.io/v1alpha1";
-            /**
-             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-             */
-            kind: "XListenerSet";
-            /**
-             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-             */
-            metadata: outputs.meta.v1.ObjectMeta;
-            spec: outputs.gateway.v1alpha1.XListenerSetSpec;
-            status: outputs.gateway.v1alpha1.XListenerSetStatus;
-        }
-        /**
-         * Spec defines the desired state of ListenerSet.
-         */
-        interface XListenerSetSpec {
-            /**
-             * Listeners associated with this ListenerSet. Listeners define
-             * logical endpoints that are bound on this referenced parent Gateway's addresses.
-             *
-             * Listeners in a `Gateway` and their attached `ListenerSets` are concatenated
-             * as a list when programming the underlying infrastructure. Each listener
-             * name does not need to be unique across the Gateway and ListenerSets.
-             * See ListenerEntry.Name for more details.
-             *
-             * Implementations MUST treat the parent Gateway as having the merged
-             * list of all listeners from itself and attached ListenerSets using
-             * the following precedence:
-             *
-             * 1. "parent" Gateway
-             * 2. ListenerSet ordered by creation time (oldest first)
-             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
-             *
-             * An implementation MAY reject listeners by setting the ListenerEntryStatus
-             * `Accepted` condition to False with the Reason `TooManyListeners`
-             *
-             * If a listener has a conflict, this will be reported in the
-             * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
-             *
-             * Implementations SHOULD be cautious about what information from the
-             * parent or siblings are reported to avoid accidentally leaking
-             * sensitive information that the child would not otherwise have access
-             * to. This can include contents of secrets etc.
-             */
-            listeners: outputs.gateway.v1alpha1.XListenerSetSpecListeners[];
-            parentRef: outputs.gateway.v1alpha1.XListenerSetSpecParentRef;
-        }
-        interface XListenerSetSpecListeners {
-            allowedRoutes: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutes;
-            /**
-             * Hostname specifies the virtual hostname to match for protocol types that
-             * define this concept. When unspecified, all hostnames are matched. This
-             * field is ignored for protocols that don't require hostname based
-             * matching.
-             *
-             * Implementations MUST apply Hostname matching appropriately for each of
-             * the following protocols:
-             *
-             * * TLS: The Listener Hostname MUST match the SNI.
-             * * HTTP: The Listener Hostname MUST match the Host header of the request.
-             * * HTTPS: The Listener Hostname SHOULD match at both the TLS and HTTP
-             *   protocol layers as described above. If an implementation does not
-             *   ensure that both the SNI and Host header match the Listener hostname,
-             *   it MUST clearly document that.
-             *
-             * For HTTPRoute and TLSRoute resources, there is an interaction with the
-             * `spec.hostnames` array. When both listener and route specify hostnames,
-             * there MUST be an intersection between the values for a Route to be
-             * accepted. For more information, refer to the Route specific Hostnames
-             * documentation.
-             *
-             * Hostnames that are prefixed with a wildcard label (`*.`) are interpreted
-             * as a suffix match. That means that a match for `*.example.com` would match
-             * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
-             */
-            hostname: string;
-            /**
-             * Name is the name of the Listener. This name MUST be unique within a
-             * ListenerSet.
-             *
-             * Name is not required to be unique across a Gateway and ListenerSets.
-             * Routes can attach to a Listener by having a ListenerSet as a parentRef
-             * and setting the SectionName
-             */
-            name: string;
-            /**
-             * Port is the network port. Multiple listeners may use the
-             * same port, subject to the Listener compatibility rules.
-             *
-             * If the port is not set or specified as zero, the implementation will assign
-             * a unique port. If the implementation does not support dynamic port
-             * assignment, it MUST set `Accepted` condition to `False` with the
-             * `UnsupportedPort` reason.
-             */
-            port: number;
-            /**
-             * Protocol specifies the network protocol this listener expects to receive.
-             */
-            protocol: string;
-            tls: outputs.gateway.v1alpha1.XListenerSetSpecListenersTls;
-        }
-        /**
-         * AllowedRoutes defines the types of routes that MAY be attached to a
-         * Listener and the trusted namespaces where those Route resources MAY be
-         * present.
-         *
-         * Although a client request may match multiple route rules, only one rule
-         * may ultimately receive the request. Matching precedence MUST be
-         * determined in order of the following criteria:
-         *
-         * * The most specific match as defined by the Route type.
-         * * The oldest Route based on creation timestamp. For example, a Route with
-         *   a creation timestamp of "2020-09-08 01:02:03" is given precedence over
-         *   a Route with a creation timestamp of "2020-09-08 01:02:04".
-         * * If everything else is equivalent, the Route appearing first in
-         *   alphabetical order (namespace/name) should be given precedence. For
-         *   example, foo/bar is given precedence over foo/baz.
-         *
-         * All valid rules within a Route attached to this Listener should be
-         * implemented. Invalid Route rules can be ignored (sometimes that will mean
-         * the full Route). If a Route rule transitions from valid to invalid,
-         * support for that Route rule should be dropped to ensure consistency. For
-         * example, even if a filter specified by a Route rule is invalid, the rest
-         * of the rules within that Route should still be supported.
-         */
-        interface XListenerSetSpecListenersAllowedRoutes {
-            /**
-             * Kinds specifies the groups and kinds of Routes that are allowed to bind
-             * to this Gateway Listener. When unspecified or empty, the kinds of Routes
-             * selected are determined using the Listener protocol.
-             *
-             * A RouteGroupKind MUST correspond to kinds of Routes that are compatible
-             * with the application protocol specified in the Listener's Protocol field.
-             * If an implementation does not support or recognize this resource type, it
-             * MUST set the "ResolvedRefs" condition to False for this Listener with the
-             * "InvalidRouteKinds" reason.
-             *
-             * Support: Core
-             */
-            kinds: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesKinds[];
-            namespaces: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespaces;
-        }
-        /**
-         * RouteGroupKind indicates the group and kind of a Route resource.
-         */
-        interface XListenerSetSpecListenersAllowedRoutesKinds {
-            /**
-             * Group is the group of the Route.
-             */
-            group: string;
-            /**
-             * Kind is the kind of the Route.
-             */
-            kind: string;
-        }
-        /**
-         * RouteGroupKind indicates the group and kind of a Route resource.
-         */
-        interface XListenerSetSpecListenersAllowedRoutesKindsPatch {
-            /**
-             * Group is the group of the Route.
-             */
-            group: string;
-            /**
-             * Kind is the kind of the Route.
-             */
-            kind: string;
-        }
-        /**
-         * Namespaces indicates namespaces from which Routes may be attached to this
-         * Listener. This is restricted to the namespace of this Gateway by default.
-         *
-         * Support: Core
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespaces {
-            /**
-             * From indicates where Routes will be selected for this Gateway. Possible
-             * values are:
-             *
-             * * All: Routes in all namespaces may be used by this Gateway.
-             * * Selector: Routes in namespaces selected by the selector may be used by
-             *   this Gateway.
-             * * Same: Only Routes in the same namespace may be used by this Gateway.
-             *
-             * Support: Core
-             */
-            from: string;
-            selector: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelector;
-        }
-        /**
-         * Namespaces indicates namespaces from which Routes may be attached to this
-         * Listener. This is restricted to the namespace of this Gateway by default.
-         *
-         * Support: Core
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespacesPatch {
-            /**
-             * From indicates where Routes will be selected for this Gateway. Possible
-             * values are:
-             *
-             * * All: Routes in all namespaces may be used by this Gateway.
-             * * Selector: Routes in namespaces selected by the selector may be used by
-             *   this Gateway.
-             * * Same: Only Routes in the same namespace may be used by this Gateway.
-             *
-             * Support: Core
-             */
-            from: string;
-            selector: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch;
-        }
-        /**
-         * Selector must be specified when From is set to "Selector". In that case,
-         * only Routes in Namespaces matching this Selector will be selected by this
-         * Gateway. This field is ignored for other values of "From".
-         *
-         * Support: Core
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespacesSelector {
-            /**
-             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
-             */
-            matchExpressions: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions[];
-            /**
-             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-             * map is equivalent to an element of matchExpressions, whose key field is "key", the
-             * operator is "In", and the values array contains only "value". The requirements are ANDed.
-             */
-            matchLabels: {
-                [key: string]: string;
-            };
-        }
-        /**
-         * A label selector requirement is a selector that contains values, a key, and an operator that
-         * relates the key and values.
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions {
-            /**
-             * key is the label key that the selector applies to.
-             */
-            key: string;
-            /**
-             * operator represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists and DoesNotExist.
-             */
-            operator: string;
-            /**
-             * values is an array of string values. If the operator is In or NotIn,
-             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. This array is replaced during a strategic
-             * merge patch.
-             */
-            values: string[];
-        }
-        /**
-         * A label selector requirement is a selector that contains values, a key, and an operator that
-         * relates the key and values.
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch {
-            /**
-             * key is the label key that the selector applies to.
-             */
-            key: string;
-            /**
-             * operator represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists and DoesNotExist.
-             */
-            operator: string;
-            /**
-             * values is an array of string values. If the operator is In or NotIn,
-             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. This array is replaced during a strategic
-             * merge patch.
-             */
-            values: string[];
-        }
-        /**
-         * Selector must be specified when From is set to "Selector". In that case,
-         * only Routes in Namespaces matching this Selector will be selected by this
-         * Gateway. This field is ignored for other values of "From".
-         *
-         * Support: Core
-         */
-        interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch {
-            /**
-             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
-             */
-            matchExpressions: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch[];
-            /**
-             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-             * map is equivalent to an element of matchExpressions, whose key field is "key", the
-             * operator is "In", and the values array contains only "value". The requirements are ANDed.
-             */
-            matchLabels: {
-                [key: string]: string;
-            };
-        }
-        /**
-         * AllowedRoutes defines the types of routes that MAY be attached to a
-         * Listener and the trusted namespaces where those Route resources MAY be
-         * present.
-         *
-         * Although a client request may match multiple route rules, only one rule
-         * may ultimately receive the request. Matching precedence MUST be
-         * determined in order of the following criteria:
-         *
-         * * The most specific match as defined by the Route type.
-         * * The oldest Route based on creation timestamp. For example, a Route with
-         *   a creation timestamp of "2020-09-08 01:02:03" is given precedence over
-         *   a Route with a creation timestamp of "2020-09-08 01:02:04".
-         * * If everything else is equivalent, the Route appearing first in
-         *   alphabetical order (namespace/name) should be given precedence. For
-         *   example, foo/bar is given precedence over foo/baz.
-         *
-         * All valid rules within a Route attached to this Listener should be
-         * implemented. Invalid Route rules can be ignored (sometimes that will mean
-         * the full Route). If a Route rule transitions from valid to invalid,
-         * support for that Route rule should be dropped to ensure consistency. For
-         * example, even if a filter specified by a Route rule is invalid, the rest
-         * of the rules within that Route should still be supported.
-         */
-        interface XListenerSetSpecListenersAllowedRoutesPatch {
-            /**
-             * Kinds specifies the groups and kinds of Routes that are allowed to bind
-             * to this Gateway Listener. When unspecified or empty, the kinds of Routes
-             * selected are determined using the Listener protocol.
-             *
-             * A RouteGroupKind MUST correspond to kinds of Routes that are compatible
-             * with the application protocol specified in the Listener's Protocol field.
-             * If an implementation does not support or recognize this resource type, it
-             * MUST set the "ResolvedRefs" condition to False for this Listener with the
-             * "InvalidRouteKinds" reason.
-             *
-             * Support: Core
-             */
-            kinds: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesKindsPatch[];
-            namespaces: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesPatch;
-        }
-        interface XListenerSetSpecListenersPatch {
-            allowedRoutes: outputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesPatch;
-            /**
-             * Hostname specifies the virtual hostname to match for protocol types that
-             * define this concept. When unspecified, all hostnames are matched. This
-             * field is ignored for protocols that don't require hostname based
-             * matching.
-             *
-             * Implementations MUST apply Hostname matching appropriately for each of
-             * the following protocols:
-             *
-             * * TLS: The Listener Hostname MUST match the SNI.
-             * * HTTP: The Listener Hostname MUST match the Host header of the request.
-             * * HTTPS: The Listener Hostname SHOULD match at both the TLS and HTTP
-             *   protocol layers as described above. If an implementation does not
-             *   ensure that both the SNI and Host header match the Listener hostname,
-             *   it MUST clearly document that.
-             *
-             * For HTTPRoute and TLSRoute resources, there is an interaction with the
-             * `spec.hostnames` array. When both listener and route specify hostnames,
-             * there MUST be an intersection between the values for a Route to be
-             * accepted. For more information, refer to the Route specific Hostnames
-             * documentation.
-             *
-             * Hostnames that are prefixed with a wildcard label (`*.`) are interpreted
-             * as a suffix match. That means that a match for `*.example.com` would match
-             * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
-             */
-            hostname: string;
-            /**
-             * Name is the name of the Listener. This name MUST be unique within a
-             * ListenerSet.
-             *
-             * Name is not required to be unique across a Gateway and ListenerSets.
-             * Routes can attach to a Listener by having a ListenerSet as a parentRef
-             * and setting the SectionName
-             */
-            name: string;
-            /**
-             * Port is the network port. Multiple listeners may use the
-             * same port, subject to the Listener compatibility rules.
-             *
-             * If the port is not set or specified as zero, the implementation will assign
-             * a unique port. If the implementation does not support dynamic port
-             * assignment, it MUST set `Accepted` condition to `False` with the
-             * `UnsupportedPort` reason.
-             */
-            port: number;
-            /**
-             * Protocol specifies the network protocol this listener expects to receive.
-             */
-            protocol: string;
-            tls: outputs.gateway.v1alpha1.XListenerSetSpecListenersTlsPatch;
-        }
-        /**
-         * TLS is the TLS configuration for the Listener. This field is required if
-         * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
-         * if the Protocol field is "HTTP", "TCP", or "UDP".
-         *
-         * The association of SNIs to Certificate defined in ListenerTLSConfig is
-         * defined based on the Hostname field for this listener.
-         *
-         * The GatewayClass MUST use the longest matching SNI out of all
-         * available certificates for any TLS handshake.
-         */
-        interface XListenerSetSpecListenersTls {
-            /**
-             * CertificateRefs contains a series of references to Kubernetes objects that
-             * contains TLS certificates and private keys. These certificates are used to
-             * establish a TLS handshake for requests that match the hostname of the
-             * associated listener.
-             *
-             * A single CertificateRef to a Kubernetes Secret has "Core" support.
-             * Implementations MAY choose to support attaching multiple certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * References to a resource in different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             *
-             * This field is required to have at least one element when the mode is set
-             * to "Terminate" (default) and is optional otherwise.
-             *
-             * CertificateRefs can reference to standard Kubernetes resources, i.e.
-             * Secret, or implementation-specific custom resources.
-             *
-             * Support: Core - A single reference to a Kubernetes Secret of type kubernetes.io/tls
-             *
-             * Support: Implementation-specific (More than one reference or other resource types)
-             */
-            certificateRefs: outputs.gateway.v1alpha1.XListenerSetSpecListenersTlsCertificateRefs[];
-            /**
-             * Mode defines the TLS behavior for the TLS session initiated by the client.
-             * There are two possible modes:
-             *
-             * - Terminate: The TLS session between the downstream client and the
-             *   Gateway is terminated at the Gateway. This mode requires certificates
-             *   to be specified in some way, such as populating the certificateRefs
-             *   field.
-             * - Passthrough: The TLS session is NOT terminated by the Gateway. This
-             *   implies that the Gateway can't decipher the TLS stream except for
-             *   the ClientHello message of the TLS protocol. The certificateRefs field
-             *   is ignored in this mode.
-             *
-             * Support: Core
-             */
-            mode: string;
-            /**
-             * Options are a list of key/value pairs to enable extended TLS
-             * configuration for each implementation. For example, configuring the
-             * minimum TLS version or supported cipher suites.
-             *
-             * A set of common keys MAY be defined by the API in the future. To avoid
-             * any ambiguity, implementation-specific definitions MUST use
-             * domain-prefixed names, such as `example.com/my-custom-option`.
-             * Un-prefixed names are reserved for key names defined by Gateway API.
-             *
-             * Support: Implementation-specific
-             */
-            options: {
-                [key: string]: string;
-            };
-        }
-        /**
-         * SecretObjectReference identifies an API object including its namespace,
-         * defaulting to Secret.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        interface XListenerSetSpecListenersTlsCertificateRefs {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group: string;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind: string;
-            /**
-             * Name is the name of the referent.
-             */
-            name: string;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace: string;
-        }
-        /**
-         * SecretObjectReference identifies an API object including its namespace,
-         * defaulting to Secret.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        interface XListenerSetSpecListenersTlsCertificateRefsPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group: string;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind: string;
-            /**
-             * Name is the name of the referent.
-             */
-            name: string;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace: string;
-        }
-        /**
-         * TLS is the TLS configuration for the Listener. This field is required if
-         * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
-         * if the Protocol field is "HTTP", "TCP", or "UDP".
-         *
-         * The association of SNIs to Certificate defined in ListenerTLSConfig is
-         * defined based on the Hostname field for this listener.
-         *
-         * The GatewayClass MUST use the longest matching SNI out of all
-         * available certificates for any TLS handshake.
-         */
-        interface XListenerSetSpecListenersTlsPatch {
-            /**
-             * CertificateRefs contains a series of references to Kubernetes objects that
-             * contains TLS certificates and private keys. These certificates are used to
-             * establish a TLS handshake for requests that match the hostname of the
-             * associated listener.
-             *
-             * A single CertificateRef to a Kubernetes Secret has "Core" support.
-             * Implementations MAY choose to support attaching multiple certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * References to a resource in different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             *
-             * This field is required to have at least one element when the mode is set
-             * to "Terminate" (default) and is optional otherwise.
-             *
-             * CertificateRefs can reference to standard Kubernetes resources, i.e.
-             * Secret, or implementation-specific custom resources.
-             *
-             * Support: Core - A single reference to a Kubernetes Secret of type kubernetes.io/tls
-             *
-             * Support: Implementation-specific (More than one reference or other resource types)
-             */
-            certificateRefs: outputs.gateway.v1alpha1.XListenerSetSpecListenersTlsCertificateRefsPatch[];
-            /**
-             * Mode defines the TLS behavior for the TLS session initiated by the client.
-             * There are two possible modes:
-             *
-             * - Terminate: The TLS session between the downstream client and the
-             *   Gateway is terminated at the Gateway. This mode requires certificates
-             *   to be specified in some way, such as populating the certificateRefs
-             *   field.
-             * - Passthrough: The TLS session is NOT terminated by the Gateway. This
-             *   implies that the Gateway can't decipher the TLS stream except for
-             *   the ClientHello message of the TLS protocol. The certificateRefs field
-             *   is ignored in this mode.
-             *
-             * Support: Core
-             */
-            mode: string;
-            /**
-             * Options are a list of key/value pairs to enable extended TLS
-             * configuration for each implementation. For example, configuring the
-             * minimum TLS version or supported cipher suites.
-             *
-             * A set of common keys MAY be defined by the API in the future. To avoid
-             * any ambiguity, implementation-specific definitions MUST use
-             * domain-prefixed names, such as `example.com/my-custom-option`.
-             * Un-prefixed names are reserved for key names defined by Gateway API.
-             *
-             * Support: Implementation-specific
-             */
-            options: {
-                [key: string]: string;
-            };
-        }
-        /**
-         * ParentRef references the Gateway that the listeners are attached to.
-         */
-        interface XListenerSetSpecParentRef {
-            /**
-             * Group is the group of the referent.
-             */
-            group: string;
-            /**
-             * Kind is kind of the referent. For example "Gateway".
-             */
-            kind: string;
-            /**
-             * Name is the name of the referent.
-             */
-            name: string;
-            /**
-             * Namespace is the namespace of the referent.  If not present,
-             * the namespace of the referent is assumed to be the same as
-             * the namespace of the referring object.
-             */
-            namespace: string;
-        }
-        /**
-         * ParentRef references the Gateway that the listeners are attached to.
-         */
-        interface XListenerSetSpecParentRefPatch {
-            /**
-             * Group is the group of the referent.
-             */
-            group: string;
-            /**
-             * Kind is kind of the referent. For example "Gateway".
-             */
-            kind: string;
-            /**
-             * Name is the name of the referent.
-             */
-            name: string;
-            /**
-             * Namespace is the namespace of the referent.  If not present,
-             * the namespace of the referent is assumed to be the same as
-             * the namespace of the referring object.
-             */
-            namespace: string;
-        }
-        /**
-         * Spec defines the desired state of ListenerSet.
-         */
-        interface XListenerSetSpecPatch {
-            /**
-             * Listeners associated with this ListenerSet. Listeners define
-             * logical endpoints that are bound on this referenced parent Gateway's addresses.
-             *
-             * Listeners in a `Gateway` and their attached `ListenerSets` are concatenated
-             * as a list when programming the underlying infrastructure. Each listener
-             * name does not need to be unique across the Gateway and ListenerSets.
-             * See ListenerEntry.Name for more details.
-             *
-             * Implementations MUST treat the parent Gateway as having the merged
-             * list of all listeners from itself and attached ListenerSets using
-             * the following precedence:
-             *
-             * 1. "parent" Gateway
-             * 2. ListenerSet ordered by creation time (oldest first)
-             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
-             *
-             * An implementation MAY reject listeners by setting the ListenerEntryStatus
-             * `Accepted` condition to False with the Reason `TooManyListeners`
-             *
-             * If a listener has a conflict, this will be reported in the
-             * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
-             *
-             * Implementations SHOULD be cautious about what information from the
-             * parent or siblings are reported to avoid accidentally leaking
-             * sensitive information that the child would not otherwise have access
-             * to. This can include contents of secrets etc.
-             */
-            listeners: outputs.gateway.v1alpha1.XListenerSetSpecListenersPatch[];
-            parentRef: outputs.gateway.v1alpha1.XListenerSetSpecParentRefPatch;
-        }
-        /**
-         * Status defines the current state of ListenerSet.
-         */
-        interface XListenerSetStatus {
-            /**
-             * Conditions describe the current conditions of the ListenerSet.
-             *
-             * Implementations MUST express ListenerSet conditions using the
-             * `ListenerSetConditionType` and `ListenerSetConditionReason`
-             * constants so that operators and tools can converge on a common
-             * vocabulary to describe ListenerSet state.
-             *
-             * Known condition types are:
-             *
-             * * "Accepted"
-             * * "Programmed"
-             */
-            conditions: outputs.gateway.v1alpha1.XListenerSetStatusConditions[];
-            /**
-             * Listeners provide status for each unique listener port defined in the Spec.
-             */
-            listeners: outputs.gateway.v1alpha1.XListenerSetStatusListeners[];
-        }
-        /**
-         * Condition contains details for one aspect of the current state of this API Resource.
-         */
-        interface XListenerSetStatusConditions {
-            /**
-             * lastTransitionTime is the last time the condition transitioned from one status to another.
-             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-             */
-            lastTransitionTime: string;
-            /**
-             * message is a human readable message indicating details about the transition.
-             * This may be an empty string.
-             */
-            message: string;
-            /**
-             * observedGeneration represents the .metadata.generation that the condition was set based upon.
-             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-             * with respect to the current state of the instance.
-             */
-            observedGeneration: number;
-            /**
-             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-             * Producers of specific condition types may define expected values and meanings for this field,
-             * and whether the values are considered a guaranteed API.
-             * The value should be a CamelCase string.
-             * This field may not be empty.
-             */
-            reason: string;
-            /**
-             * status of the condition, one of True, False, Unknown.
-             */
-            status: string;
-            /**
-             * type of condition in CamelCase or in foo.example.com/CamelCase.
-             */
-            type: string;
-        }
-        /**
-         * Condition contains details for one aspect of the current state of this API Resource.
-         */
-        interface XListenerSetStatusConditionsPatch {
-            /**
-             * lastTransitionTime is the last time the condition transitioned from one status to another.
-             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-             */
-            lastTransitionTime: string;
-            /**
-             * message is a human readable message indicating details about the transition.
-             * This may be an empty string.
-             */
-            message: string;
-            /**
-             * observedGeneration represents the .metadata.generation that the condition was set based upon.
-             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-             * with respect to the current state of the instance.
-             */
-            observedGeneration: number;
-            /**
-             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-             * Producers of specific condition types may define expected values and meanings for this field,
-             * and whether the values are considered a guaranteed API.
-             * The value should be a CamelCase string.
-             * This field may not be empty.
-             */
-            reason: string;
-            /**
-             * status of the condition, one of True, False, Unknown.
-             */
-            status: string;
-            /**
-             * type of condition in CamelCase or in foo.example.com/CamelCase.
-             */
-            type: string;
-        }
-        /**
-         * ListenerStatus is the status associated with a Listener.
-         */
-        interface XListenerSetStatusListeners {
-            /**
-             * AttachedRoutes represents the total number of Routes that have been
-             * successfully attached to this Listener.
-             *
-             * Successful attachment of a Route to a Listener is based solely on the
-             * combination of the AllowedRoutes field on the corresponding Listener
-             * and the Route's ParentRefs field. A Route is successfully attached to
-             * a Listener when it is selected by the Listener's AllowedRoutes field
-             * AND the Route has a valid ParentRef selecting the whole Gateway
-             * resource or a specific Listener as a parent resource (more detail on
-             * attachment semantics can be found in the documentation on the various
-             * Route kinds ParentRefs fields). Listener or Route status does not impact
-             * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
-             *
-             * Uses for this field include troubleshooting Route attachment and
-             * measuring blast radius/impact of changes to a Listener.
-             */
-            attachedRoutes: number;
-            /**
-             * Conditions describe the current condition of this listener.
-             */
-            conditions: outputs.gateway.v1alpha1.XListenerSetStatusListenersConditions[];
-            /**
-             * Name is the name of the Listener that this status corresponds to.
-             */
-            name: string;
-            /**
-             * Port is the network port the listener is configured to listen on.
-             */
-            port: number;
-            /**
-             * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
-             * that Listener configuration.
-             *
-             * If kinds are specified in Spec that are not supported, they MUST NOT
-             * appear in this list and an implementation MUST set the "ResolvedRefs"
-             * condition to "False" with the "InvalidRouteKinds" reason. If both valid
-             * and invalid Route kinds are specified, the implementation MUST
-             * reference the valid Route kinds that have been specified.
-             */
-            supportedKinds: outputs.gateway.v1alpha1.XListenerSetStatusListenersSupportedKinds[];
-        }
-        /**
-         * Condition contains details for one aspect of the current state of this API Resource.
-         */
-        interface XListenerSetStatusListenersConditions {
-            /**
-             * lastTransitionTime is the last time the condition transitioned from one status to another.
-             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-             */
-            lastTransitionTime: string;
-            /**
-             * message is a human readable message indicating details about the transition.
-             * This may be an empty string.
-             */
-            message: string;
-            /**
-             * observedGeneration represents the .metadata.generation that the condition was set based upon.
-             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-             * with respect to the current state of the instance.
-             */
-            observedGeneration: number;
-            /**
-             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-             * Producers of specific condition types may define expected values and meanings for this field,
-             * and whether the values are considered a guaranteed API.
-             * The value should be a CamelCase string.
-             * This field may not be empty.
-             */
-            reason: string;
-            /**
-             * status of the condition, one of True, False, Unknown.
-             */
-            status: string;
-            /**
-             * type of condition in CamelCase or in foo.example.com/CamelCase.
-             */
-            type: string;
-        }
-        /**
-         * Condition contains details for one aspect of the current state of this API Resource.
-         */
-        interface XListenerSetStatusListenersConditionsPatch {
-            /**
-             * lastTransitionTime is the last time the condition transitioned from one status to another.
-             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-             */
-            lastTransitionTime: string;
-            /**
-             * message is a human readable message indicating details about the transition.
-             * This may be an empty string.
-             */
-            message: string;
-            /**
-             * observedGeneration represents the .metadata.generation that the condition was set based upon.
-             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-             * with respect to the current state of the instance.
-             */
-            observedGeneration: number;
-            /**
-             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-             * Producers of specific condition types may define expected values and meanings for this field,
-             * and whether the values are considered a guaranteed API.
-             * The value should be a CamelCase string.
-             * This field may not be empty.
-             */
-            reason: string;
-            /**
-             * status of the condition, one of True, False, Unknown.
-             */
-            status: string;
-            /**
-             * type of condition in CamelCase or in foo.example.com/CamelCase.
-             */
-            type: string;
-        }
-        /**
-         * ListenerStatus is the status associated with a Listener.
-         */
-        interface XListenerSetStatusListenersPatch {
-            /**
-             * AttachedRoutes represents the total number of Routes that have been
-             * successfully attached to this Listener.
-             *
-             * Successful attachment of a Route to a Listener is based solely on the
-             * combination of the AllowedRoutes field on the corresponding Listener
-             * and the Route's ParentRefs field. A Route is successfully attached to
-             * a Listener when it is selected by the Listener's AllowedRoutes field
-             * AND the Route has a valid ParentRef selecting the whole Gateway
-             * resource or a specific Listener as a parent resource (more detail on
-             * attachment semantics can be found in the documentation on the various
-             * Route kinds ParentRefs fields). Listener or Route status does not impact
-             * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
-             *
-             * Uses for this field include troubleshooting Route attachment and
-             * measuring blast radius/impact of changes to a Listener.
-             */
-            attachedRoutes: number;
-            /**
-             * Conditions describe the current condition of this listener.
-             */
-            conditions: outputs.gateway.v1alpha1.XListenerSetStatusListenersConditionsPatch[];
-            /**
-             * Name is the name of the Listener that this status corresponds to.
-             */
-            name: string;
-            /**
-             * Port is the network port the listener is configured to listen on.
-             */
-            port: number;
-            /**
-             * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
-             * that Listener configuration.
-             *
-             * If kinds are specified in Spec that are not supported, they MUST NOT
-             * appear in this list and an implementation MUST set the "ResolvedRefs"
-             * condition to "False" with the "InvalidRouteKinds" reason. If both valid
-             * and invalid Route kinds are specified, the implementation MUST
-             * reference the valid Route kinds that have been specified.
-             */
-            supportedKinds: outputs.gateway.v1alpha1.XListenerSetStatusListenersSupportedKindsPatch[];
-        }
-        /**
-         * RouteGroupKind indicates the group and kind of a Route resource.
-         */
-        interface XListenerSetStatusListenersSupportedKinds {
-            /**
-             * Group is the group of the Route.
-             */
-            group: string;
-            /**
-             * Kind is the kind of the Route.
-             */
-            kind: string;
-        }
-        /**
-         * RouteGroupKind indicates the group and kind of a Route resource.
-         */
-        interface XListenerSetStatusListenersSupportedKindsPatch {
-            /**
-             * Group is the group of the Route.
-             */
-            group: string;
-            /**
-             * Kind is the kind of the Route.
-             */
-            kind: string;
-        }
-        /**
-         * Status defines the current state of ListenerSet.
-         */
-        interface XListenerSetStatusPatch {
-            /**
-             * Conditions describe the current conditions of the ListenerSet.
-             *
-             * Implementations MUST express ListenerSet conditions using the
-             * `ListenerSetConditionType` and `ListenerSetConditionReason`
-             * constants so that operators and tools can converge on a common
-             * vocabulary to describe ListenerSet state.
-             *
-             * Known condition types are:
-             *
-             * * "Accepted"
-             * * "Programmed"
-             */
-            conditions: outputs.gateway.v1alpha1.XListenerSetStatusConditionsPatch[];
-            /**
-             * Listeners provide status for each unique listener port defined in the Spec.
-             */
-            listeners: outputs.gateway.v1alpha1.XListenerSetStatusListenersPatch[];
         }
         /**
          * XMesh defines mesh-wide characteristics of a GAMMA-compliant service mesh.
@@ -15954,7 +17688,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.TCPRouteStatusParentsConditions[];
             /**
@@ -16307,7 +18041,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.TCPRouteStatusParentsConditionsPatch[];
             /**
@@ -16354,9 +18088,6 @@ export declare namespace gateway {
          * The TLSRoute resource is similar to TCPRoute, but can be configured
          * to match against TLS-specific metadata. This allows more flexibility
          * in matching streams for a given TLS listener.
-         *
-         * If you need to forward traffic to a single target for a TLS listener, you
-         * could choose to use a TCPRoute with a TLS listener.
          */
         interface TLSRoute {
             /**
@@ -16886,10 +18617,9 @@ export declare namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
              *
              * Support: Core for Kubernetes Service
              *
@@ -16902,8 +18632,6 @@ export declare namespace gateway {
             backendRefs: outputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefs[];
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name: string;
         }
@@ -17103,10 +18831,9 @@ export declare namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
              *
              * Support: Core for Kubernetes Service
              *
@@ -17119,8 +18846,6 @@ export declare namespace gateway {
             backendRefs: outputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefsPatch[];
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name: string;
         }
@@ -17170,7 +18895,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.TLSRouteStatusParentsConditions[];
             /**
@@ -17523,7 +19248,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.TLSRouteStatusParentsConditionsPatch[];
             /**
@@ -18305,7 +20030,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.UDPRouteStatusParentsConditions[];
             /**
@@ -18658,7 +20383,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha2.UDPRouteStatusParentsConditionsPatch[];
             /**
@@ -18744,8 +20469,6 @@ export declare namespace gateway {
             };
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -18766,9 +20489,9 @@ export declare namespace gateway {
              *   example, a policy with a creation timestamp of "2021-07-15
              *   01:02:03" MUST be given precedence over a policy with a
              *   creation timestamp of "2021-07-15 01:02:04".
-             * * The policy appearing first in alphabetical order by {name}.
-             *   For example, a policy named `bar` is given precedence over a
-             *   policy named `baz`.
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
              *
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
@@ -18780,9 +20503,28 @@ export declare namespace gateway {
              * clarified in a future release, the safest approach is to support a single
              * targetRef.
              *
-             * Support: Extended for Kubernetes Service
+             * Support Levels:
              *
-             * Support: Implementation-specific for any other resource
+             * * Extended: Kubernetes Service referenced by HTTPRoute backendRefs.
+             *
+             * * Implementation-Specific: Services not connected via HTTPRoute, and any
+             *   other kind of backend. Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Gateway feature backends (e.g., ExternalAuth, rate-limiting services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs: outputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefs[];
             validation: outputs.gateway.v1alpha3.BackendTLSPolicySpecValidation;
@@ -18808,8 +20550,6 @@ export declare namespace gateway {
             };
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -18830,9 +20570,9 @@ export declare namespace gateway {
              *   example, a policy with a creation timestamp of "2021-07-15
              *   01:02:03" MUST be given precedence over a policy with a
              *   creation timestamp of "2021-07-15 01:02:04".
-             * * The policy appearing first in alphabetical order by {name}.
-             *   For example, a policy named `bar` is given precedence over a
-             *   policy named `baz`.
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
              *
              * For any BackendTLSPolicy that does not take precedence, the
              * implementation MUST ensure the `Accepted` Condition is set to
@@ -18844,9 +20584,28 @@ export declare namespace gateway {
              * clarified in a future release, the safest approach is to support a single
              * targetRef.
              *
-             * Support: Extended for Kubernetes Service
+             * Support Levels:
              *
-             * Support: Implementation-specific for any other resource
+             * * Extended: Kubernetes Service referenced by HTTPRoute backendRefs.
+             *
+             * * Implementation-Specific: Services not connected via HTTPRoute, and any
+             *   other kind of backend. Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Gateway feature backends (e.g., ExternalAuth, rate-limiting services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs: outputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefsPatch[];
             validation: outputs.gateway.v1alpha3.BackendTLSPolicySpecValidationPatch;
@@ -19003,8 +20762,8 @@ export declare namespace gateway {
              */
             subjectAltNames: outputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNames[];
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
@@ -19013,6 +20772,13 @@ export declare namespace gateway {
              * the supplied value is not recognized, the implementation MUST ensure the
              * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
              * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -19142,8 +20908,8 @@ export declare namespace gateway {
              */
             subjectAltNames: outputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNamesPatch[];
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
@@ -19152,6 +20918,13 @@ export declare namespace gateway {
              * the supplied value is not recognized, the implementation MUST ensure the
              * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
              * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -19739,32 +21512,6 @@ export declare namespace gateway {
              * 1. IPs are not allowed in SNI hostnames per RFC 6066.
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
-             *
-             * If a hostname is specified by both the Listener and TLSRoute, there
-             * must be at least one intersecting hostname for the TLSRoute to be
-             * attached to the Listener. For example:
-             *
-             * * A Listener with `test.example.com` as the hostname matches TLSRoutes
-             *   that have specified at least one of `test.example.com` or
-             *   `*.example.com`.
-             * * A Listener with `*.example.com` as the hostname matches TLSRoutes
-             *   that have specified at least one hostname that matches the Listener
-             *   hostname. For example, `test.example.com` and `*.example.com` would both
-             *   match. On the other hand, `example.com` and `test.example.net` would not
-             *   match.
-             *
-             * If both the Listener and TLSRoute have specified hostnames, any
-             * TLSRoute hostnames that do not match the Listener hostname MUST be
-             * ignored. For example, if a Listener specified `*.example.com`, and the
-             * TLSRoute specified `test.example.com` and `test.example.net`,
-             * `test.example.net` must not be considered for a match.
-             *
-             * If both the Listener and TLSRoute have specified hostnames, and none
-             * match with the criteria above, then the TLSRoute is not accepted. The
-             * implementation must raise an 'Accepted' Condition with a status of
-             * `False` in the corresponding RouteParentStatus.
-             *
-             * Support: Core
              */
             hostnames: string[];
             /**
@@ -20117,32 +21864,6 @@ export declare namespace gateway {
              * 1. IPs are not allowed in SNI hostnames per RFC 6066.
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
-             *
-             * If a hostname is specified by both the Listener and TLSRoute, there
-             * must be at least one intersecting hostname for the TLSRoute to be
-             * attached to the Listener. For example:
-             *
-             * * A Listener with `test.example.com` as the hostname matches TLSRoutes
-             *   that have specified at least one of `test.example.com` or
-             *   `*.example.com`.
-             * * A Listener with `*.example.com` as the hostname matches TLSRoutes
-             *   that have specified at least one hostname that matches the Listener
-             *   hostname. For example, `test.example.com` and `*.example.com` would both
-             *   match. On the other hand, `example.com` and `test.example.net` would not
-             *   match.
-             *
-             * If both the Listener and TLSRoute have specified hostnames, any
-             * TLSRoute hostnames that do not match the Listener hostname MUST be
-             * ignored. For example, if a Listener specified `*.example.com`, and the
-             * TLSRoute specified `test.example.com` and `test.example.net`,
-             * `test.example.net` must not be considered for a match.
-             *
-             * If both the Listener and TLSRoute have specified hostnames, and none
-             * match with the criteria above, then the TLSRoute is not accepted. The
-             * implementation must raise an 'Accepted' Condition with a status of
-             * `False` in the corresponding RouteParentStatus.
-             *
-             * Support: Core
              */
             hostnames: string[];
             /**
@@ -20239,10 +21960,9 @@ export declare namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
              *
              * Support: Core for Kubernetes Service
              *
@@ -20255,8 +21975,6 @@ export declare namespace gateway {
             backendRefs: outputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefs[];
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name: string;
         }
@@ -20456,10 +22174,9 @@ export declare namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
              *
              * Support: Core for Kubernetes Service
              *
@@ -20472,8 +22189,6 @@ export declare namespace gateway {
             backendRefs: outputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefsPatch[];
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name: string;
         }
@@ -20523,7 +22238,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha3.TLSRouteStatusParentsConditions[];
             /**
@@ -20876,7 +22591,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1alpha3.TLSRouteStatusParentsConditionsPatch[];
             /**
@@ -21488,14 +23203,14 @@ export declare namespace gateway {
         }
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListeners {
             namespaces: outputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespaces;
         }
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersNamespaces {
             /**
@@ -21507,14 +23222,14 @@ export declare namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from: string;
             selector: outputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelector;
         }
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersNamespacesPatch {
             /**
@@ -21526,7 +23241,7 @@ export declare namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from: string;
             selector: outputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorPatch;
@@ -21615,7 +23330,7 @@ export declare namespace gateway {
         }
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         interface GatewaySpecAllowedListenersPatch {
             namespaces: outputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesPatch;
@@ -21796,7 +23511,7 @@ export declare namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -22114,7 +23829,7 @@ export declare namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -22619,19 +24334,30 @@ export declare namespace gateway {
             clientCertificateRef: outputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRef;
         }
         /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
          *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
+         * A ClientCertificateRef is considered invalid if:
          *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
          *
-         * Support: Core
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
          */
         interface GatewaySpecTlsBackendClientCertificateRef {
             /**
@@ -22661,19 +24387,30 @@ export declare namespace gateway {
             namespace: string;
         }
         /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
          *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
+         * A ClientCertificateRef is considered invalid if:
          *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
          *
-         * Support: Core
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
          */
         interface GatewaySpecTlsBackendClientCertificateRefPatch {
             /**
@@ -22763,27 +24500,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendDefaultValidation {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs[];
             /**
@@ -22891,27 +24650,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendDefaultValidationPatch {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch[];
             /**
@@ -23002,27 +24783,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendPerPortTlsValidation {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs[];
             /**
@@ -23130,27 +24933,49 @@ export declare namespace gateway {
          */
         interface GatewaySpecTlsFrontendPerPortTlsValidationPatch {
             /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
              *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
+             * A CACertificateRef is invalid if:
              *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
              *
-             * Support: Implementation-specific (More than one certificate in a ConfigMap
-             * with different keys or more than one reference, or other kinds of resources).
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
              *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs: outputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch[];
             /**
@@ -23198,6 +25023,19 @@ export declare namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses: outputs.gateway.v1beta1.GatewayStatusAddresses[];
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets: number;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -23341,8 +25179,11 @@ export declare namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -23358,7 +25199,7 @@ export declare namespace gateway {
             name: string;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -23460,8 +25301,11 @@ export declare namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -23477,7 +25321,7 @@ export declare namespace gateway {
             name: string;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -23530,6 +25374,19 @@ export declare namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses: outputs.gateway.v1beta1.GatewayStatusAddressesPatch[];
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets: number;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -24439,7 +26296,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -24458,18 +26315,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -24481,7 +26341,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -24501,18 +26361,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -24560,10 +26423,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -24594,14 +26466,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -24616,6 +26492,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -24644,7 +26523,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -24663,18 +26542,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -24686,7 +26568,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -24706,18 +26588,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -24765,10 +26650,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -24799,14 +26693,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -24821,6 +26719,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -25403,6 +27304,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -25423,6 +27327,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -25508,6 +27415,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -25528,6 +27438,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -26063,6 +27976,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -26083,6 +27999,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -26168,6 +28087,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -26188,6 +28110,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -26480,7 +28405,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -26499,18 +28424,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -26522,7 +28450,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -26542,18 +28470,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -26601,10 +28532,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -26635,14 +28575,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -26657,6 +28601,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -26685,7 +28632,7 @@ export declare namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
@@ -26704,18 +28651,21 @@ export declare namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowHeaders and the request is
+             * not credentialed, the `Access-Control-Allow-Headers` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Headers from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Headers` response header. When
+             * also the `AllowCredentials` field is true and `AllowHeaders` field
+             * is specified with the `*` wildcard, the gateway must specify one or more
              * HTTP headers in the value of the `Access-Control-Allow-Headers` response
              * header. The value of the header `Access-Control-Allow-Headers` is same as
              * the `Access-Control-Request-Headers` header provided by the client. If
              * the header `Access-Control-Request-Headers` is not included in the
              * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * response header, instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -26727,7 +28677,7 @@ export declare namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -26747,18 +28697,21 @@ export declare namespace gateway {
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * If config contains the wildcard "*" in allowMethods and the request is
+             * not credentialed, the `Access-Control-Allow-Methods` response header
+             * can either use the `*` wildcard or the value of
+             * Access-Control-Request-Method from the request.
              *
-             * When the `AllowCredentials` field is true and `AllowMethods` field
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Methods` response header. When
+             * also the `AllowCredentials` field is true and `AllowMethods` field
              * specified with the `*` wildcard, the gateway must specify one HTTP method
              * in the value of the Access-Control-Allow-Methods response header. The
              * value of the header `Access-Control-Allow-Methods` is same as the
              * `Access-Control-Request-Method` header provided by the client. If the
              * header `Access-Control-Request-Method` is not included in the request,
              * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * instead of specifying the `*` wildcard.
              *
              * Support: Extended
              */
@@ -26806,10 +28759,19 @@ export declare namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is false or omitted.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is true and `AllowOrigins` field
+             * When config has the wildcard ("*") in allowOrigins, and the request
+             * is not credentialed (e.g., it is a preflight request), the
+             * `Access-Control-Allow-Origin` response header either contains the
+             * wildcard as well or the Origin from the request.
+             *
+             * When the request is credentialed, the gateway must not specify the `*`
+             * wildcard in the `Access-Control-Allow-Origin` response header. When
+             * also the `AllowCredentials` field is true and `AllowOrigins` field
              * specified with the `*` wildcard, the gateway must return a single origin
              * in the value of the `Access-Control-Allow-Origin` response header,
              * instead of specifying the `*` wildcard. The value of the header
@@ -26840,14 +28802,18 @@ export declare namespace gateway {
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
              * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is false or omitted.
+             * use `*` wildcard as value when the request is not credentialed.
+             *
+             * When the `exposeHeaders` config field contains the "*" wildcard and
+             * the request is credentialed, the gateway cannot use the `*` wildcard in
+             * the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -26862,6 +28828,9 @@ export declare namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge: number;
         }
@@ -27444,6 +29413,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -27464,6 +29436,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -27549,6 +29524,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -27569,6 +29547,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28104,6 +30085,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28124,6 +30108,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28209,6 +30196,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28229,6 +30219,9 @@ export declare namespace gateway {
             name: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28429,6 +30422,9 @@ export declare namespace gateway {
             type: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28469,6 +30465,9 @@ export declare namespace gateway {
             type: string;
             /**
              * Value is the value of HTTP Header to be matched.
+             *
+             * Must consist of printable US-ASCII characters, optionally separated
+             * by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
              */
             value: string;
         }
@@ -28816,7 +30815,7 @@ export declare namespace gateway {
              * For example, setting the `rules[].retry.backoff` field to the value
              * `100ms` will cause a backend request to first be retried approximately
              * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
+             * to be retriable.
              *
              * An implementation MAY use an exponential or alternative backoff strategy
              * for subsequent retry attempts, MAY cap the maximum backoff duration to
@@ -28882,7 +30881,7 @@ export declare namespace gateway {
              * For example, setting the `rules[].retry.backoff` field to the value
              * `100ms` will cause a backend request to first be retried approximately
              * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
+             * to be retriable.
              *
              * An implementation MAY use an exponential or alternative backoff strategy
              * for subsequent retry attempts, MAY cap the maximum backoff duration to
@@ -28957,7 +30956,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -29061,7 +31060,7 @@ export declare namespace gateway {
             sessionName: string;
             /**
              * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
+             * the use of a header or cookie. Defaults to cookie based session
              * persistence.
              *
              * Support: Core for "Cookie" type
@@ -29224,7 +31223,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1beta1.HTTPRouteStatusParentsConditions[];
             /**
@@ -29577,7 +31576,7 @@ export declare namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions: outputs.gateway.v1beta1.HTTPRouteStatusParentsConditionsPatch[];
             /**

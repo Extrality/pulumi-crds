@@ -90,6 +90,11 @@ export namespace karpenter {
             kubelet?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecKubelet>;
             metadataOptions?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecMetadataOptions>;
             /**
+             * NetworkInterfaces specifies the network interface configurations to be attached to provisioned instances.
+             */
+            networkInterfaces?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecNetworkInterfaces>[]>;
+            placementGroupSelector?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecPlacementGroupSelector>;
+            /**
              * Role is the AWS identity that nodes use.
              * This field is mutually exclusive from instanceProfile.
              */
@@ -122,7 +127,7 @@ export namespace karpenter {
             /**
              * Alias specifies which EKS optimized AMI to select.
              * Each alias consists of a family and an AMI version, specified as "family@version".
-             * Valid families include: al2, al2023, bottlerocket, windows2019, and windows2022.
+             * Valid families include: al2, al2023, bottlerocket, windows2019, windows2022, windows2025.
              * The version can either be pinned to a specific AMI release, with that AMIs version format (ex: "al2023@v20240625" or "bottlerocket@v1.10.0").
              * The version can also be set to "latest" for any family. Setting the version to latest will result in drift when a new AMI is released. This is **not** recommended for production environments.
              * Note: The Windows families do **not** support version pinning, and only latest may be used.
@@ -161,7 +166,7 @@ export namespace karpenter {
             /**
              * Alias specifies which EKS optimized AMI to select.
              * Each alias consists of a family and an AMI version, specified as "family@version".
-             * Valid families include: al2, al2023, bottlerocket, windows2019, and windows2022.
+             * Valid families include: al2, al2023, bottlerocket, windows2019, windows2022, windows2025.
              * The version can either be pinned to a specific AMI release, with that AMIs version format (ex: "al2023@v20240625" or "bottlerocket@v1.10.0").
              * The version can also be set to "latest" for any family. Setting the version to latest will result in drift when a new AMI is released. This is **not** recommended for production environments.
              * Note: The Windows families do **not** support version pinning, and only latest may be used.
@@ -671,6 +676,44 @@ export namespace karpenter {
         }
 
         /**
+         * NetworkInterface specifies the configuration for a network interface to be attached
+         * to provisioned instances.
+         */
+        export interface EC2NodeClassSpecNetworkInterfaces {
+            /**
+             * DeviceIndex is the device index for the network interface attachment.
+             */
+            deviceIndex?: pulumi.Input<number>;
+            /**
+             * InterfaceType is the type of network interface. Valid values are "interface" and "efa-only".
+             */
+            interfaceType?: pulumi.Input<string>;
+            /**
+             * NetworkCardIndex is the index of the network card to attach the interface to.
+             */
+            networkCardIndex?: pulumi.Input<number>;
+        }
+
+        /**
+         * NetworkInterface specifies the configuration for a network interface to be attached
+         * to provisioned instances.
+         */
+        export interface EC2NodeClassSpecNetworkInterfacesPatch {
+            /**
+             * DeviceIndex is the device index for the network interface attachment.
+             */
+            deviceIndex?: pulumi.Input<number>;
+            /**
+             * InterfaceType is the type of network interface. Valid values are "interface" and "efa-only".
+             */
+            interfaceType?: pulumi.Input<string>;
+            /**
+             * NetworkCardIndex is the index of the network card to attach the interface to.
+             */
+            networkCardIndex?: pulumi.Input<number>;
+        }
+
+        /**
          * EC2NodeClassSpec is the top level specification for the AWS Karpenter Provider.
          * This will contain configuration necessary to launch instances in AWS.
          */
@@ -728,6 +771,11 @@ export namespace karpenter {
             kubelet?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecKubeletPatch>;
             metadataOptions?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecMetadataOptionsPatch>;
             /**
+             * NetworkInterfaces specifies the network interface configurations to be attached to provisioned instances.
+             */
+            networkInterfaces?: pulumi.Input<pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecNetworkInterfacesPatch>[]>;
+            placementGroupSelector?: pulumi.Input<inputs.karpenter.v1.EC2NodeClassSpecPlacementGroupSelectorPatch>;
+            /**
              * Role is the AWS identity that nodes use.
              * This field is mutually exclusive from instanceProfile.
              */
@@ -750,6 +798,34 @@ export namespace karpenter {
              * this UserData to ensure nodes are being provisioned with the correct configuration.
              */
             userData?: pulumi.Input<string>;
+        }
+
+        /**
+         * PlacementGroupSelector defines the name or the id of the placement to resolve with the nodeclass.
+         */
+        export interface EC2NodeClassSpecPlacementGroupSelector {
+            /**
+             * ID is the placement group id in EC2
+             */
+            id?: pulumi.Input<string>;
+            /**
+             * Name is the placement group name in EC2
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * PlacementGroupSelector defines the name or the id of the placement to resolve with the nodeclass.
+         */
+        export interface EC2NodeClassSpecPlacementGroupSelectorPatch {
+            /**
+             * ID is the placement group id in EC2
+             */
+            id?: pulumi.Input<string>;
+            /**
+             * Name is the placement group name in EC2
+             */
+            name?: pulumi.Input<string>;
         }
 
         /**
@@ -928,6 +1004,10 @@ export namespace karpenter {
              * The instance type for the capacity reservation.
              */
             instanceType?: pulumi.Input<string>;
+            /**
+             * Indicates whether this capacity reservation is interruptible
+             */
+            interruptible?: pulumi.Input<boolean>;
             /**
              * The ID of the AWS account that owns the capacity reservation.
              */
@@ -1162,7 +1242,7 @@ export namespace karpenter {
         }
 
         /**
-         * A node selector requirement with min values is a selector that contains values, a key, an operator that relates the key and values
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
          * and minValues that represent the requirement to have at least that many values.
          */
         export interface NodeClaimSpecRequirements {
@@ -1177,13 +1257,13 @@ export namespace karpenter {
             minValues?: pulumi.Input<number>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
              * This array is replaced during a strategic merge patch.
              */
@@ -1191,7 +1271,7 @@ export namespace karpenter {
         }
 
         /**
-         * A node selector requirement with min values is a selector that contains values, a key, an operator that relates the key and values
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
          * and minValues that represent the requirement to have at least that many values.
          */
         export interface NodeClaimSpecRequirementsPatch {
@@ -1206,13 +1286,13 @@ export namespace karpenter {
             minValues?: pulumi.Input<number>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
              * This array is replaced during a strategic merge patch.
              */
@@ -1818,7 +1898,7 @@ export namespace karpenter {
         }
 
         /**
-         * A node selector requirement with min values is a selector that contains values, a key, an operator that relates the key and values
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
          * and minValues that represent the requirement to have at least that many values.
          */
         export interface NodePoolSpecTemplateSpecRequirements {
@@ -1833,13 +1913,13 @@ export namespace karpenter {
             minValues?: pulumi.Input<number>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
              * This array is replaced during a strategic merge patch.
              */
@@ -1847,7 +1927,7 @@ export namespace karpenter {
         }
 
         /**
-         * A node selector requirement with min values is a selector that contains values, a key, an operator that relates the key and values
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
          * and minValues that represent the requirement to have at least that many values.
          */
         export interface NodePoolSpecTemplateSpecRequirementsPatch {
@@ -1862,13 +1942,13 @@ export namespace karpenter {
             minValues?: pulumi.Input<number>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
              * This array is replaced during a strategic merge patch.
              */
@@ -2070,7 +2150,7 @@ export namespace karpenter {
             /**
              * PriceAdjustment specifies the price change for matching instance types. Accepts either:
              * - A fixed price modifier (e.g., -0.5, 1.2)
-             * - A percentage modifier (e.g., +10% for increase, -15% for decrees)
+             * - A percentage modifier (e.g., +10% for increase, -15% for decrease)
              */
             priceAdjustment?: pulumi.Input<string>;
             /**
@@ -2103,7 +2183,7 @@ export namespace karpenter {
             /**
              * PriceAdjustment specifies the price change for matching instance types. Accepts either:
              * - A fixed price modifier (e.g., -0.5, 1.2)
-             * - A percentage modifier (e.g., +10% for increase, -15% for decrees)
+             * - A percentage modifier (e.g., +10% for increase, -15% for decrease)
              */
             priceAdjustment?: pulumi.Input<string>;
             /**
@@ -2123,8 +2203,8 @@ export namespace karpenter {
         }
 
         /**
-         * A node selector requirement is a selector that contains values, a key, and an operator
-         * that relates the key and values.
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
+         * to have at least that many values.
          */
         export interface NodeOverlaySpecRequirements {
             /**
@@ -2133,22 +2213,21 @@ export namespace karpenter {
             key?: pulumi.Input<string>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
-             * This array is replaced during a strategic merge patch.
              */
             values?: pulumi.Input<pulumi.Input<string>[]>;
         }
 
         /**
-         * A node selector requirement is a selector that contains values, a key, and an operator
-         * that relates the key and values.
+         * A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
+         * to have at least that many values.
          */
         export interface NodeOverlaySpecRequirementsPatch {
             /**
@@ -2157,15 +2236,14 @@ export namespace karpenter {
             key?: pulumi.Input<string>;
             /**
              * Represents a key's relationship to a set of values.
-             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+             * Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
              */
             operator?: pulumi.Input<string>;
             /**
              * An array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-             * the values array must be empty. If the operator is Gt or Lt, the values
+             * the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
              * array must have a single element, which will be interpreted as an integer.
-             * This array is replaced during a strategic merge patch.
              */
             values?: pulumi.Input<pulumi.Input<string>[]>;
         }
