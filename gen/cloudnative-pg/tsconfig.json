@@ -1,16 +1,22 @@
 {
     "compilerOptions": {
+        // Output
         "outDir": "bin",
-        "target": "es2016",
-        "module": "commonjs",
-        "moduleResolution": "node",
         "declaration": true,
+        "declarationMap": true,
         "sourceMap": true,
         "stripInternal": true,
-        "experimentalDecorators": true,
+        // Environment
+        "target": "ES2022",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "moduleDetection": "force",
+        "types": ["node"],
+        // Type Checking
+        "strict": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "noImplicitReturns": true,
+        "skipLibCheck": true
     },
     "files": [
         "index.ts",
@@ -27,6 +33,9 @@
         "postgresql/v1/database.ts",
         "postgresql/v1/databaseList.ts",
         "postgresql/v1/databasePatch.ts",
+        "postgresql/v1/databaseRole.ts",
+        "postgresql/v1/databaseRoleList.ts",
+        "postgresql/v1/databaseRolePatch.ts",
         "postgresql/v1/failoverQuorum.ts",
         "postgresql/v1/failoverQuorumList.ts",
         "postgresql/v1/failoverQuorumPatch.ts",

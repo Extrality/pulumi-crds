@@ -51,7 +51,7 @@ export interface EphemeralRunnerSetListArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"actions.github.com/v1alpha1">;
+    apiVersion?: pulumi.Input<"actions.github.com/v1alpha1" | undefined>;
     /**
      * List of ephemeralrunnersets. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md
      */
@@ -59,9 +59,10 @@ export interface EphemeralRunnerSetListArgs {
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"EphemeralRunnerSetList">;
+    kind?: pulumi.Input<"EphemeralRunnerSetList" | undefined>;
     /**
      * Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ListMeta>;
+    metadata?: pulumi.Input<inputs.meta.v1.ListMeta | undefined>;
 }
+//# sourceMappingURL=ephemeralRunnerSetList.d.ts.map

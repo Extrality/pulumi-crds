@@ -677,9 +677,12 @@ export namespace gateway {
          * spec defines the desired state of BackendTrafficPolicy.
          */
         export interface BackendTrafficPolicySpec {
+            admissionControl: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControl;
+            bandwidthLimit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimit;
             circuitBreaker: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreaker;
             /**
              * The compression config for the http streams.
+             *
              * Deprecated: Use Compressor instead.
              */
             compression: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompression[];
@@ -745,6 +748,292 @@ export namespace gateway {
              * that Envoy will use the protocol indicated by the attached BackendRef.
              */
             useClientProtocol: boolean;
+        }
+
+        /**
+         * AdmissionControl defines the admission control policy to be applied. This configuration
+         * probabilistically rejects requests based on the success rate of previous requests in a
+         * configurable sliding time window.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControl {
+            /**
+             * MaxRejectionPercent represents the upper limit of the rejection probability,
+             * expressed as a percentage in the range [0, 100]. Defaults to 80 if not specified.
+             */
+            maxRejectionPercent: number;
+            /**
+             * MinRequestRate defines the minimum requests per second below which requests will
+             * pass through the filter without rejection. Defaults to 0 if not specified.
+             */
+            minRequestRate: number;
+            /**
+             * MinSuccessRate is the lowest request success rate, as a percentage in the
+             * range [1, 100], at which the filter will not reject requests. Defaults to 95 if
+             * not specified. Envoy rejects values below 1%, so values lower than 1 are not allowed.
+             */
+            minSuccessRate: number;
+            /**
+             * RejectionAggression controls how steeply the rejection probability rises
+             * as the observed success rate falls below MinSuccessRate. A value of 1
+             * produces a linear curve; higher values reject more aggressively for a
+             * given drop in success rate. Must be greater than 0; values below 1 are
+             * clamped to 1. Defaults to 1.
+             */
+            rejectionAggression: number;
+            /**
+             * SamplingWindow defines the time window over which request success rates are calculated.
+             * Must be at least 1s; Envoy truncates the window to whole seconds and uses it as the
+             * denominator in RPS calculations, so sub-second values would produce a zero denominator.
+             * Defaults to 30s if not specified.
+             */
+            samplingWindow: string;
+            successCriteria: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteria;
+        }
+
+        /**
+         * AdmissionControl defines the admission control policy to be applied. This configuration
+         * probabilistically rejects requests based on the success rate of previous requests in a
+         * configurable sliding time window.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlPatch {
+            /**
+             * MaxRejectionPercent represents the upper limit of the rejection probability,
+             * expressed as a percentage in the range [0, 100]. Defaults to 80 if not specified.
+             */
+            maxRejectionPercent: number;
+            /**
+             * MinRequestRate defines the minimum requests per second below which requests will
+             * pass through the filter without rejection. Defaults to 0 if not specified.
+             */
+            minRequestRate: number;
+            /**
+             * MinSuccessRate is the lowest request success rate, as a percentage in the
+             * range [1, 100], at which the filter will not reject requests. Defaults to 95 if
+             * not specified. Envoy rejects values below 1%, so values lower than 1 are not allowed.
+             */
+            minSuccessRate: number;
+            /**
+             * RejectionAggression controls how steeply the rejection probability rises
+             * as the observed success rate falls below MinSuccessRate. A value of 1
+             * produces a linear curve; higher values reject more aggressively for a
+             * given drop in success rate. Must be greater than 0; values below 1 are
+             * clamped to 1. Defaults to 1.
+             */
+            rejectionAggression: number;
+            /**
+             * SamplingWindow defines the time window over which request success rates are calculated.
+             * Must be at least 1s; Envoy truncates the window to whole seconds and uses it as the
+             * denominator in RPS calculations, so sub-second values would produce a zero denominator.
+             * Defaults to 30s if not specified.
+             */
+            samplingWindow: string;
+            successCriteria: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteriaPatch;
+        }
+
+        /**
+         * SuccessCriteria defines what constitutes a successful request for both HTTP and gRPC.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteria {
+            grpc: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteriaGrpc;
+            http: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteriaHttp;
+        }
+
+        /**
+         * GRPC defines success criteria for gRPC requests.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteriaGrpc {
+            /**
+             * StatusCodes defines gRPC status codes that are considered successful.
+             * Status codes are defined in https://github.com/grpc/grpc/blob/master/doc/statuscodes.md#status-codes-and-their-use-in-grpc.
+             */
+            statusCodes: string[];
+        }
+
+        /**
+         * GRPC defines success criteria for gRPC requests.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteriaGrpcPatch {
+            /**
+             * StatusCodes defines gRPC status codes that are considered successful.
+             * Status codes are defined in https://github.com/grpc/grpc/blob/master/doc/statuscodes.md#status-codes-and-their-use-in-grpc.
+             */
+            statusCodes: string[];
+        }
+
+        /**
+         * HTTP defines success criteria for HTTP requests.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteriaHttp {
+            /**
+             * StatusCodes defines HTTP status codes that are considered successful.
+             */
+            statusCodes: number[];
+        }
+
+        /**
+         * HTTP defines success criteria for HTTP requests.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteriaHttpPatch {
+            /**
+             * StatusCodes defines HTTP status codes that are considered successful.
+             */
+            statusCodes: number[];
+        }
+
+        /**
+         * SuccessCriteria defines what constitutes a successful request for both HTTP and gRPC.
+         */
+        export interface BackendTrafficPolicySpecAdmissionControlSuccessCriteriaPatch {
+            grpc: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteriaGrpcPatch;
+            http: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlSuccessCriteriaHttpPatch;
+        }
+
+        /**
+         * BandwidthLimit allows the user to limit the bandwidth of traffic
+         * sent to and received from the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimit {
+            request: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitRequest;
+            response: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponse;
+        }
+
+        /**
+         * BandwidthLimit allows the user to limit the bandwidth of traffic
+         * sent to and received from the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitPatch {
+            request: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitRequestPatch;
+            response: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponsePatch;
+        }
+
+        /**
+         * Request configures bandwidth limits for traffic sent to the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitRequest {
+            limit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitRequestLimit;
+        }
+
+        /**
+         * Limit specifies the bandwidth limit as a bytes-per-unit throughput rate.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitRequestLimit {
+            /**
+             * Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour).
+             */
+            unit: string;
+            /**
+             * Value specifies the bandwidth limit.
+             */
+            value: number | string;
+        }
+
+        /**
+         * Limit specifies the bandwidth limit as a bytes-per-unit throughput rate.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitRequestLimitPatch {
+            /**
+             * Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour).
+             */
+            unit: string;
+            /**
+             * Value specifies the bandwidth limit.
+             */
+            value: number | string;
+        }
+
+        /**
+         * Request configures bandwidth limits for traffic sent to the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitRequestPatch {
+            limit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitRequestLimitPatch;
+        }
+
+        /**
+         * Response configures bandwidth limits for traffic sent from the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponse {
+            limit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponseLimit;
+            responseTrailers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponseResponseTrailers;
+        }
+
+        /**
+         * Limit specifies the bandwidth limit as a bytes-per-unit throughput rate.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponseLimit {
+            /**
+             * Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour).
+             */
+            unit: string;
+            /**
+             * Value specifies the bandwidth limit.
+             */
+            value: number | string;
+        }
+
+        /**
+         * Limit specifies the bandwidth limit as a bytes-per-unit throughput rate.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponseLimitPatch {
+            /**
+             * Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour).
+             */
+            unit: string;
+            /**
+             * Value specifies the bandwidth limit.
+             */
+            value: number | string;
+        }
+
+        /**
+         * Response configures bandwidth limits for traffic sent from the backend.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponsePatch {
+            limit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponseLimitPatch;
+            responseTrailers: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitResponseResponseTrailersPatch;
+        }
+
+        /**
+         * ResponseTrailers configures the trailer headers appended to responses
+         * when bandwidth limiting introduces delays.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponseResponseTrailers {
+            /**
+             * Prefix is prepended to each trailer header name.
+             * If not set, no prefix is added and the trailers are named as-is.
+             * For example, setting "x-eg" produces trailers such as "x-eg-bandwidth-request-delay-ms",
+             * while leaving it unset produces "bandwidth-request-delay-ms".
+             *
+             * The following four trailers can be added:
+             * "bandwidth-request-delay-ms" is delay time in milliseconds it took for the request stream transfer
+             * including request body transfer time and the time added by the filter.
+             * "bandwidth-response-delay-ms" is delay time in milliseconds it took for the response stream transfer
+             * including response body transfer time and the time added by the filter.
+             * "bandwidth-request-filter-delay-ms" is delay time in milliseconds in request stream transfer added by the filter.
+             * "bandwidth-response-filter-delay-ms" is delay time in milliseconds that added by the filter.
+             */
+            prefix: string;
+        }
+
+        /**
+         * ResponseTrailers configures the trailer headers appended to responses
+         * when bandwidth limiting introduces delays.
+         */
+        export interface BackendTrafficPolicySpecBandwidthLimitResponseResponseTrailersPatch {
+            /**
+             * Prefix is prepended to each trailer header name.
+             * If not set, no prefix is added and the trailers are named as-is.
+             * For example, setting "x-eg" produces trailers such as "x-eg-bandwidth-request-delay-ms",
+             * while leaving it unset produces "bandwidth-request-delay-ms".
+             *
+             * The following four trailers can be added:
+             * "bandwidth-request-delay-ms" is delay time in milliseconds it took for the request stream transfer
+             * including request body transfer time and the time added by the filter.
+             * "bandwidth-response-delay-ms" is delay time in milliseconds it took for the response stream transfer
+             * including response body transfer time and the time added by the filter.
+             * "bandwidth-request-filter-delay-ms" is delay time in milliseconds in request stream transfer added by the filter.
+             * "bandwidth-response-filter-delay-ms" is delay time in milliseconds that added by the filter.
+             */
+            prefix: string;
         }
 
         /**
@@ -1842,6 +2131,7 @@ export namespace gateway {
         export interface BackendTrafficPolicySpecLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerSlowStart;
             /**
@@ -1851,7 +2141,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAware;
@@ -2116,6 +2407,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface BackendTrafficPolicySpecLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface BackendTrafficPolicySpecLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -2174,6 +2519,7 @@ export namespace gateway {
         export interface BackendTrafficPolicySpecLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerSlowStartPatch;
             /**
@@ -2183,7 +2529,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.BackendTrafficPolicySpecLoadBalancerZoneAwarePatch;
@@ -2339,9 +2686,12 @@ export namespace gateway {
          * spec defines the desired state of BackendTrafficPolicy.
          */
         export interface BackendTrafficPolicySpecPatch {
+            admissionControl: outputs.gateway.v1alpha1.BackendTrafficPolicySpecAdmissionControlPatch;
+            bandwidthLimit: outputs.gateway.v1alpha1.BackendTrafficPolicySpecBandwidthLimitPatch;
             circuitBreaker: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCircuitBreakerPatch;
             /**
              * The compression config for the http streams.
+             *
              * Deprecated: Use Compressor instead.
              */
             compression: outputs.gateway.v1alpha1.BackendTrafficPolicySpecCompressionPatch[];
@@ -2522,6 +2872,12 @@ export namespace gateway {
              * Default: false.
              */
             shared: boolean;
+            /**
+             * XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+             * When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+             * If not set, the rule inherits the listener-level setting (default behavior).
+             */
+            xRateLimitHeaders: string;
         }
 
         /**
@@ -2969,6 +3325,10 @@ export namespace gateway {
          * the selected requests have reached the limit.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesLimit {
+            /**
+             * Requests is the number of requests (or cost units, when used with
+             * cost-based rate limiting) allowed per Unit.
+             */
             requests: number;
             /**
              * RateLimitUnit specifies the intervals for setting rate limits.
@@ -2986,6 +3346,10 @@ export namespace gateway {
          * the selected requests have reached the limit.
          */
         export interface BackendTrafficPolicySpecRateLimitGlobalRulesLimitPatch {
+            /**
+             * Requests is the number of requests (or cost units, when used with
+             * cost-based rate limiting) allowed per Unit.
+             */
             requests: number;
             /**
              * RateLimitUnit specifies the intervals for setting rate limits.
@@ -3031,6 +3395,12 @@ export namespace gateway {
              * Default: false.
              */
             shared: boolean;
+            /**
+             * XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+             * When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+             * If not set, the rule inherits the listener-level setting (default behavior).
+             */
+            xRateLimitHeaders: string;
         }
 
         /**
@@ -3096,6 +3466,12 @@ export namespace gateway {
              * Default: false.
              */
             shared: boolean;
+            /**
+             * XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+             * When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+             * If not set, the rule inherits the listener-level setting (default behavior).
+             */
+            xRateLimitHeaders: string;
         }
 
         /**
@@ -3543,6 +3919,10 @@ export namespace gateway {
          * the selected requests have reached the limit.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesLimit {
+            /**
+             * Requests is the number of requests (or cost units, when used with
+             * cost-based rate limiting) allowed per Unit.
+             */
             requests: number;
             /**
              * RateLimitUnit specifies the intervals for setting rate limits.
@@ -3560,6 +3940,10 @@ export namespace gateway {
          * the selected requests have reached the limit.
          */
         export interface BackendTrafficPolicySpecRateLimitLocalRulesLimitPatch {
+            /**
+             * Requests is the number of requests (or cost units, when used with
+             * cost-based rate limiting) allowed per Unit.
+             */
             requests: number;
             /**
              * RateLimitUnit specifies the intervals for setting rate limits.
@@ -3605,6 +3989,12 @@ export namespace gateway {
              * Default: false.
              */
             shared: boolean;
+            /**
+             * XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+             * When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+             * If not set, the rule inherits the listener-level setting (default behavior).
+             */
+            xRateLimitHeaders: string;
         }
 
         /**
@@ -3676,6 +4066,13 @@ export namespace gateway {
             match: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideMatch;
             redirect: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideRedirect;
             response: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponse;
+            /**
+             * Source specifies which responses this rule applies to.
+             * Local overrides only Envoy-generated responses (e.g. auth failures).
+             * Backend overrides only upstream responses.
+             * All (default) overrides both.
+             */
+            source: string;
         }
 
         /**
@@ -3765,6 +4162,13 @@ export namespace gateway {
             match: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideMatchPatch;
             redirect: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideRedirectPatch;
             response: outputs.gateway.v1alpha1.BackendTrafficPolicySpecResponseOverrideResponsePatch;
+            /**
+             * Source specifies which responses this rule applies to.
+             * Local overrides only Envoy-generated responses (e.g. auth failures).
+             * Backend overrides only upstream responses.
+             * All (default) overrides both.
+             */
+            source: string;
         }
 
         /**
@@ -4575,9 +4979,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsMatchExpressions[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespaces;
         }
 
         /**
@@ -4626,6 +5031,122 @@ export namespace gateway {
             values: string[];
         }
 
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespaces {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespacesSelector;
+        }
+
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespacesPatch {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorPatch;
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespacesSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
         export interface BackendTrafficPolicySpecTargetSelectorsPatch {
             /**
              * Group is the group that this selector targets. Defaults to gateway.networking.k8s.io
@@ -4640,9 +5161,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsMatchExpressionsPatch[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.BackendTrafficPolicySpecTargetSelectorsNamespacesPatch;
         }
 
         /**
@@ -5887,6 +6409,7 @@ export namespace gateway {
              * PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
              * (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
              * Defaults to false and cannot be combined with RequestID.
+             *
              * Deprecated: use RequestID=PreserveOrGenerate instead
              */
             preserveXRequestID: boolean;
@@ -6663,6 +7186,7 @@ export namespace gateway {
              * PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
              * (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
              * Defaults to false and cannot be combined with RequestID.
+             *
              * Deprecated: use RequestID=PreserveOrGenerate instead
              */
             preserveXRequestID: boolean;
@@ -7298,9 +7822,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsMatchExpressions[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespaces;
         }
 
         /**
@@ -7349,6 +7874,122 @@ export namespace gateway {
             values: string[];
         }
 
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespaces {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespacesSelector;
+        }
+
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespacesPatch {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorPatch;
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespacesSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
         export interface ClientTrafficPolicySpecTargetSelectorsPatch {
             /**
              * Group is the group that this selector targets. Defaults to gateway.networking.k8s.io
@@ -7363,9 +8004,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsMatchExpressionsPatch[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.ClientTrafficPolicySpecTargetSelectorsNamespacesPatch;
         }
 
         /**
@@ -10060,6 +10702,7 @@ export namespace gateway {
         export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStart;
             /**
@@ -10069,7 +10712,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAware;
@@ -10334,6 +10978,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -10392,6 +11090,7 @@ export namespace gateway {
         export interface EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -10401,7 +11100,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecExtProcBackendSettingsLoadBalancerZoneAwarePatch;
@@ -11330,9 +12030,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsMatchExpressions[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespaces;
         }
 
         /**
@@ -11381,6 +12082,122 @@ export namespace gateway {
             values: string[];
         }
 
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespaces {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelector;
+        }
+
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespacesPatch {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorPatch;
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
         export interface EnvoyExtensionPolicySpecTargetSelectorsPatch {
             /**
              * Group is the group that this selector targets. Defaults to gateway.networking.k8s.io
@@ -11395,9 +12212,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsMatchExpressionsPatch[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.EnvoyExtensionPolicySpecTargetSelectorsNamespacesPatch;
         }
 
         /**
@@ -13252,8 +14070,9 @@ export namespace gateway {
             concurrency: number;
             /**
              * DynamicModules defines the set of dynamic modules that are allowed to be
-             * used by EnvoyExtensionPolicy resources. Each entry registers a module by
-             * a logical name and specifies the shared library that Envoy will load.
+             * used by EnvoyExtensionPolicy resources and dynamic module load balancer
+             * policies. Each entry registers a module by a logical name and specifies
+             * the shared library that Envoy will load.
              *
              * The EnvoyProxy owner is responsible for ensuring the module .so files are available
              * on the proxy container's filesystem (e.g., via init containers, custom images,
@@ -13312,6 +14131,8 @@ export namespace gateway {
              *
              * - envoy.filters.http.ratelimit
              *
+             * - envoy.filters.http.bandwidth_limit
+             *
              * - envoy.filters.http.grpc_web
              *
              * - envoy.filters.http.grpc_stats
@@ -13351,6 +14172,13 @@ export namespace gateway {
              * If a duplicate listener is detected, the newer listener (based on timestamp) will be rejected and its status will be updated with a "Accepted=False" condition.
              */
             mergeGateways: boolean;
+            /**
+             * MergeType controls how this EnvoyProxy merges with less specific configurations
+             * in the hierarchy (EnvoyGateway defaults < GatewayClass < Gateway).
+             * If unset, this EnvoyProxy completely replaces less specific settings.
+             * Note: this field has no effect when set in EnvoyGateway's default EnvoyProxySpec.
+             */
+            mergeType: string;
             /**
              * PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
              * specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
@@ -14161,8 +14989,9 @@ export namespace gateway {
             concurrency: number;
             /**
              * DynamicModules defines the set of dynamic modules that are allowed to be
-             * used by EnvoyExtensionPolicy resources. Each entry registers a module by
-             * a logical name and specifies the shared library that Envoy will load.
+             * used by EnvoyExtensionPolicy resources and dynamic module load balancer
+             * policies. Each entry registers a module by a logical name and specifies
+             * the shared library that Envoy will load.
              *
              * The EnvoyProxy owner is responsible for ensuring the module .so files are available
              * on the proxy container's filesystem (e.g., via init containers, custom images,
@@ -14221,6 +15050,8 @@ export namespace gateway {
              *
              * - envoy.filters.http.ratelimit
              *
+             * - envoy.filters.http.bandwidth_limit
+             *
              * - envoy.filters.http.grpc_web
              *
              * - envoy.filters.http.grpc_stats
@@ -14260,6 +15091,13 @@ export namespace gateway {
              * If a duplicate listener is detected, the newer listener (based on timestamp) will be rejected and its status will be updated with a "Accepted=False" condition.
              */
             mergeGateways: boolean;
+            /**
+             * MergeType controls how this EnvoyProxy merges with less specific configurations
+             * in the hierarchy (EnvoyGateway defaults < GatewayClass < Gateway).
+             * If unset, this EnvoyProxy completely replaces less specific settings.
+             * Note: this field has no effect when set in EnvoyGateway's default EnvoyProxySpec.
+             */
+            mergeType: string;
             /**
              * PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
              * specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
@@ -25109,6 +25947,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStart;
             /**
@@ -25118,7 +25957,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAware;
@@ -25383,6 +26223,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -25441,6 +26335,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -25450,7 +26345,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksAlsBackendSettingsLoadBalancerZoneAwarePatch;
@@ -26023,11 +26919,13 @@ export namespace gateway {
             headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeaders[];
             /**
              * Host define the extension service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             /**
              * Port defines the port the extension service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -27169,6 +28067,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart;
             /**
@@ -27178,7 +28077,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware;
@@ -27443,6 +28343,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -27501,6 +28455,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -27510,7 +28465,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch;
@@ -28057,11 +29013,13 @@ export namespace gateway {
             headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryAccessLogSettingsSinksOpenTelemetryHeadersPatch[];
             /**
              * Host define the extension service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             /**
              * Port defines the port the extension service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -28111,6 +29069,14 @@ export namespace gateway {
              * Example: `httproute/my-ns/my-route/rule/0`
              */
             clusterStatName: string;
+            /**
+             * EnableGRPCStats enables the gRPC stats filter on listeners.
+             * This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+             * In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+             * users want to route gRPC using HTTPRoute for its richer matching capabilities.
+             * Therefore, we enable this behavior only when it is explicitly opted in.
+             */
+            enableGRPCStats: boolean;
             /**
              * EnablePerEndpointStats enables per endpoint envoy stats metrics.
              * Please use with caution.
@@ -28191,6 +29157,14 @@ export namespace gateway {
              * Example: `httproute/my-ns/my-route/rule/0`
              */
             clusterStatName: string;
+            /**
+             * EnableGRPCStats enables the gRPC stats filter on listeners.
+             * This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+             * In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+             * users want to route gRPC using HTTPRoute for its richer matching capabilities.
+             * Therefore, we enable this behavior only when it is explicitly opted in.
+             */
+            enableGRPCStats: boolean;
             /**
              * EnablePerEndpointStats enables per endpoint envoy stats metrics.
              * Please use with caution.
@@ -28334,11 +29308,13 @@ export namespace gateway {
             headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeaders[];
             /**
              * Host define the service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             /**
              * Port defines the port the service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -29484,6 +30460,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStart;
             /**
@@ -29493,7 +30470,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAware;
@@ -29758,6 +30736,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -29816,6 +30848,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -29825,7 +30858,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryBackendSettingsLoadBalancerZoneAwarePatch;
@@ -30373,11 +31407,13 @@ export namespace gateway {
             headers: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryMetricsSinksOpenTelemetryHeadersPatch[];
             /**
              * Host define the service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             /**
              * Port defines the port the service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -30537,12 +31573,14 @@ export namespace gateway {
             backendSettings: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettings;
             /**
              * Host define the provider service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             openTelemetry: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetry;
             /**
              * Port defines the port the provider service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -31686,6 +32724,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStart;
             /**
@@ -31695,7 +32734,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAware;
@@ -31960,6 +33000,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -32018,6 +33112,7 @@ export namespace gateway {
         export interface EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -32027,7 +33122,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsLoadBalancerZoneAwarePatch;
@@ -32643,12 +33739,14 @@ export namespace gateway {
             backendSettings: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderBackendSettingsPatch;
             /**
              * Host define the provider service hostname.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             host: string;
             openTelemetry: outputs.gateway.v1alpha1.EnvoyProxySpecTelemetryTracingProviderOpenTelemetryPatch;
             /**
              * Port defines the port the provider service is exposed on.
+             *
              * Deprecated: Use BackendRefs instead.
              */
             port: number;
@@ -34755,6 +35853,28 @@ export namespace gateway {
             headersToExtAuth: string[];
             http: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttp;
             /**
+             * IncludeRouteMetadata sends Envoy Gateway's built-in route metadata to the
+             * external authorization service as context.
+             *
+             * This includes Envoy Gateway's built-in metadata for the selected route in
+             * the "envoy-gateway" metadata namespace.
+             *
+             * The metadata is exposed under the "resources" field as a list of route
+             * resource objects. For example:
+             *
+             * envoy-gateway:
+             *   resources:
+             *   - kind: HTTPRoute
+             *     name: backend
+             *     namespace: default
+             *     annotations:
+             *       foo: bar
+             *
+             * The resource object may include fields such as kind, namespace, name,
+             * sectionName, and supported route annotations.
+             */
+            includeRouteMetadata: boolean;
+            /**
              * RecomputeRoute clears the route cache and recalculates the routing decision.
              * This field must be enabled if the headers added or modified by the ExtAuth are used for
              * route matching decisions. If the recomputation selects a new route, features targeting
@@ -36033,6 +37153,7 @@ export namespace gateway {
         export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStart;
             /**
@@ -36042,7 +37163,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAware;
@@ -36307,6 +37429,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -36365,6 +37541,7 @@ export namespace gateway {
         export interface SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -36374,7 +37551,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthGrpcBackendSettingsLoadBalancerZoneAwarePatch;
@@ -36894,8 +38072,17 @@ export namespace gateway {
              * For example, if the original request path is "/hello", and the path specified here is "/auth",
              * then the path of the authorization request will be "/auth/hello". If the path is not specified,
              * the path of the authorization request will be "/hello".
+             * Only one of Path or PathOverride can be set.
              */
             path: string;
+            /**
+             * PathOverride replaces the original request path in the authorization request.
+             * If set, the path will be overridden to this value during authorization.
+             * For example, if the original request path is "/hello", and PathOverride is set to "/auth",
+             * then the path of the authorization request will be "/auth".
+             * Only one of Path or PathOverride can be set.
+             */
+            pathOverride: string;
         }
 
         /**
@@ -38022,6 +39209,7 @@ export namespace gateway {
         export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStart;
             /**
@@ -38031,7 +39219,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAware;
@@ -38296,6 +39485,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -38354,6 +39597,7 @@ export namespace gateway {
         export interface SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -38363,7 +39607,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpBackendSettingsLoadBalancerZoneAwarePatch;
@@ -38868,8 +40113,17 @@ export namespace gateway {
              * For example, if the original request path is "/hello", and the path specified here is "/auth",
              * then the path of the authorization request will be "/auth/hello". If the path is not specified,
              * the path of the authorization request will be "/hello".
+             * Only one of Path or PathOverride can be set.
              */
             path: string;
+            /**
+             * PathOverride replaces the original request path in the authorization request.
+             * If set, the path will be overridden to this value during authorization.
+             * For example, if the original request path is "/hello", and PathOverride is set to "/auth",
+             * then the path of the authorization request will be "/auth".
+             * Only one of Path or PathOverride can be set.
+             */
+            pathOverride: string;
         }
 
         /**
@@ -38910,6 +40164,28 @@ export namespace gateway {
              */
             headersToExtAuth: string[];
             http: outputs.gateway.v1alpha1.SecurityPolicySpecExtAuthHttpPatch;
+            /**
+             * IncludeRouteMetadata sends Envoy Gateway's built-in route metadata to the
+             * external authorization service as context.
+             *
+             * This includes Envoy Gateway's built-in metadata for the selected route in
+             * the "envoy-gateway" metadata namespace.
+             *
+             * The metadata is exposed under the "resources" field as a list of route
+             * resource objects. For example:
+             *
+             * envoy-gateway:
+             *   resources:
+             *   - kind: HTTPRoute
+             *     name: backend
+             *     namespace: default
+             *     annotations:
+             *       foo: bar
+             *
+             * The resource object may include fields such as kind, namespace, name,
+             * sectionName, and supported route annotations.
+             */
+            includeRouteMetadata: boolean;
             /**
              * RecomputeRoute clears the route cache and recalculates the routing decision.
              * This field must be enabled if the headers added or modified by the ExtAuth are used for
@@ -40374,6 +41650,7 @@ export namespace gateway {
         export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStart;
             /**
@@ -40383,7 +41660,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAware;
@@ -40648,6 +41926,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -40706,6 +42038,7 @@ export namespace gateway {
         export interface SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -40715,7 +42048,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecJwtProvidersRemoteJWKSBackendSettingsLoadBalancerZoneAwarePatch;
@@ -41278,6 +42612,7 @@ export namespace gateway {
              * If not specified, defaults to false.
              */
             forwardAccessToken: boolean;
+            forwardIDToken: outputs.gateway.v1alpha1.SecurityPolicySpecOidcForwardIDToken;
             /**
              * The path to log a user out, clearing their credential cookies.
              *
@@ -41581,6 +42916,34 @@ export namespace gateway {
         }
 
         /**
+         * ForwardIDToken configures forwarding of the OIDC ID token to the upstream.
+         *
+         * If the configured header is "Authorization", EG forwards the ID token using
+         * the "Bearer " prefix. For any other header, EG forwards the raw token value.
+         * If not specified, the ID token will not be forwarded.
+         */
+        export interface SecurityPolicySpecOidcForwardIDToken {
+            /**
+             * Header is the upstream request header that will carry the ID token.
+             */
+            header: string;
+        }
+
+        /**
+         * ForwardIDToken configures forwarding of the OIDC ID token to the upstream.
+         *
+         * If the configured header is "Authorization", EG forwards the ID token using
+         * the "Bearer " prefix. For any other header, EG forwards the raw token value.
+         * If not specified, the ID token will not be forwarded.
+         */
+        export interface SecurityPolicySpecOidcForwardIDTokenPatch {
+            /**
+             * Header is the upstream request header that will carry the ID token.
+             */
+            header: string;
+        }
+
+        /**
          * OIDC defines the configuration for the OpenID Connect (OIDC) authentication.
          */
         export interface SecurityPolicySpecOidcPatch {
@@ -41644,6 +43007,7 @@ export namespace gateway {
              * If not specified, defaults to false.
              */
             forwardAccessToken: boolean;
+            forwardIDToken: outputs.gateway.v1alpha1.SecurityPolicySpecOidcForwardIDTokenPatch;
             /**
              * The path to log a user out, clearing their credential cookies.
              *
@@ -42851,6 +44215,7 @@ export namespace gateway {
         export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancer {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilization;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHash;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerDynamicModule;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerEndpointOverride;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStart;
             /**
@@ -42860,7 +44225,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAware;
@@ -43125,6 +44491,60 @@ export namespace gateway {
         }
 
         /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerDynamicModule {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
+         * DynamicModule defines the configuration when the load balancer type is
+         * set to DynamicModule. The referenced module must be registered in the
+         * EnvoyProxy resource's dynamicModules allowlist.
+         */
+        export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerDynamicModulePatch {
+            /**
+             * Config is optional configuration for the module's load balancer
+             * implementation. This is serialized and passed to the module's
+             * initialization function.
+             */
+            config: {[key: string]: any};
+            /**
+             * LBPolicyName identifies a specific load balancer implementation within
+             * the dynamic module. A single shared library can contain multiple LB
+             * policy implementations. This value is passed to the module's
+             * initialization function to select the appropriate implementation.
+             */
+            lbPolicyName: string;
+            /**
+             * Name references a dynamic module registered in the EnvoyProxy resource's
+             * dynamicModules list. The referenced module must exist in the registry;
+             * otherwise, the policy will be rejected.
+             */
+            name: string;
+        }
+
+        /**
          * EndpointOverride defines the configuration for endpoint override.
          * When specified, the load balancer will attempt to route requests to endpoints
          * based on the override information extracted from request headers or metadata.
@@ -43183,6 +44603,7 @@ export namespace gateway {
         export interface SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerPatch {
             backendUtilization: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerBackendUtilizationPatch;
             consistentHash: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerConsistentHashPatch;
+            dynamicModule: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerDynamicModulePatch;
             endpointOverride: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerEndpointOverridePatch;
             slowStart: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerSlowStartPatch;
             /**
@@ -43192,7 +44613,8 @@ export namespace gateway {
              * "LeastRequest",
              * "Random",
              * "RoundRobin",
-             * "BackendUtilization".
+             * "BackendUtilization",
+             * "DynamicModule".
              */
             type: string;
             zoneAware: outputs.gateway.v1alpha1.SecurityPolicySpecOidcProviderBackendSettingsLoadBalancerZoneAwarePatch;
@@ -43901,9 +45323,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsMatchExpressions[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespaces;
         }
 
         /**
@@ -43952,6 +45375,122 @@ export namespace gateway {
             values: string[];
         }
 
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespaces {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespacesSelector;
+        }
+
+        /**
+         * Namespaces determines which namespaces are considered for target selection.
+         *
+         * If unspecified, only targets in the same namespace as this policy are considered.
+         *
+         * When specified, the effective set of namespaces is always constrained to the
+         * namespaces watched by Envoy Gateway.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespacesPatch {
+            /**
+             * From indicates how namespaces are selected for this target selector.
+             *
+             * All means all namespaces watched by Envoy Gateway.
+             * Selector means namespaces watched by Envoy Gateway that match Selector.
+             */
+            from: string;
+            selector: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespacesSelectorPatch;
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespacesSelector {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespacesSelectorMatchExpressions {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * A label selector requirement is a selector that contains values, a key, and an operator that
+         * relates the key and values.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch {
+            /**
+             * key is the label key that the selector applies to.
+             */
+            key: string;
+            /**
+             * operator represents a key's relationship to a set of values.
+             * Valid operators are In, NotIn, Exists and DoesNotExist.
+             */
+            operator: string;
+            /**
+             * values is an array of string values. If the operator is In or NotIn,
+             * the values array must be non-empty. If the operator is Exists or DoesNotExist,
+             * the values array must be empty. This array is replaced during a strategic
+             * merge patch.
+             */
+            values: string[];
+        }
+
+        /**
+         * Selector selects namespaces when From is set to Selector.
+         */
+        export interface SecurityPolicySpecTargetSelectorsNamespacesSelectorPatch {
+            /**
+             * matchExpressions is a list of label selector requirements. The requirements are ANDed.
+             */
+            matchExpressions: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespacesSelectorMatchExpressionsPatch[];
+            /**
+             * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+             * map is equivalent to an element of matchExpressions, whose key field is "key", the
+             * operator is "In", and the values array contains only "value". The requirements are ANDed.
+             */
+            matchLabels: {[key: string]: string};
+        }
+
         export interface SecurityPolicySpecTargetSelectorsPatch {
             /**
              * Group is the group that this selector targets. Defaults to gateway.networking.k8s.io
@@ -43966,9 +45505,10 @@ export namespace gateway {
              */
             matchExpressions: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsMatchExpressionsPatch[];
             /**
-             * MatchLabels are the set of label selectors for identifying the targeted resource
+             * MatchLabels are the set of label selectors for identifying the targeted resource.
              */
             matchLabels: {[key: string]: string};
+            namespaces: outputs.gateway.v1alpha1.SecurityPolicySpecTargetSelectorsNamespacesPatch;
         }
 
         /**
@@ -44556,6 +46096,12 @@ export namespace meta {
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
             selfLink: string;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo: outputs.meta.v1.ShardInfo;
         }
 
         /**
@@ -44844,6 +46390,16 @@ export namespace meta {
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
             uid: string;
+        }
+
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        export interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: string;
         }
 
     }

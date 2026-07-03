@@ -262,7 +262,7 @@ export namespace barmancloud {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -285,6 +285,23 @@ export namespace barmancloud {
              * to 2
              */
             jobs: number;
+            /**
+             * Additional arguments that can be appended to the 'barman-cloud-restore'
+             * command-line invocation. These arguments provide flexibility to customize
+             * the data restore process further, according to specific requirements or
+             * configurations.
+             *
+             * Example:
+             * In a scenario where specialized restore options are required, such as setting
+             * a specific read timeout or defining custom behavior, users can use this field
+             * to specify additional command arguments.
+             *
+             * Note:
+             * It's essential to ensure that the provided arguments are valid and supported
+             * by the 'barman-cloud-restore' command, to avoid potential errors or unintended
+             * behavior during execution.
+             */
+            restoreAdditionalCommandArgs: string[];
         }
 
         /**
@@ -314,7 +331,7 @@ export namespace barmancloud {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -337,6 +354,23 @@ export namespace barmancloud {
              * to 2
              */
             jobs: number;
+            /**
+             * Additional arguments that can be appended to the 'barman-cloud-restore'
+             * command-line invocation. These arguments provide flexibility to customize
+             * the data restore process further, according to specific requirements or
+             * configurations.
+             *
+             * Example:
+             * In a scenario where specialized restore options are required, such as setting
+             * a specific read timeout or defining custom behavior, users can use this field
+             * to specify additional command arguments.
+             *
+             * Note:
+             * It's essential to ensure that the provided arguments are valid and supported
+             * by the 'barman-cloud-restore' command, to avoid potential errors or unintended
+             * behavior during execution.
+             */
+            restoreAdditionalCommandArgs: string[];
         }
 
         /**
@@ -1224,6 +1258,12 @@ export namespace meta {
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
             selfLink: string;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo: outputs.meta.v1.ShardInfo;
         }
 
         /**
@@ -1512,6 +1552,16 @@ export namespace meta {
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
             uid: string;
+        }
+
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        export interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: string;
         }
 
     }

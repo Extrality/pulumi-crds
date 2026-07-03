@@ -66,17 +66,17 @@ export class ListenerSet extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"gateway.networking.k8s.io/v1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"ListenerSet">;
+    declare public readonly kind: pulumi.Output<"ListenerSet">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.gateway.v1.ListenerSetSpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1.ListenerSetStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1.ListenerSetSpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1.ListenerSetStatus>;
 
     /**
      * Create a ListenerSet resource with the given unique name, arguments, and options.
@@ -91,8 +91,8 @@ export class ListenerSet extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1";
             resourceInputs["kind"] = "ListenerSet";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -113,14 +113,14 @@ export interface ListenerSetArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"ListenerSet">;
+    kind?: pulumi.Input<"ListenerSet" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.gateway.v1.ListenerSetSpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.gateway.v1.ListenerSetSpec | undefined>;
 }

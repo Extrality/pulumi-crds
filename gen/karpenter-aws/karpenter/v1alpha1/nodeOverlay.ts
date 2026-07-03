@@ -36,17 +36,17 @@ export class NodeOverlay extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"karpenter.sh/v1alpha1">;
+    declare public readonly apiVersion: pulumi.Output<"karpenter.sh/v1alpha1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"NodeOverlay">;
+    declare public readonly kind: pulumi.Output<"NodeOverlay">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.karpenter.v1alpha1.NodeOverlaySpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.karpenter.v1alpha1.NodeOverlayStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.karpenter.v1alpha1.NodeOverlaySpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.karpenter.v1alpha1.NodeOverlayStatus>;
 
     /**
      * Create a NodeOverlay resource with the given unique name, arguments, and options.
@@ -61,8 +61,8 @@ export class NodeOverlay extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "karpenter.sh/v1alpha1";
             resourceInputs["kind"] = "NodeOverlay";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -83,14 +83,14 @@ export interface NodeOverlayArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"karpenter.sh/v1alpha1">;
+    apiVersion?: pulumi.Input<"karpenter.sh/v1alpha1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"NodeOverlay">;
+    kind?: pulumi.Input<"NodeOverlay" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.karpenter.v1alpha1.NodeOverlaySpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.karpenter.v1alpha1.NodeOverlaySpec | undefined>;
 }

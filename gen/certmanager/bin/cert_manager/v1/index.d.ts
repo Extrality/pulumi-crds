@@ -34,3 +34,4 @@ export declare const IssuerList: typeof import("./issuerList").IssuerList;
 export { IssuerPatchArgs } from "./issuerPatch";
 export type IssuerPatch = import("./issuerPatch").IssuerPatch;
 export declare const IssuerPatch: typeof import("./issuerPatch").IssuerPatch;
+//# sourceMappingURL=index.d.ts.map

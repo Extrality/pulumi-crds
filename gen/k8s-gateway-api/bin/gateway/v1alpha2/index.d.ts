@@ -25,3 +25,4 @@ export declare const UDPRouteList: typeof import("./udprouteList").UDPRouteList;
 export { UDPRoutePatchArgs } from "./udproutePatch";
 export type UDPRoutePatch = import("./udproutePatch").UDPRoutePatch;
 export declare const UDPRoutePatch: typeof import("./udproutePatch").UDPRoutePatch;
+//# sourceMappingURL=index.d.ts.map

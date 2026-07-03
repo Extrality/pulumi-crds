@@ -1,6 +1,6 @@
 {
   "name": "@pulumi/certmanager",
-  "version": "1.21.0-alpha.0",
+  "version": "1.21.0-beta.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -15,25 +15,21 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@pulumi/kubernetes": "4.18.0",
-    "@pulumi/pulumi": "^3.25.0",
-    "@types/node-fetch": "^2.1.4",
-    "@types/tmp": "^0.0.33",
-    "glob": "^10.3.10",
-    "node-fetch": "^2.3.0",
+    "@pulumi/kubernetes": "4.23.0",
+    "@pulumi/pulumi": "^3.142.0",
+    "@types/node": "^20",
+    "glob": "^12.0.0",
     "shell-quote": "^1.6.1",
-    "tmp": "^0.0.33"
+    "typescript": "^4.7.0"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
-    "@types/node": "^14",
     "@types/shell-quote": "^1.6.0",
-    "mocha": "^5.2.0",
-    "typescript": "^4.3.5"
+    "mocha": "^5.2.0"
   },
   "pulumi": {
     "resource": true,
     "name": "certmanager",
-    "version": "1.21.0-alpha.0"
+    "version": "1.21.0-beta.0"
   }
 }

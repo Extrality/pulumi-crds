@@ -164,6 +164,24 @@ export declare namespace acme {
             dns01: outputs.acme.v1.ChallengeSpecSolverDns01;
             http01: outputs.acme.v1.ChallengeSpecSolverHttp01;
             selector: outputs.acme.v1.ChallengeSpecSolverSelector;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Configures cert-manager to attempt to complete authorizations by
@@ -5755,6 +5773,24 @@ export declare namespace acme {
             dns01: outputs.acme.v1.ChallengeSpecSolverDns01Patch;
             http01: outputs.acme.v1.ChallengeSpecSolverHttp01Patch;
             selector: outputs.acme.v1.ChallengeSpecSolverSelectorPatch;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Selector selects a set of DNSNames on the Certificate resource that
@@ -5834,14 +5870,21 @@ export declare namespace acme {
         }
         interface ChallengeStatus {
             /**
-             * presented will be set to true if the challenge values for this challenge
-             * are currently 'presented'.
-             * This *does not* imply the self check is passing. Only that the values
-             * have been 'submitted' for the appropriate challenge mechanism (i.e. the
-             * DNS01 TXT record has been presented, or the HTTP01 configuration has been
-             * configured).
+             * Presented is true once cert-manager has configured the solver resources
+             * needed to expose this challenge's validation material.
+             * For example, the DNS01 TXT record has been created, or the HTTP01 solver
+             * has been configured to serve the challenge token.
+             * This does not imply the self check is passing, that the ACME server has
+             * validated the challenge, or that cert-manager has already accepted the
+             * challenge with the ACME server.
              */
             presented: boolean;
+            /**
+             * PresentedAt records when cert-manager first configured the solver
+             * resources for this challenge. This is used by the optional delay-based
+             * readiness logic.
+             */
+            presentedAt: string;
             /**
              * Used to denote whether this challenge should be processed or not.
              * This field will only be set to true by the 'scheduling' component.
@@ -5864,14 +5907,21 @@ export declare namespace acme {
         }
         interface ChallengeStatusPatch {
             /**
-             * presented will be set to true if the challenge values for this challenge
-             * are currently 'presented'.
-             * This *does not* imply the self check is passing. Only that the values
-             * have been 'submitted' for the appropriate challenge mechanism (i.e. the
-             * DNS01 TXT record has been presented, or the HTTP01 configuration has been
-             * configured).
+             * Presented is true once cert-manager has configured the solver resources
+             * needed to expose this challenge's validation material.
+             * For example, the DNS01 TXT record has been created, or the HTTP01 solver
+             * has been configured to serve the challenge token.
+             * This does not imply the self check is passing, that the ACME server has
+             * validated the challenge, or that cert-manager has already accepted the
+             * challenge with the ACME server.
              */
             presented: boolean;
+            /**
+             * PresentedAt records when cert-manager first configured the solver
+             * resources for this challenge. This is used by the optional delay-based
+             * readiness logic.
+             */
+            presentedAt: string;
             /**
              * Used to denote whether this challenge should be processed or not.
              * This field will only be set to true by the 'scheduling' component.
@@ -5926,7 +5976,7 @@ export declare namespace acme {
             dnsNames: string[];
             /**
              * Duration is the duration for the not after date for the requested certificate.
-             * this is set on order creation as pe the ACME spec.
+             * This is set on order creation as per the ACME spec.
              */
             duration: string;
             /**
@@ -5941,6 +5991,15 @@ export declare namespace acme {
              * Supported profiles are listed by the server's ACME directory URL.
              */
             profile: string;
+            /**
+             * Replaces is the ARI CertID (RFC 9773 §4.1) of the certificate that this
+             * Order is intended to replace. When set, cert-manager will include the
+             * "replaces" field on the newOrder request to the ACME server if and only
+             * if the server advertises ARI support in its directory. The CertID has
+             * the form "base64url(AKI).base64url(serial)" and is derived locally from
+             * the currently issued leaf certificate.
+             */
+            replaces: string;
             /**
              * Certificate signing request bytes in DER encoding.
              * This will be used when finalizing the order.
@@ -6009,7 +6068,7 @@ export declare namespace acme {
             dnsNames: string[];
             /**
              * Duration is the duration for the not after date for the requested certificate.
-             * this is set on order creation as pe the ACME spec.
+             * This is set on order creation as per the ACME spec.
              */
             duration: string;
             /**
@@ -6024,6 +6083,15 @@ export declare namespace acme {
              * Supported profiles are listed by the server's ACME directory URL.
              */
             profile: string;
+            /**
+             * Replaces is the ARI CertID (RFC 9773 §4.1) of the certificate that this
+             * Order is intended to replace. When set, cert-manager will include the
+             * "replaces" field on the newOrder request to the ACME server if and only
+             * if the server advertises ARI support in its directory. The CertID has
+             * the form "base64url(AKI).base64url(serial)" and is derived locally from
+             * the currently issued leaf certificate.
+             */
+            replaces: string;
             /**
              * Certificate signing request bytes in DER encoding.
              * This will be used when finalizing the order.
@@ -6987,6 +7055,11 @@ export declare namespace cert_manager {
              * `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
              * (e.g., because of company policy). Please note that the security of the algorithm is not that important
              * in reality, because the unencrypted certificate and private key are also stored in the Secret.
+             * `Modern2026`: Encodes PKCS#12 files using algorithms that are considered modern as of 2026.
+             * Private keys and certificates are encrypted using PBES2 with PBKDF2-HMAC-SHA-256 and AES-256-CBC.
+             * The MAC algorithm is PBMAC1 with PBKDF2-HMAC-SHA-256 and HMAC-SHA256.
+             * Files produced with this profile can be read by OpenSSL 3.4.0 and higher, Java 26 and higher,
+             * or with Java using compatible versions of Bouncy Castle. Meets FIPS 140-3 requirements.
              */
             profile: string;
         }
@@ -7062,6 +7135,11 @@ export declare namespace cert_manager {
              * `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
              * (e.g., because of company policy). Please note that the security of the algorithm is not that important
              * in reality, because the unencrypted certificate and private key are also stored in the Secret.
+             * `Modern2026`: Encodes PKCS#12 files using algorithms that are considered modern as of 2026.
+             * Private keys and certificates are encrypted using PBES2 with PBKDF2-HMAC-SHA-256 and AES-256-CBC.
+             * The MAC algorithm is PBMAC1 with PBKDF2-HMAC-SHA-256 and HMAC-SHA256.
+             * Files produced with this profile can be read by OpenSSL 3.4.0 and higher, Java 26 and higher,
+             * or with Java using compatible versions of Bouncy Castle. Meets FIPS 140-3 requirements.
              */
             profile: string;
         }
@@ -7687,6 +7765,7 @@ export declare namespace cert_manager {
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         interface CertificateStatus {
+            acme: outputs.cert_manager.v1.CertificateStatusAcme;
             /**
              * List of status conditions to indicate the status of certificates.
              * Known condition types are `Ready` and `Issuing`.
@@ -7750,6 +7829,92 @@ export declare namespace cert_manager {
              * field.
              */
             revision: number;
+        }
+        /**
+         * ACME stores information that is fetched from the ACME CA server.
+         */
+        interface CertificateStatusAcme {
+            ari: outputs.cert_manager.v1.CertificateStatusAcmeAri;
+        }
+        /**
+         * ARI stores the ACME Renewal Information that is fetched from the ACME server
+         * in accordance with RFC 9773. This is only populated if the ARI feature gate is enabled.
+         */
+        interface CertificateStatusAcmeAri {
+            /**
+             * ExplanationURL is a human-readable URL that may explain why the suggested window
+             * has its current value.
+             */
+            explanationURL: string;
+            /**
+             * LastChecked is the time at which the ACME server was last checked for renewal information.
+             */
+            lastChecked: string;
+            /**
+             * LastError is the last error encountered when checking the ACME server for renewal information, if any.
+             */
+            lastError: string;
+            /**
+             * NextCheck is the time at which the ACME server will next be checked for renewal information.
+             */
+            nextCheck: string;
+            suggestedWindow: outputs.cert_manager.v1.CertificateStatusAcmeAriSuggestedWindow;
+        }
+        /**
+         * ARI stores the ACME Renewal Information that is fetched from the ACME server
+         * in accordance with RFC 9773. This is only populated if the ARI feature gate is enabled.
+         */
+        interface CertificateStatusAcmeAriPatch {
+            /**
+             * ExplanationURL is a human-readable URL that may explain why the suggested window
+             * has its current value.
+             */
+            explanationURL: string;
+            /**
+             * LastChecked is the time at which the ACME server was last checked for renewal information.
+             */
+            lastChecked: string;
+            /**
+             * LastError is the last error encountered when checking the ACME server for renewal information, if any.
+             */
+            lastError: string;
+            /**
+             * NextCheck is the time at which the ACME server will next be checked for renewal information.
+             */
+            nextCheck: string;
+            suggestedWindow: outputs.cert_manager.v1.CertificateStatusAcmeAriSuggestedWindowPatch;
+        }
+        /**
+         * SuggestedWindow is the suggested renewal window as returned by the ACME server in accordance with RFC 9773.
+         */
+        interface CertificateStatusAcmeAriSuggestedWindow {
+            /**
+             * End is the end of the suggested renewal window.
+             */
+            end: string;
+            /**
+             * Start is the start of the suggested renewal window.
+             */
+            start: string;
+        }
+        /**
+         * SuggestedWindow is the suggested renewal window as returned by the ACME server in accordance with RFC 9773.
+         */
+        interface CertificateStatusAcmeAriSuggestedWindowPatch {
+            /**
+             * End is the end of the suggested renewal window.
+             */
+            end: string;
+            /**
+             * Start is the start of the suggested renewal window.
+             */
+            start: string;
+        }
+        /**
+         * ACME stores information that is fetched from the ACME CA server.
+         */
+        interface CertificateStatusAcmePatch {
+            ari: outputs.cert_manager.v1.CertificateStatusAcmeAriPatch;
         }
         /**
          * CertificateCondition contains condition information for a Certificate.
@@ -7830,6 +7995,7 @@ export declare namespace cert_manager {
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         interface CertificateStatusPatch {
+            acme: outputs.cert_manager.v1.CertificateStatusAcmePatch;
             /**
              * List of status conditions to indicate the status of certificates.
              * Known condition types are `Ready` and `Issuing`.
@@ -8228,6 +8394,24 @@ export declare namespace cert_manager {
             dns01: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversDns01;
             http01: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01;
             selector: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversSelector;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Configures cert-manager to attempt to complete authorizations by
@@ -13820,6 +14004,24 @@ export declare namespace cert_manager {
             dns01: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversDns01Patch;
             http01: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversHttp01Patch;
             selector: outputs.cert_manager.v1.ClusterIssuerSpecAcmeSolversSelectorPatch;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Selector selects a set of DNSNames on the Certificate resource that
@@ -14575,6 +14777,7 @@ export declare namespace cert_manager {
          */
         interface ClusterIssuerSpecVenafi {
             cloud: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloud;
+            ngts: outputs.cert_manager.v1.ClusterIssuerSpecVenafiNgts;
             tpp: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTpp;
             /**
              * Zone is the Certificate Manager Policy Zone to use for this issuer.
@@ -14641,11 +14844,84 @@ export declare namespace cert_manager {
             url: string;
         }
         /**
+         * NGTS specifies Palo Alto Networks Next Generation Trust Services (NGTS) configuration
+         * using OAuth 2.0 Client Credentials. Only one of tpp, cloud, or ngts may be specified.
+         */
+        interface ClusterIssuerSpecVenafiNgts {
+            credentialsRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiNgtsCredentialsRef;
+            /**
+             * TokenEndpoint is the OAuth 2.0 token endpoint URL used to obtain access tokens,
+             * for example "https://auth.apps.paloaltonetworks.com/oauth2/access_token".
+             * Defaults to "https://auth.apps.paloaltonetworks.com/oauth2/access_token" if not set.
+             */
+            tokenEndpoint: string;
+            /**
+             * TSGID is the Tenant Service Group ID used to scope the OAuth 2.0 access token,
+             * for example "1234567890". The tsg_id: prefix is added automatically.
+             * This field is required.
+             */
+            tsgID: string;
+            /**
+             * URL is the base URL for the NGTS API endpoint.
+             * Defaults to "https://api.strata.paloaltonetworks.com/ngts" if not set.
+             */
+            url: string;
+        }
+        /**
+         * CredentialsRef is a reference to a Kubernetes Secret containing the OAuth 2.0
+         * Client ID and Client Secret. The secret must contain the keys 'client-id' and
+         * 'client-secret'.
+         */
+        interface ClusterIssuerSpecVenafiNgtsCredentialsRef {
+            /**
+             * Name of the resource being referred to.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * CredentialsRef is a reference to a Kubernetes Secret containing the OAuth 2.0
+         * Client ID and Client Secret. The secret must contain the keys 'client-id' and
+         * 'client-secret'.
+         */
+        interface ClusterIssuerSpecVenafiNgtsCredentialsRefPatch {
+            /**
+             * Name of the resource being referred to.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * NGTS specifies Palo Alto Networks Next Generation Trust Services (NGTS) configuration
+         * using OAuth 2.0 Client Credentials. Only one of tpp, cloud, or ngts may be specified.
+         */
+        interface ClusterIssuerSpecVenafiNgtsPatch {
+            credentialsRef: outputs.cert_manager.v1.ClusterIssuerSpecVenafiNgtsCredentialsRefPatch;
+            /**
+             * TokenEndpoint is the OAuth 2.0 token endpoint URL used to obtain access tokens,
+             * for example "https://auth.apps.paloaltonetworks.com/oauth2/access_token".
+             * Defaults to "https://auth.apps.paloaltonetworks.com/oauth2/access_token" if not set.
+             */
+            tokenEndpoint: string;
+            /**
+             * TSGID is the Tenant Service Group ID used to scope the OAuth 2.0 access token,
+             * for example "1234567890". The tsg_id: prefix is added automatically.
+             * This field is required.
+             */
+            tsgID: string;
+            /**
+             * URL is the base URL for the NGTS API endpoint.
+             * Defaults to "https://api.strata.paloaltonetworks.com/ngts" if not set.
+             */
+            url: string;
+        }
+        /**
          * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
          * or SaaS policy zone.
          */
         interface ClusterIssuerSpecVenafiPatch {
             cloud: outputs.cert_manager.v1.ClusterIssuerSpecVenafiCloudPatch;
+            ngts: outputs.cert_manager.v1.ClusterIssuerSpecVenafiNgtsPatch;
             tpp: outputs.cert_manager.v1.ClusterIssuerSpecVenafiTppPatch;
             /**
              * Zone is the Certificate Manager Policy Zone to use for this issuer.
@@ -15234,6 +15510,24 @@ export declare namespace cert_manager {
             dns01: outputs.cert_manager.v1.IssuerSpecAcmeSolversDns01;
             http01: outputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01;
             selector: outputs.cert_manager.v1.IssuerSpecAcmeSolversSelector;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Configures cert-manager to attempt to complete authorizations by
@@ -20826,6 +21120,24 @@ export declare namespace cert_manager {
             dns01: outputs.cert_manager.v1.IssuerSpecAcmeSolversDns01Patch;
             http01: outputs.cert_manager.v1.IssuerSpecAcmeSolversHttp01Patch;
             selector: outputs.cert_manager.v1.IssuerSpecAcmeSolversSelectorPatch;
+            /**
+             * WaitInsteadOfSelfCheck, if set, skips cert-manager's self-check and
+             * instead waits this long after presentation before asking the ACME server
+             * to validate the challenge.
+             *
+             * This is an advanced escape hatch for environments where cert-manager's
+             * self-check cannot succeed from its own network or DNS viewpoint even
+             * though the ACME server can still validate successfully, for example due
+             * to split-horizon DNS or NAT hairpinning.
+             *
+             * A value of 0 skips the self-check and asks the ACME server to validate
+             * immediately after presentation, relying on the ACME server's own
+             * validation retries (RFC 8555 section 8.2) to succeed once the challenge
+             * has propagated. A negative duration is rejected.
+             * Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration,
+             * for example `30s` or `2m`.
+             */
+            waitInsteadOfSelfCheck: string;
         }
         /**
          * Selector selects a set of DNSNames on the Certificate resource that
@@ -21581,6 +21893,7 @@ export declare namespace cert_manager {
          */
         interface IssuerSpecVenafi {
             cloud: outputs.cert_manager.v1.IssuerSpecVenafiCloud;
+            ngts: outputs.cert_manager.v1.IssuerSpecVenafiNgts;
             tpp: outputs.cert_manager.v1.IssuerSpecVenafiTpp;
             /**
              * Zone is the Certificate Manager Policy Zone to use for this issuer.
@@ -21647,11 +21960,84 @@ export declare namespace cert_manager {
             url: string;
         }
         /**
+         * NGTS specifies Palo Alto Networks Next Generation Trust Services (NGTS) configuration
+         * using OAuth 2.0 Client Credentials. Only one of tpp, cloud, or ngts may be specified.
+         */
+        interface IssuerSpecVenafiNgts {
+            credentialsRef: outputs.cert_manager.v1.IssuerSpecVenafiNgtsCredentialsRef;
+            /**
+             * TokenEndpoint is the OAuth 2.0 token endpoint URL used to obtain access tokens,
+             * for example "https://auth.apps.paloaltonetworks.com/oauth2/access_token".
+             * Defaults to "https://auth.apps.paloaltonetworks.com/oauth2/access_token" if not set.
+             */
+            tokenEndpoint: string;
+            /**
+             * TSGID is the Tenant Service Group ID used to scope the OAuth 2.0 access token,
+             * for example "1234567890". The tsg_id: prefix is added automatically.
+             * This field is required.
+             */
+            tsgID: string;
+            /**
+             * URL is the base URL for the NGTS API endpoint.
+             * Defaults to "https://api.strata.paloaltonetworks.com/ngts" if not set.
+             */
+            url: string;
+        }
+        /**
+         * CredentialsRef is a reference to a Kubernetes Secret containing the OAuth 2.0
+         * Client ID and Client Secret. The secret must contain the keys 'client-id' and
+         * 'client-secret'.
+         */
+        interface IssuerSpecVenafiNgtsCredentialsRef {
+            /**
+             * Name of the resource being referred to.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * CredentialsRef is a reference to a Kubernetes Secret containing the OAuth 2.0
+         * Client ID and Client Secret. The secret must contain the keys 'client-id' and
+         * 'client-secret'.
+         */
+        interface IssuerSpecVenafiNgtsCredentialsRefPatch {
+            /**
+             * Name of the resource being referred to.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+        /**
+         * NGTS specifies Palo Alto Networks Next Generation Trust Services (NGTS) configuration
+         * using OAuth 2.0 Client Credentials. Only one of tpp, cloud, or ngts may be specified.
+         */
+        interface IssuerSpecVenafiNgtsPatch {
+            credentialsRef: outputs.cert_manager.v1.IssuerSpecVenafiNgtsCredentialsRefPatch;
+            /**
+             * TokenEndpoint is the OAuth 2.0 token endpoint URL used to obtain access tokens,
+             * for example "https://auth.apps.paloaltonetworks.com/oauth2/access_token".
+             * Defaults to "https://auth.apps.paloaltonetworks.com/oauth2/access_token" if not set.
+             */
+            tokenEndpoint: string;
+            /**
+             * TSGID is the Tenant Service Group ID used to scope the OAuth 2.0 access token,
+             * for example "1234567890". The tsg_id: prefix is added automatically.
+             * This field is required.
+             */
+            tsgID: string;
+            /**
+             * URL is the base URL for the NGTS API endpoint.
+             * Defaults to "https://api.strata.paloaltonetworks.com/ngts" if not set.
+             */
+            url: string;
+        }
+        /**
          * Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
          * or SaaS policy zone.
          */
         interface IssuerSpecVenafiPatch {
             cloud: outputs.cert_manager.v1.IssuerSpecVenafiCloudPatch;
+            ngts: outputs.cert_manager.v1.IssuerSpecVenafiNgtsPatch;
             tpp: outputs.cert_manager.v1.IssuerSpecVenafiTppPatch;
             /**
              * Zone is the Certificate Manager Policy Zone to use for this issuer.
@@ -21931,6 +22317,12 @@ export declare namespace meta {
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
             selfLink: string;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo: outputs.meta.v1.ShardInfo;
         }
         /**
          * ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.
@@ -22222,5 +22614,15 @@ export declare namespace meta {
              */
             uid: string;
         }
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: string;
+        }
     }
 }
+//# sourceMappingURL=output.d.ts.map

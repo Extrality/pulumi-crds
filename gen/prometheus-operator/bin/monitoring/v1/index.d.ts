@@ -61,3 +61,4 @@ export declare const ThanosRulerList: typeof import("./thanosRulerList").ThanosR
 export { ThanosRulerPatchArgs } from "./thanosRulerPatch";
 export type ThanosRulerPatch = import("./thanosRulerPatch").ThanosRulerPatch;
 export declare const ThanosRulerPatch: typeof import("./thanosRulerPatch").ThanosRulerPatch;
+//# sourceMappingURL=index.d.ts.map

@@ -4,3 +4,4 @@ export declare const Provider: typeof import("./provider").Provider;
 import * as gateway from "./gateway";
 import * as types from "./types";
 export { gateway, types, };
+//# sourceMappingURL=index.d.ts.map
