@@ -71,7 +71,7 @@ export class CiliumIdentityPatch extends pulumi.CustomResource {
     /**
      * SecurityLabels is the source-of-truth set of labels for this identity.
      */
-    declare public readonly security-labels: pulumi.Output<{[key: string]: string}>;
+    declare public readonly "security-labels": pulumi.Output<{[key: string]: string}>;
 
     /**
      * Create a CiliumIdentityPatch resource with the given unique name, arguments, and options.
@@ -87,7 +87,7 @@ export class CiliumIdentityPatch extends pulumi.CustomResource {
             resourceInputs["apiVersion"] = "cilium.io/v2";
             resourceInputs["kind"] = "CiliumIdentity";
             resourceInputs["metadata"] = args?.metadata;
-            resourceInputs["security-labels"] = args?.security-labels;
+            resourceInputs["security-labels"] = args?.["security-labels"];
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
@@ -118,5 +118,5 @@ export interface CiliumIdentityPatchArgs {
     /**
      * SecurityLabels is the source-of-truth set of labels for this identity.
      */
-    security-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    "security-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
 }

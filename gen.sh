@@ -54,6 +54,13 @@ function gen() {
     fi
 
     crd2pulumi -v "$tag" --nodejsName "$packname" --nodejsPath "gen/$foldername" $(echo "tmp/$foldername/$glob")
+    # crd2pulumi may emit hyphenated property names (e.g. `security-labels`) which are
+    # invalid TypeScript identifiers. Quote them before compiling.
+    find "gen/$foldername" -name "*.ts" -exec perl -pi -e '
+        s/(declare public readonly )([a-z][a-z0-9]*(?:-[a-z0-9]+)+)(:)/$1"$2"$3/g;
+        s/(\?\.)([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\b(?!\s*[:(])/?.["$2"]/g;
+        s/^(\s*)([a-z][a-z0-9]*(?:-[a-z0-9]+)+)(\??\s*:)/$1"$2"$3/g;
+    ' {} +
     # pre-compile the package: allows removing the postinstall script
     ./node_modules/typescript/bin/tsc -p "./gen/$foldername" || true
     jq 'del(.scripts.postinstall)' "./gen/$foldername/package.json" > temp.json && mv temp.json "./gen/$foldername/package.json"

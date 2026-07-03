@@ -12755,7 +12755,7 @@ export namespace cilium {
              */
             controllers: outputs.cilium.v2.CiliumEndpointStatusControllers[];
             encryption: outputs.cilium.v2.CiliumEndpointStatusEncryption;
-            external-identifiers: outputs.cilium.v2.CiliumEndpointStatusExternalIdentifiers;
+            "external-identifiers": outputs.cilium.v2.CiliumEndpointStatusExternalIdentifiers;
             health: outputs.cilium.v2.CiliumEndpointStatusHealth;
             /**
              * ID is the cilium-agent-local ID of the endpoint.
@@ -12772,13 +12772,13 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports: outputs.cilium.v2.CiliumEndpointStatusNamedPorts[];
+            "named-ports": outputs.cilium.v2.CiliumEndpointStatusNamedPorts[];
             networking: outputs.cilium.v2.CiliumEndpointStatusNetworking;
             policy: outputs.cilium.v2.CiliumEndpointStatusPolicy;
             /**
              * ServiceAccount is the service account associated with the endpoint
              */
-            service-account: string;
+            "service-account": string;
             /**
              * State is the state of the endpoint.
              */
@@ -12808,12 +12808,12 @@ export namespace cilium {
             /**
              * Retry on error
              */
-            error-retry: boolean;
+            "error-retry": boolean;
             /**
              * Base error retry back-off time
              * Format: duration
              */
-            error-retry-base: number;
+            "error-retry-base": number;
             /**
              * Regular synchronization interval
              * Format: duration
@@ -12828,12 +12828,12 @@ export namespace cilium {
             /**
              * Retry on error
              */
-            error-retry: boolean;
+            "error-retry": boolean;
             /**
              * Base error retry back-off time
              * Format: duration
              */
-            error-retry-base: number;
+            "error-retry-base": number;
             /**
              * Regular synchronization interval
              * Format: duration
@@ -12861,24 +12861,24 @@ export namespace cilium {
          * Status is the status of the controller
          */
         export interface CiliumEndpointStatusControllersStatus {
-            consecutive-failure-count: number;
-            failure-count: number;
-            last-failure-msg: string;
-            last-failure-timestamp: string;
-            last-success-timestamp: string;
-            success-count: number;
+            "consecutive-failure-count": number;
+            "failure-count": number;
+            "last-failure-msg": string;
+            "last-failure-timestamp": string;
+            "last-success-timestamp": string;
+            "success-count": number;
         }
 
         /**
          * Status is the status of the controller
          */
         export interface CiliumEndpointStatusControllersStatusPatch {
-            consecutive-failure-count: number;
-            failure-count: number;
-            last-failure-msg: string;
-            last-failure-timestamp: string;
-            last-success-timestamp: string;
-            success-count: number;
+            "consecutive-failure-count": number;
+            "failure-count": number;
+            "last-failure-msg": string;
+            "last-failure-timestamp": string;
+            "last-success-timestamp": string;
+            "success-count": number;
         }
 
         /**
@@ -12911,35 +12911,35 @@ export namespace cilium {
             /**
              * ID assigned to this attachment by container runtime
              */
-            cni-attachment-id: string;
+            "cni-attachment-id": string;
             /**
              * ID assigned by container runtime (deprecated, may not be unique)
              */
-            container-id: string;
+            "container-id": string;
             /**
              * Name assigned to container (deprecated, may not be unique)
              */
-            container-name: string;
+            "container-name": string;
             /**
              * Docker endpoint ID
              */
-            docker-endpoint-id: string;
+            "docker-endpoint-id": string;
             /**
              * Docker network ID
              */
-            docker-network-id: string;
+            "docker-network-id": string;
             /**
              * K8s namespace for this endpoint (deprecated, may not be unique)
              */
-            k8s-namespace: string;
+            "k8s-namespace": string;
             /**
              * K8s pod name for this endpoint (deprecated, may not be unique)
              */
-            k8s-pod-name: string;
+            "k8s-pod-name": string;
             /**
              * K8s pod for this endpoint (deprecated, may not be unique)
              */
-            pod-name: string;
+            "pod-name": string;
         }
 
         /**
@@ -12950,35 +12950,35 @@ export namespace cilium {
             /**
              * ID assigned to this attachment by container runtime
              */
-            cni-attachment-id: string;
+            "cni-attachment-id": string;
             /**
              * ID assigned by container runtime (deprecated, may not be unique)
              */
-            container-id: string;
+            "container-id": string;
             /**
              * Name assigned to container (deprecated, may not be unique)
              */
-            container-name: string;
+            "container-name": string;
             /**
              * Docker endpoint ID
              */
-            docker-endpoint-id: string;
+            "docker-endpoint-id": string;
             /**
              * Docker network ID
              */
-            docker-network-id: string;
+            "docker-network-id": string;
             /**
              * K8s namespace for this endpoint (deprecated, may not be unique)
              */
-            k8s-namespace: string;
+            "k8s-namespace": string;
             /**
              * K8s pod name for this endpoint (deprecated, may not be unique)
              */
-            k8s-pod-name: string;
+            "k8s-pod-name": string;
             /**
              * K8s pod for this endpoint (deprecated, may not be unique)
              */
-            pod-name: string;
+            "pod-name": string;
         }
 
         /**
@@ -13200,7 +13200,7 @@ export namespace cilium {
              */
             controllers: outputs.cilium.v2.CiliumEndpointStatusControllersPatch[];
             encryption: outputs.cilium.v2.CiliumEndpointStatusEncryptionPatch;
-            external-identifiers: outputs.cilium.v2.CiliumEndpointStatusExternalIdentifiersPatch;
+            "external-identifiers": outputs.cilium.v2.CiliumEndpointStatusExternalIdentifiersPatch;
             health: outputs.cilium.v2.CiliumEndpointStatusHealthPatch;
             /**
              * ID is the cilium-agent-local ID of the endpoint.
@@ -13217,13 +13217,13 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports: outputs.cilium.v2.CiliumEndpointStatusNamedPortsPatch[];
+            "named-ports": outputs.cilium.v2.CiliumEndpointStatusNamedPortsPatch[];
             networking: outputs.cilium.v2.CiliumEndpointStatusNetworkingPatch;
             policy: outputs.cilium.v2.CiliumEndpointStatusPolicyPatch;
             /**
              * ServiceAccount is the service account associated with the endpoint
              */
-            service-account: string;
+            "service-account": string;
             /**
              * State is the state of the endpoint.
              */
@@ -13272,9 +13272,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAdding {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13282,9 +13282,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAddingPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13292,9 +13292,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAllowed {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13302,9 +13302,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAllowedPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13312,9 +13312,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressDenied {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13322,9 +13322,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressDeniedPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13361,9 +13361,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressRemoving {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13371,9 +13371,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressRemovingPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13410,9 +13410,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAdding {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13420,9 +13420,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAddingPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13430,9 +13430,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAllowed {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13440,9 +13440,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAllowedPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13450,9 +13450,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressDenied {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13460,9 +13460,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressDeniedPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13499,9 +13499,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressRemoving {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13509,9 +13509,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressRemovingPatch {
-            dest-port: number;
+            "dest-port": number;
             identity: number;
-            identity-labels: {[key: string]: string};
+            "identity-labels": {[key: string]: string};
             protocol: number;
         }
 
@@ -13807,7 +13807,7 @@ export namespace cilium {
             /**
              * SecurityLabels is the source-of-truth set of labels for this identity.
              */
-            security-labels: {[key: string]: string};
+            "security-labels": {[key: string]: string};
         }
 
         /**
@@ -24775,7 +24775,7 @@ export namespace cilium {
              * Addresses is the list of all node addresses.
              */
             addresses: outputs.cilium.v2.CiliumNodeSpecAddresses[];
-            alibaba-cloud: outputs.cilium.v2.CiliumNodeSpecAlibabaCloud;
+            "alibaba-cloud": outputs.cilium.v2.CiliumNodeSpecAlibabaCloud;
             azure: outputs.cilium.v2.CiliumNodeSpecAzure;
             /**
              * BootID is a unique node identifier generated on boot
@@ -24791,7 +24791,7 @@ export namespace cilium {
              * typically refers to the identifier used by the cloud provider or
              * some other means of identification.
              */
-            instance-id: string;
+            "instance-id": string;
             ipam: outputs.cilium.v2.CiliumNodeSpecIpam;
         }
 
@@ -24831,34 +24831,34 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone: string;
+            "availability-zone": string;
             /**
              * CIDRBlock is vpc ipv4 CIDR
              */
-            cidr-block: string;
+            "cidr-block": string;
             /**
              * InstanceType is the ECS instance type, e.g. "ecs.g6.2xlarge"
              */
-            instance-type: string;
+            "instance-type": string;
             /**
              * SecurityGroupTags is the list of tags to use when evaluating which
              * security groups to use for the ENI.
              */
-            security-group-tags: {[key: string]: string};
+            "security-group-tags": {[key: string]: string};
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups: string[];
+            "security-groups": string[];
             /**
              * VPCID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id: string;
+            "vpc-id": string;
             /**
              * VSwitchTags is the list of tags to use when evaluating which
              * vSwitch to use for the ENI.
              */
-            vswitch-tags: {[key: string]: string};
+            "vswitch-tags": {[key: string]: string};
             /**
              * VSwitches is the ID of vSwitch available for ENI
              */
@@ -24873,34 +24873,34 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone: string;
+            "availability-zone": string;
             /**
              * CIDRBlock is vpc ipv4 CIDR
              */
-            cidr-block: string;
+            "cidr-block": string;
             /**
              * InstanceType is the ECS instance type, e.g. "ecs.g6.2xlarge"
              */
-            instance-type: string;
+            "instance-type": string;
             /**
              * SecurityGroupTags is the list of tags to use when evaluating which
              * security groups to use for the ENI.
              */
-            security-group-tags: {[key: string]: string};
+            "security-group-tags": {[key: string]: string};
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups: string[];
+            "security-groups": string[];
             /**
              * VPCID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id: string;
+            "vpc-id": string;
             /**
              * VSwitchTags is the list of tags to use when evaluating which
              * vSwitch to use for the ENI.
              */
-            vswitch-tags: {[key: string]: string};
+            "vswitch-tags": {[key: string]: string};
             /**
              * VSwitches is the ID of vSwitch available for ENI
              */
@@ -24915,7 +24915,7 @@ export namespace cilium {
              * InterfaceName is the name of the interface the cilium-operator
              * will use to allocate all the IPs on
              */
-            interface-name: string;
+            "interface-name": string;
         }
 
         /**
@@ -24926,7 +24926,7 @@ export namespace cilium {
              * InterfaceName is the name of the interface the cilium-operator
              * will use to allocate all the IPs on
              */
-            interface-name: string;
+            "interface-name": string;
         }
 
         /**
@@ -24959,69 +24959,69 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone: string;
+            "availability-zone": string;
             /**
              * DeleteOnTermination defines that the ENI should be deleted when the
              * associated instance is terminated. If the parameter is not set the
              * default behavior is to delete the ENI on instance termination.
              */
-            delete-on-termination: boolean;
+            "delete-on-termination": boolean;
             /**
              * DisablePrefixDelegation determines whether ENI prefix delegation should be
              * disabled on this node.
              */
-            disable-prefix-delegation: boolean;
+            "disable-prefix-delegation": boolean;
             /**
              * ExcludeInterfaceTags is the list of tags to use when excluding ENIs for
              * Cilium IP allocation. Any interface matching this set of tags will not
              * be managed by Cilium.
              */
-            exclude-interface-tags: {[key: string]: string};
+            "exclude-interface-tags": {[key: string]: string};
             /**
              * FirstInterfaceIndex is the index of the first ENI to use for IP
              * allocation, e.g. if the node has eth0, eth1, eth2 and
              * FirstInterfaceIndex is set to 1, then only eth1 and eth2 will be
              * used for IP allocation, eth0 will be ignored for PodIP allocation.
              */
-            first-interface-index: number;
+            "first-interface-index": number;
             /**
              * InstanceType is the AWS EC2 instance type, e.g. "m5.large"
              */
-            instance-type: string;
+            "instance-type": string;
             /**
              * NodeSubnetID is the subnet of the primary ENI the instance was brought up
              * with. It is used as a sensible default subnet to create ENIs in.
              */
-            node-subnet-id: string;
+            "node-subnet-id": string;
             /**
              * SecurityGroupTags is the list of tags to use when evaliating what
              * AWS security groups to use for the ENI.
              */
-            security-group-tags: {[key: string]: string};
+            "security-group-tags": {[key: string]: string};
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups: string[];
+            "security-groups": string[];
             /**
              * SubnetIDs is the list of subnet ids to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-ids: string[];
+            "subnet-ids": string[];
             /**
              * SubnetTags is the list of tags to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-tags: {[key: string]: string};
+            "subnet-tags": {[key: string]: string};
             /**
              * UsePrimaryAddress determines whether an ENI's primary address
              * should be available for allocations on the node
              */
-            use-primary-address: boolean;
+            "use-primary-address": boolean;
             /**
              * VpcID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id: string;
+            "vpc-id": string;
         }
 
         /**
@@ -25032,69 +25032,69 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone: string;
+            "availability-zone": string;
             /**
              * DeleteOnTermination defines that the ENI should be deleted when the
              * associated instance is terminated. If the parameter is not set the
              * default behavior is to delete the ENI on instance termination.
              */
-            delete-on-termination: boolean;
+            "delete-on-termination": boolean;
             /**
              * DisablePrefixDelegation determines whether ENI prefix delegation should be
              * disabled on this node.
              */
-            disable-prefix-delegation: boolean;
+            "disable-prefix-delegation": boolean;
             /**
              * ExcludeInterfaceTags is the list of tags to use when excluding ENIs for
              * Cilium IP allocation. Any interface matching this set of tags will not
              * be managed by Cilium.
              */
-            exclude-interface-tags: {[key: string]: string};
+            "exclude-interface-tags": {[key: string]: string};
             /**
              * FirstInterfaceIndex is the index of the first ENI to use for IP
              * allocation, e.g. if the node has eth0, eth1, eth2 and
              * FirstInterfaceIndex is set to 1, then only eth1 and eth2 will be
              * used for IP allocation, eth0 will be ignored for PodIP allocation.
              */
-            first-interface-index: number;
+            "first-interface-index": number;
             /**
              * InstanceType is the AWS EC2 instance type, e.g. "m5.large"
              */
-            instance-type: string;
+            "instance-type": string;
             /**
              * NodeSubnetID is the subnet of the primary ENI the instance was brought up
              * with. It is used as a sensible default subnet to create ENIs in.
              */
-            node-subnet-id: string;
+            "node-subnet-id": string;
             /**
              * SecurityGroupTags is the list of tags to use when evaliating what
              * AWS security groups to use for the ENI.
              */
-            security-group-tags: {[key: string]: string};
+            "security-group-tags": {[key: string]: string};
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups: string[];
+            "security-groups": string[];
             /**
              * SubnetIDs is the list of subnet ids to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-ids: string[];
+            "subnet-ids": string[];
             /**
              * SubnetTags is the list of tags to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-tags: {[key: string]: string};
+            "subnet-tags": {[key: string]: string};
             /**
              * UsePrimaryAddress determines whether an ENI's primary address
              * should be available for allocations on the node
              */
-            use-primary-address: boolean;
+            "use-primary-address": boolean;
             /**
              * VpcID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id: string;
+            "vpc-id": string;
         }
 
         /**
@@ -25154,7 +25154,7 @@ export namespace cilium {
              * When an IPv6 address is used, it will remain on this list but will be added to
              * Status.IPAM.IPv6Used
              */
-            ipv6-pool: {[key: string]: {[key: string]: string}};
+            "ipv6-pool": {[key: string]: {[key: string]: string}};
             /**
              * MaxAboveWatermark is the maximum number of addresses to allocate
              * beyond the addresses needed to reach the PreAllocate watermark.
@@ -25163,14 +25163,14 @@ export namespace cilium {
              * IPs as possible are allocated. Limiting the amount can help reduce
              * waste of IPs.
              */
-            max-above-watermark: number;
+            "max-above-watermark": number;
             /**
              * MaxAllocate is the maximum number of IPs that can be allocated to the
              * node. When the current amount of allocated IPs will approach this value,
              * the considered value for PreAllocate will decrease down to 0 in order to
              * not attempt to allocate more addresses than defined.
              */
-            max-allocate: number;
+            "max-allocate": number;
             /**
              * MinAllocate is the minimum number of IPs that must be allocated when
              * the node is first bootstrapped. It defines the minimum base socket
@@ -25178,7 +25178,7 @@ export namespace cilium {
              * the PreAllocate and MaxAboveWatermark logic takes over to continue
              * allocating IPs.
              */
-            min-allocate: number;
+            "min-allocate": number;
             /**
              * PodCIDRs is the list of CIDRs available to the node for allocation.
              * When an IP is used, the IP will be added to Status.IPAM.Used
@@ -25197,13 +25197,13 @@ export namespace cilium {
              * addresses available immediately without requiring cilium-operator to
              * get involved.
              */
-            pre-allocate: number;
+            "pre-allocate": number;
             /**
              * StaticIPTags are used to determine the pool of IPs from which to
              * attribute a static IP to the node. For example in AWS this is used to
              * filter Elastic IP Addresses.
              */
-            static-ip-tags: {[key: string]: string};
+            "static-ip-tags": {[key: string]: string};
         }
 
         /**
@@ -25217,7 +25217,7 @@ export namespace cilium {
              * When an IPv6 address is used, it will remain on this list but will be added to
              * Status.IPAM.IPv6Used
              */
-            ipv6-pool: {[key: string]: {[key: string]: string}};
+            "ipv6-pool": {[key: string]: {[key: string]: string}};
             /**
              * MaxAboveWatermark is the maximum number of addresses to allocate
              * beyond the addresses needed to reach the PreAllocate watermark.
@@ -25226,14 +25226,14 @@ export namespace cilium {
              * IPs as possible are allocated. Limiting the amount can help reduce
              * waste of IPs.
              */
-            max-above-watermark: number;
+            "max-above-watermark": number;
             /**
              * MaxAllocate is the maximum number of IPs that can be allocated to the
              * node. When the current amount of allocated IPs will approach this value,
              * the considered value for PreAllocate will decrease down to 0 in order to
              * not attempt to allocate more addresses than defined.
              */
-            max-allocate: number;
+            "max-allocate": number;
             /**
              * MinAllocate is the minimum number of IPs that must be allocated when
              * the node is first bootstrapped. It defines the minimum base socket
@@ -25241,7 +25241,7 @@ export namespace cilium {
              * the PreAllocate and MaxAboveWatermark logic takes over to continue
              * allocating IPs.
              */
-            min-allocate: number;
+            "min-allocate": number;
             /**
              * PodCIDRs is the list of CIDRs available to the node for allocation.
              * When an IP is used, the IP will be added to Status.IPAM.Used
@@ -25260,13 +25260,13 @@ export namespace cilium {
              * addresses available immediately without requiring cilium-operator to
              * get involved.
              */
-            pre-allocate: number;
+            "pre-allocate": number;
             /**
              * StaticIPTags are used to determine the pool of IPs from which to
              * attribute a static IP to the node. For example in AWS this is used to
              * filter Elastic IP Addresses.
              */
-            static-ip-tags: {[key: string]: string};
+            "static-ip-tags": {[key: string]: string};
         }
 
         /**
@@ -25354,12 +25354,12 @@ export namespace cilium {
              * IPv4Addrs contains the number of requested IPv4 addresses out of a given
              * pool
              */
-            ipv4-addrs: number;
+            "ipv4-addrs": number;
             /**
              * IPv6Addrs contains the number of requested IPv6 addresses out of a given
              * pool
              */
-            ipv6-addrs: number;
+            "ipv6-addrs": number;
         }
 
         /**
@@ -25373,12 +25373,12 @@ export namespace cilium {
              * IPv4Addrs contains the number of requested IPv4 addresses out of a given
              * pool
              */
-            ipv4-addrs: number;
+            "ipv4-addrs": number;
             /**
              * IPv6Addrs contains the number of requested IPv6 addresses out of a given
              * pool
              */
-            ipv6-addrs: number;
+            "ipv6-addrs": number;
         }
 
         export interface CiliumNodeSpecIpamPoolsRequestedPatch {
@@ -25397,7 +25397,7 @@ export namespace cilium {
              * Addresses is the list of all node addresses.
              */
             addresses: outputs.cilium.v2.CiliumNodeSpecAddressesPatch[];
-            alibaba-cloud: outputs.cilium.v2.CiliumNodeSpecAlibabaCloudPatch;
+            "alibaba-cloud": outputs.cilium.v2.CiliumNodeSpecAlibabaCloudPatch;
             azure: outputs.cilium.v2.CiliumNodeSpecAzurePatch;
             /**
              * BootID is a unique node identifier generated on boot
@@ -25413,7 +25413,7 @@ export namespace cilium {
              * typically refers to the identifier used by the cloud provider or
              * some other means of identification.
              */
-            instance-id: string;
+            "instance-id": string;
             ipam: outputs.cilium.v2.CiliumNodeSpecIpamPatch;
         }
 
@@ -25422,7 +25422,7 @@ export namespace cilium {
          * of the node.
          */
         export interface CiliumNodeStatus {
-            alibaba-cloud: outputs.cilium.v2.CiliumNodeStatusAlibabaCloud;
+            "alibaba-cloud": outputs.cilium.v2.CiliumNodeStatusAlibabaCloud;
             azure: outputs.cilium.v2.CiliumNodeStatusAzure;
             eni: outputs.cilium.v2.CiliumNodeStatusEni;
             ipam: outputs.cilium.v2.CiliumNodeStatusIpam;
@@ -25499,7 +25499,7 @@ export namespace cilium {
             /**
              * SecurityGroup is the security group associated with the interface
              */
-            security-group: string;
+            "security-group": string;
             /**
              * State is the provisioning state
              */
@@ -25590,7 +25590,7 @@ export namespace cilium {
             /**
              * SecurityGroup is the security group associated with the interface
              */
-            security-group: string;
+            "security-group": string;
             /**
              * State is the provisioning state
              */
@@ -25663,17 +25663,17 @@ export namespace cilium {
             /**
              * AssignedStaticIP is the static IP assigned to the node (ex: public Elastic IP address in AWS)
              */
-            assigned-static-ip: string;
+            "assigned-static-ip": string;
             /**
              * IPv6Used lists all IPv6 addresses out of Spec.IPAM.IPv6Pool which have been
              * allocated and are in use.
              */
-            ipv6-used: {[key: string]: {[key: string]: string}};
-            operator-status: outputs.cilium.v2.CiliumNodeStatusIpamOperatorStatus;
+            "ipv6-used": {[key: string]: {[key: string]: string}};
+            "operator-status": outputs.cilium.v2.CiliumNodeStatusIpamOperatorStatus;
             /**
              * PodCIDRs lists the status of each pod CIDR allocated to this node.
              */
-            pod-cidrs: {[key: string]: {[key: string]: string}};
+            "pod-cidrs": {[key: string]: {[key: string]: string}};
             /**
              * ReleaseIPs tracks the state for every IPv4 address considered for release.
              * The value can be one of the following strings:
@@ -25682,7 +25682,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ips: {[key: string]: string};
+            "release-ips": {[key: string]: string};
             /**
              * ReleaseIPv6s tracks the state for every IPv6 address considered for release.
              * The value can be one of the following strings:
@@ -25691,7 +25691,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ipv6s: {[key: string]: string};
+            "release-ipv6s": {[key: string]: string};
             /**
              * Used lists all IPv4 addresses out of Spec.IPAM.Pool which have been allocated
              * and are in use.
@@ -25726,17 +25726,17 @@ export namespace cilium {
             /**
              * AssignedStaticIP is the static IP assigned to the node (ex: public Elastic IP address in AWS)
              */
-            assigned-static-ip: string;
+            "assigned-static-ip": string;
             /**
              * IPv6Used lists all IPv6 addresses out of Spec.IPAM.IPv6Pool which have been
              * allocated and are in use.
              */
-            ipv6-used: {[key: string]: {[key: string]: string}};
-            operator-status: outputs.cilium.v2.CiliumNodeStatusIpamOperatorStatusPatch;
+            "ipv6-used": {[key: string]: {[key: string]: string}};
+            "operator-status": outputs.cilium.v2.CiliumNodeStatusIpamOperatorStatusPatch;
             /**
              * PodCIDRs lists the status of each pod CIDR allocated to this node.
              */
-            pod-cidrs: {[key: string]: {[key: string]: string}};
+            "pod-cidrs": {[key: string]: {[key: string]: string}};
             /**
              * ReleaseIPs tracks the state for every IPv4 address considered for release.
              * The value can be one of the following strings:
@@ -25745,7 +25745,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ips: {[key: string]: string};
+            "release-ips": {[key: string]: string};
             /**
              * ReleaseIPv6s tracks the state for every IPv6 address considered for release.
              * The value can be one of the following strings:
@@ -25754,7 +25754,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ipv6s: {[key: string]: string};
+            "release-ipv6s": {[key: string]: string};
             /**
              * Used lists all IPv4 addresses out of Spec.IPAM.Pool which have been allocated
              * and are in use.
@@ -25767,7 +25767,7 @@ export namespace cilium {
          * of the node.
          */
         export interface CiliumNodeStatusPatch {
-            alibaba-cloud: outputs.cilium.v2.CiliumNodeStatusAlibabaCloudPatch;
+            "alibaba-cloud": outputs.cilium.v2.CiliumNodeStatusAlibabaCloudPatch;
             azure: outputs.cilium.v2.CiliumNodeStatusAzurePatch;
             eni: outputs.cilium.v2.CiliumNodeStatusEniPatch;
             ipam: outputs.cilium.v2.CiliumNodeStatusIpamPatch;
@@ -27913,16 +27913,16 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports: outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPorts[];
+            "named-ports": outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPorts[];
             networking: outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNetworking;
             /**
              * PodUID is the UID of the Pod that owns this endpoint.
              */
-            pod-uid: string;
+            "pod-uid": string;
             /**
              * ServiceAccount is the service account of the endpoint.
              */
-            service-account: string;
+            "service-account": string;
         }
 
         /**
@@ -28054,16 +28054,16 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports: outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPortsPatch[];
+            "named-ports": outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPortsPatch[];
             networking: outputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNetworkingPatch;
             /**
              * PodUID is the UID of the Pod that owns this endpoint.
              */
-            pod-uid: string;
+            "pod-uid": string;
             /**
              * ServiceAccount is the service account of the endpoint.
              */
-            service-account: string;
+            "service-account": string;
         }
 
         /**

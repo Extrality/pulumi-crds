@@ -12488,7 +12488,7 @@ export namespace cilium {
              */
             controllers?: pulumi.Input<pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusControllers>[] | undefined>;
             encryption?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusEncryption | undefined>;
-            external-identifiers?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusExternalIdentifiers | undefined>;
+            "external-identifiers"?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusExternalIdentifiers | undefined>;
             health?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusHealth | undefined>;
             /**
              * ID is the cilium-agent-local ID of the endpoint.
@@ -12505,13 +12505,13 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports?: pulumi.Input<pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusNamedPorts>[] | undefined>;
+            "named-ports"?: pulumi.Input<pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusNamedPorts>[] | undefined>;
             networking?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusNetworking | undefined>;
             policy?: pulumi.Input<inputs.cilium.v2.CiliumEndpointStatusPolicy | undefined>;
             /**
              * ServiceAccount is the service account associated with the endpoint
              */
-            service-account?: pulumi.Input<string | undefined>;
+            "service-account"?: pulumi.Input<string | undefined>;
             /**
              * State is the state of the endpoint.
              */
@@ -12541,12 +12541,12 @@ export namespace cilium {
             /**
              * Retry on error
              */
-            error-retry?: pulumi.Input<boolean | undefined>;
+            "error-retry"?: pulumi.Input<boolean | undefined>;
             /**
              * Base error retry back-off time
              * Format: duration
              */
-            error-retry-base?: pulumi.Input<number | undefined>;
+            "error-retry-base"?: pulumi.Input<number | undefined>;
             /**
              * Regular synchronization interval
              * Format: duration
@@ -12558,12 +12558,12 @@ export namespace cilium {
          * Status is the status of the controller
          */
         export interface CiliumEndpointStatusControllersStatus {
-            consecutive-failure-count?: pulumi.Input<number | undefined>;
-            failure-count?: pulumi.Input<number | undefined>;
-            last-failure-msg?: pulumi.Input<string | undefined>;
-            last-failure-timestamp?: pulumi.Input<string | undefined>;
-            last-success-timestamp?: pulumi.Input<string | undefined>;
-            success-count?: pulumi.Input<number | undefined>;
+            "consecutive-failure-count"?: pulumi.Input<number | undefined>;
+            "failure-count"?: pulumi.Input<number | undefined>;
+            "last-failure-msg"?: pulumi.Input<string | undefined>;
+            "last-failure-timestamp"?: pulumi.Input<string | undefined>;
+            "last-success-timestamp"?: pulumi.Input<string | undefined>;
+            "success-count"?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -12585,35 +12585,35 @@ export namespace cilium {
             /**
              * ID assigned to this attachment by container runtime
              */
-            cni-attachment-id?: pulumi.Input<string | undefined>;
+            "cni-attachment-id"?: pulumi.Input<string | undefined>;
             /**
              * ID assigned by container runtime (deprecated, may not be unique)
              */
-            container-id?: pulumi.Input<string | undefined>;
+            "container-id"?: pulumi.Input<string | undefined>;
             /**
              * Name assigned to container (deprecated, may not be unique)
              */
-            container-name?: pulumi.Input<string | undefined>;
+            "container-name"?: pulumi.Input<string | undefined>;
             /**
              * Docker endpoint ID
              */
-            docker-endpoint-id?: pulumi.Input<string | undefined>;
+            "docker-endpoint-id"?: pulumi.Input<string | undefined>;
             /**
              * Docker network ID
              */
-            docker-network-id?: pulumi.Input<string | undefined>;
+            "docker-network-id"?: pulumi.Input<string | undefined>;
             /**
              * K8s namespace for this endpoint (deprecated, may not be unique)
              */
-            k8s-namespace?: pulumi.Input<string | undefined>;
+            "k8s-namespace"?: pulumi.Input<string | undefined>;
             /**
              * K8s pod name for this endpoint (deprecated, may not be unique)
              */
-            k8s-pod-name?: pulumi.Input<string | undefined>;
+            "k8s-pod-name"?: pulumi.Input<string | undefined>;
             /**
              * K8s pod for this endpoint (deprecated, may not be unique)
              */
-            pod-name?: pulumi.Input<string | undefined>;
+            "pod-name"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12763,9 +12763,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAdding {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12773,9 +12773,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressAllowed {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12783,9 +12783,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressDenied {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12793,9 +12793,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyEgressRemoving {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12832,9 +12832,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAdding {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12842,9 +12842,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressAllowed {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12852,9 +12852,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressDenied {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -12862,9 +12862,9 @@ export namespace cilium {
          * IdentityTuple specifies a peer by identity, destination port and protocol.
          */
         export interface CiliumEndpointStatusPolicyIngressRemoving {
-            dest-port?: pulumi.Input<number | undefined>;
+            "dest-port"?: pulumi.Input<number | undefined>;
             identity?: pulumi.Input<number | undefined>;
-            identity-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "identity-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             protocol?: pulumi.Input<number | undefined>;
         }
 
@@ -13151,7 +13151,7 @@ export namespace cilium {
             /**
              * SecurityLabels is the source-of-truth set of labels for this identity.
              */
-            security-labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "security-labels"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -24024,7 +24024,7 @@ export namespace cilium {
              * Addresses is the list of all node addresses.
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAddresses>[] | undefined>;
-            alibaba-cloud?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAlibabaCloud | undefined>;
+            "alibaba-cloud"?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAlibabaCloud | undefined>;
             azure?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAzure | undefined>;
             /**
              * BootID is a unique node identifier generated on boot
@@ -24040,7 +24040,7 @@ export namespace cilium {
              * typically refers to the identifier used by the cloud provider or
              * some other means of identification.
              */
-            instance-id?: pulumi.Input<string | undefined>;
+            "instance-id"?: pulumi.Input<string | undefined>;
             ipam?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecIpam | undefined>;
         }
 
@@ -24080,34 +24080,34 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone?: pulumi.Input<string | undefined>;
+            "availability-zone"?: pulumi.Input<string | undefined>;
             /**
              * CIDRBlock is vpc ipv4 CIDR
              */
-            cidr-block?: pulumi.Input<string | undefined>;
+            "cidr-block"?: pulumi.Input<string | undefined>;
             /**
              * InstanceType is the ECS instance type, e.g. "ecs.g6.2xlarge"
              */
-            instance-type?: pulumi.Input<string | undefined>;
+            "instance-type"?: pulumi.Input<string | undefined>;
             /**
              * SecurityGroupTags is the list of tags to use when evaluating which
              * security groups to use for the ENI.
              */
-            security-group-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "security-group-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "security-groups"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * VPCID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id?: pulumi.Input<string | undefined>;
+            "vpc-id"?: pulumi.Input<string | undefined>;
             /**
              * VSwitchTags is the list of tags to use when evaluating which
              * vSwitch to use for the ENI.
              */
-            vswitch-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "vswitch-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * VSwitches is the ID of vSwitch available for ENI
              */
@@ -24122,34 +24122,34 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone?: pulumi.Input<string | undefined>;
+            "availability-zone"?: pulumi.Input<string | undefined>;
             /**
              * CIDRBlock is vpc ipv4 CIDR
              */
-            cidr-block?: pulumi.Input<string | undefined>;
+            "cidr-block"?: pulumi.Input<string | undefined>;
             /**
              * InstanceType is the ECS instance type, e.g. "ecs.g6.2xlarge"
              */
-            instance-type?: pulumi.Input<string | undefined>;
+            "instance-type"?: pulumi.Input<string | undefined>;
             /**
              * SecurityGroupTags is the list of tags to use when evaluating which
              * security groups to use for the ENI.
              */
-            security-group-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "security-group-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "security-groups"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * VPCID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id?: pulumi.Input<string | undefined>;
+            "vpc-id"?: pulumi.Input<string | undefined>;
             /**
              * VSwitchTags is the list of tags to use when evaluating which
              * vSwitch to use for the ENI.
              */
-            vswitch-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "vswitch-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * VSwitches is the ID of vSwitch available for ENI
              */
@@ -24164,7 +24164,7 @@ export namespace cilium {
              * InterfaceName is the name of the interface the cilium-operator
              * will use to allocate all the IPs on
              */
-            interface-name?: pulumi.Input<string | undefined>;
+            "interface-name"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24175,7 +24175,7 @@ export namespace cilium {
              * InterfaceName is the name of the interface the cilium-operator
              * will use to allocate all the IPs on
              */
-            interface-name?: pulumi.Input<string | undefined>;
+            "interface-name"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24208,69 +24208,69 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone?: pulumi.Input<string | undefined>;
+            "availability-zone"?: pulumi.Input<string | undefined>;
             /**
              * DeleteOnTermination defines that the ENI should be deleted when the
              * associated instance is terminated. If the parameter is not set the
              * default behavior is to delete the ENI on instance termination.
              */
-            delete-on-termination?: pulumi.Input<boolean | undefined>;
+            "delete-on-termination"?: pulumi.Input<boolean | undefined>;
             /**
              * DisablePrefixDelegation determines whether ENI prefix delegation should be
              * disabled on this node.
              */
-            disable-prefix-delegation?: pulumi.Input<boolean | undefined>;
+            "disable-prefix-delegation"?: pulumi.Input<boolean | undefined>;
             /**
              * ExcludeInterfaceTags is the list of tags to use when excluding ENIs for
              * Cilium IP allocation. Any interface matching this set of tags will not
              * be managed by Cilium.
              */
-            exclude-interface-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "exclude-interface-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * FirstInterfaceIndex is the index of the first ENI to use for IP
              * allocation, e.g. if the node has eth0, eth1, eth2 and
              * FirstInterfaceIndex is set to 1, then only eth1 and eth2 will be
              * used for IP allocation, eth0 will be ignored for PodIP allocation.
              */
-            first-interface-index?: pulumi.Input<number | undefined>;
+            "first-interface-index"?: pulumi.Input<number | undefined>;
             /**
              * InstanceType is the AWS EC2 instance type, e.g. "m5.large"
              */
-            instance-type?: pulumi.Input<string | undefined>;
+            "instance-type"?: pulumi.Input<string | undefined>;
             /**
              * NodeSubnetID is the subnet of the primary ENI the instance was brought up
              * with. It is used as a sensible default subnet to create ENIs in.
              */
-            node-subnet-id?: pulumi.Input<string | undefined>;
+            "node-subnet-id"?: pulumi.Input<string | undefined>;
             /**
              * SecurityGroupTags is the list of tags to use when evaliating what
              * AWS security groups to use for the ENI.
              */
-            security-group-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "security-group-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "security-groups"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * SubnetIDs is the list of subnet ids to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-ids?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "subnet-ids"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * SubnetTags is the list of tags to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "subnet-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * UsePrimaryAddress determines whether an ENI's primary address
              * should be available for allocations on the node
              */
-            use-primary-address?: pulumi.Input<boolean | undefined>;
+            "use-primary-address"?: pulumi.Input<boolean | undefined>;
             /**
              * VpcID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id?: pulumi.Input<string | undefined>;
+            "vpc-id"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24281,69 +24281,69 @@ export namespace cilium {
              * AvailabilityZone is the availability zone to use when allocating
              * ENIs.
              */
-            availability-zone?: pulumi.Input<string | undefined>;
+            "availability-zone"?: pulumi.Input<string | undefined>;
             /**
              * DeleteOnTermination defines that the ENI should be deleted when the
              * associated instance is terminated. If the parameter is not set the
              * default behavior is to delete the ENI on instance termination.
              */
-            delete-on-termination?: pulumi.Input<boolean | undefined>;
+            "delete-on-termination"?: pulumi.Input<boolean | undefined>;
             /**
              * DisablePrefixDelegation determines whether ENI prefix delegation should be
              * disabled on this node.
              */
-            disable-prefix-delegation?: pulumi.Input<boolean | undefined>;
+            "disable-prefix-delegation"?: pulumi.Input<boolean | undefined>;
             /**
              * ExcludeInterfaceTags is the list of tags to use when excluding ENIs for
              * Cilium IP allocation. Any interface matching this set of tags will not
              * be managed by Cilium.
              */
-            exclude-interface-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "exclude-interface-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * FirstInterfaceIndex is the index of the first ENI to use for IP
              * allocation, e.g. if the node has eth0, eth1, eth2 and
              * FirstInterfaceIndex is set to 1, then only eth1 and eth2 will be
              * used for IP allocation, eth0 will be ignored for PodIP allocation.
              */
-            first-interface-index?: pulumi.Input<number | undefined>;
+            "first-interface-index"?: pulumi.Input<number | undefined>;
             /**
              * InstanceType is the AWS EC2 instance type, e.g. "m5.large"
              */
-            instance-type?: pulumi.Input<string | undefined>;
+            "instance-type"?: pulumi.Input<string | undefined>;
             /**
              * NodeSubnetID is the subnet of the primary ENI the instance was brought up
              * with. It is used as a sensible default subnet to create ENIs in.
              */
-            node-subnet-id?: pulumi.Input<string | undefined>;
+            "node-subnet-id"?: pulumi.Input<string | undefined>;
             /**
              * SecurityGroupTags is the list of tags to use when evaliating what
              * AWS security groups to use for the ENI.
              */
-            security-group-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "security-group-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * SecurityGroups is the list of security groups to attach to any ENI
              * that is created and attached to the instance.
              */
-            security-groups?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "security-groups"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * SubnetIDs is the list of subnet ids to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-ids?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+            "subnet-ids"?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * SubnetTags is the list of tags to use when evaluating what AWS
              * subnets to use for ENI and IP allocation.
              */
-            subnet-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "subnet-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * UsePrimaryAddress determines whether an ENI's primary address
              * should be available for allocations on the node
              */
-            use-primary-address?: pulumi.Input<boolean | undefined>;
+            "use-primary-address"?: pulumi.Input<boolean | undefined>;
             /**
              * VpcID is the VPC ID to use when allocating ENIs.
              */
-            vpc-id?: pulumi.Input<string | undefined>;
+            "vpc-id"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24403,7 +24403,7 @@ export namespace cilium {
              * When an IPv6 address is used, it will remain on this list but will be added to
              * Status.IPAM.IPv6Used
              */
-            ipv6-pool?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
+            "ipv6-pool"?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
             /**
              * MaxAboveWatermark is the maximum number of addresses to allocate
              * beyond the addresses needed to reach the PreAllocate watermark.
@@ -24412,14 +24412,14 @@ export namespace cilium {
              * IPs as possible are allocated. Limiting the amount can help reduce
              * waste of IPs.
              */
-            max-above-watermark?: pulumi.Input<number | undefined>;
+            "max-above-watermark"?: pulumi.Input<number | undefined>;
             /**
              * MaxAllocate is the maximum number of IPs that can be allocated to the
              * node. When the current amount of allocated IPs will approach this value,
              * the considered value for PreAllocate will decrease down to 0 in order to
              * not attempt to allocate more addresses than defined.
              */
-            max-allocate?: pulumi.Input<number | undefined>;
+            "max-allocate"?: pulumi.Input<number | undefined>;
             /**
              * MinAllocate is the minimum number of IPs that must be allocated when
              * the node is first bootstrapped. It defines the minimum base socket
@@ -24427,7 +24427,7 @@ export namespace cilium {
              * the PreAllocate and MaxAboveWatermark logic takes over to continue
              * allocating IPs.
              */
-            min-allocate?: pulumi.Input<number | undefined>;
+            "min-allocate"?: pulumi.Input<number | undefined>;
             /**
              * PodCIDRs is the list of CIDRs available to the node for allocation.
              * When an IP is used, the IP will be added to Status.IPAM.Used
@@ -24446,13 +24446,13 @@ export namespace cilium {
              * addresses available immediately without requiring cilium-operator to
              * get involved.
              */
-            pre-allocate?: pulumi.Input<number | undefined>;
+            "pre-allocate"?: pulumi.Input<number | undefined>;
             /**
              * StaticIPTags are used to determine the pool of IPs from which to
              * attribute a static IP to the node. For example in AWS this is used to
              * filter Elastic IP Addresses.
              */
-            static-ip-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "static-ip-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -24466,7 +24466,7 @@ export namespace cilium {
              * When an IPv6 address is used, it will remain on this list but will be added to
              * Status.IPAM.IPv6Used
              */
-            ipv6-pool?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
+            "ipv6-pool"?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
             /**
              * MaxAboveWatermark is the maximum number of addresses to allocate
              * beyond the addresses needed to reach the PreAllocate watermark.
@@ -24475,14 +24475,14 @@ export namespace cilium {
              * IPs as possible are allocated. Limiting the amount can help reduce
              * waste of IPs.
              */
-            max-above-watermark?: pulumi.Input<number | undefined>;
+            "max-above-watermark"?: pulumi.Input<number | undefined>;
             /**
              * MaxAllocate is the maximum number of IPs that can be allocated to the
              * node. When the current amount of allocated IPs will approach this value,
              * the considered value for PreAllocate will decrease down to 0 in order to
              * not attempt to allocate more addresses than defined.
              */
-            max-allocate?: pulumi.Input<number | undefined>;
+            "max-allocate"?: pulumi.Input<number | undefined>;
             /**
              * MinAllocate is the minimum number of IPs that must be allocated when
              * the node is first bootstrapped. It defines the minimum base socket
@@ -24490,7 +24490,7 @@ export namespace cilium {
              * the PreAllocate and MaxAboveWatermark logic takes over to continue
              * allocating IPs.
              */
-            min-allocate?: pulumi.Input<number | undefined>;
+            "min-allocate"?: pulumi.Input<number | undefined>;
             /**
              * PodCIDRs is the list of CIDRs available to the node for allocation.
              * When an IP is used, the IP will be added to Status.IPAM.Used
@@ -24509,13 +24509,13 @@ export namespace cilium {
              * addresses available immediately without requiring cilium-operator to
              * get involved.
              */
-            pre-allocate?: pulumi.Input<number | undefined>;
+            "pre-allocate"?: pulumi.Input<number | undefined>;
             /**
              * StaticIPTags are used to determine the pool of IPs from which to
              * attribute a static IP to the node. For example in AWS this is used to
              * filter Elastic IP Addresses.
              */
-            static-ip-tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "static-ip-tags"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -24603,12 +24603,12 @@ export namespace cilium {
              * IPv4Addrs contains the number of requested IPv4 addresses out of a given
              * pool
              */
-            ipv4-addrs?: pulumi.Input<number | undefined>;
+            "ipv4-addrs"?: pulumi.Input<number | undefined>;
             /**
              * IPv6Addrs contains the number of requested IPv6 addresses out of a given
              * pool
              */
-            ipv6-addrs?: pulumi.Input<number | undefined>;
+            "ipv6-addrs"?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24622,12 +24622,12 @@ export namespace cilium {
              * IPv4Addrs contains the number of requested IPv4 addresses out of a given
              * pool
              */
-            ipv4-addrs?: pulumi.Input<number | undefined>;
+            "ipv4-addrs"?: pulumi.Input<number | undefined>;
             /**
              * IPv6Addrs contains the number of requested IPv6 addresses out of a given
              * pool
              */
-            ipv6-addrs?: pulumi.Input<number | undefined>;
+            "ipv6-addrs"?: pulumi.Input<number | undefined>;
         }
 
         export interface CiliumNodeSpecIpamPoolsRequestedPatch {
@@ -24646,7 +24646,7 @@ export namespace cilium {
              * Addresses is the list of all node addresses.
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAddressesPatch>[] | undefined>;
-            alibaba-cloud?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAlibabaCloudPatch | undefined>;
+            "alibaba-cloud"?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAlibabaCloudPatch | undefined>;
             azure?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecAzurePatch | undefined>;
             /**
              * BootID is a unique node identifier generated on boot
@@ -24662,7 +24662,7 @@ export namespace cilium {
              * typically refers to the identifier used by the cloud provider or
              * some other means of identification.
              */
-            instance-id?: pulumi.Input<string | undefined>;
+            "instance-id"?: pulumi.Input<string | undefined>;
             ipam?: pulumi.Input<inputs.cilium.v2.CiliumNodeSpecIpamPatch | undefined>;
         }
 
@@ -24671,7 +24671,7 @@ export namespace cilium {
          * of the node.
          */
         export interface CiliumNodeStatus {
-            alibaba-cloud?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusAlibabaCloud | undefined>;
+            "alibaba-cloud"?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusAlibabaCloud | undefined>;
             azure?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusAzure | undefined>;
             eni?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusEni | undefined>;
             ipam?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusIpam | undefined>;
@@ -24738,7 +24738,7 @@ export namespace cilium {
             /**
              * SecurityGroup is the security group associated with the interface
              */
-            security-group?: pulumi.Input<string | undefined>;
+            "security-group"?: pulumi.Input<string | undefined>;
             /**
              * State is the provisioning state
              */
@@ -24798,17 +24798,17 @@ export namespace cilium {
             /**
              * AssignedStaticIP is the static IP assigned to the node (ex: public Elastic IP address in AWS)
              */
-            assigned-static-ip?: pulumi.Input<string | undefined>;
+            "assigned-static-ip"?: pulumi.Input<string | undefined>;
             /**
              * IPv6Used lists all IPv6 addresses out of Spec.IPAM.IPv6Pool which have been
              * allocated and are in use.
              */
-            ipv6-used?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
-            operator-status?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusIpamOperatorStatus | undefined>;
+            "ipv6-used"?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
+            "operator-status"?: pulumi.Input<inputs.cilium.v2.CiliumNodeStatusIpamOperatorStatus | undefined>;
             /**
              * PodCIDRs lists the status of each pod CIDR allocated to this node.
              */
-            pod-cidrs?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
+            "pod-cidrs"?: pulumi.Input<{[key: string]: pulumi.Input<{[key: string]: pulumi.Input<string>}>} | undefined>;
             /**
              * ReleaseIPs tracks the state for every IPv4 address considered for release.
              * The value can be one of the following strings:
@@ -24817,7 +24817,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ips?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "release-ips"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * ReleaseIPv6s tracks the state for every IPv6 address considered for release.
              * The value can be one of the following strings:
@@ -24826,7 +24826,7 @@ export namespace cilium {
              * * do-not-release     : IP already in use / not owned by the node. Set by agent
              * * released           : IP successfully released. Set by operator
              */
-            release-ipv6s?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            "release-ipv6s"?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * Used lists all IPv4 addresses out of Spec.IPAM.Pool which have been allocated
              * and are in use.
@@ -26755,16 +26755,16 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports?: pulumi.Input<pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPorts>[] | undefined>;
+            "named-ports"?: pulumi.Input<pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPorts>[] | undefined>;
             networking?: pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNetworking | undefined>;
             /**
              * PodUID is the UID of the Pod that owns this endpoint.
              */
-            pod-uid?: pulumi.Input<string | undefined>;
+            "pod-uid"?: pulumi.Input<string | undefined>;
             /**
              * ServiceAccount is the service account of the endpoint.
              */
-            service-account?: pulumi.Input<string | undefined>;
+            "service-account"?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26896,16 +26896,16 @@ export namespace cilium {
              *
              * swagger:model NamedPorts
              */
-            named-ports?: pulumi.Input<pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPortsPatch>[] | undefined>;
+            "named-ports"?: pulumi.Input<pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNamedPortsPatch>[] | undefined>;
             networking?: pulumi.Input<inputs.cilium.v2alpha1.CiliumEndpointSliceEndpointsNetworkingPatch | undefined>;
             /**
              * PodUID is the UID of the Pod that owns this endpoint.
              */
-            pod-uid?: pulumi.Input<string | undefined>;
+            "pod-uid"?: pulumi.Input<string | undefined>;
             /**
              * ServiceAccount is the service account of the endpoint.
              */
-            service-account?: pulumi.Input<string | undefined>;
+            "service-account"?: pulumi.Input<string | undefined>;
         }
 
         /**
