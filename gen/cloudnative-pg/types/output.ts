@@ -32,6 +32,12 @@ export namespace meta {
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
             selfLink: string;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo: outputs.meta.v1.ShardInfo;
         }
 
         /**
@@ -320,6 +326,16 @@ export namespace meta {
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
             uid: string;
+        }
+
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        export interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: string;
         }
 
     }
@@ -1265,9 +1281,42 @@ export namespace postgresql {
          */
         export interface ClusterImageCatalogSpec {
             /**
+             * ComponentImages is a list of named images for components other than PostgreSQL
+             * (e.g. pgbouncer). Keys must be unique within a catalog.
+             */
+            componentImages: outputs.postgresql.v1.ClusterImageCatalogSpecComponentImages[];
+            /**
              * List of CatalogImages available in the catalog
              */
             images: outputs.postgresql.v1.ClusterImageCatalogSpecImages[];
+        }
+
+        /**
+         * CatalogComponentImage is a named image entry for a non-PostgreSQL component.
+         */
+        export interface ClusterImageCatalogSpecComponentImages {
+            /**
+             * Image is the container image reference.
+             */
+            image: string;
+            /**
+             * Key is the unique identifier for this image within the catalog.
+             */
+            key: string;
+        }
+
+        /**
+         * CatalogComponentImage is a named image entry for a non-PostgreSQL component.
+         */
+        export interface ClusterImageCatalogSpecComponentImagesPatch {
+            /**
+             * Image is the container image reference.
+             */
+            image: string;
+            /**
+             * Key is the unique identifier for this image within the catalog.
+             */
+            key: string;
         }
 
         /**
@@ -1322,7 +1371,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -1453,7 +1504,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -1481,6 +1534,11 @@ export namespace postgresql {
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         export interface ClusterImageCatalogSpecPatch {
+            /**
+             * ComponentImages is a list of named images for components other than PostgreSQL
+             * (e.g. pgbouncer). Keys must be unique within a catalog.
+             */
+            componentImages: outputs.postgresql.v1.ClusterImageCatalogSpecComponentImagesPatch[];
             /**
              * List of CatalogImages available in the catalog
              */
@@ -1614,6 +1672,7 @@ export namespace postgresql {
              */
             postgresUID: number;
             postgresql: outputs.postgresql.v1.ClusterSpecPostgresql;
+            primaryLease: outputs.postgresql.v1.ClusterSpecPrimaryLease;
             /**
              * Method to follow to upgrade the primary server during a rolling
              * update procedure, after all replicas have been successfully updated:
@@ -3645,7 +3704,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -3697,7 +3756,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -6581,7 +6640,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -6633,7 +6692,7 @@ export namespace postgresql {
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
             compression: string;
             /**
@@ -7463,11 +7522,13 @@ export namespace postgresql {
             /**
              * List of one or more existing roles to which this role will be
              * immediately added as a new member. Default empty.
+             * Changes to the list are applied to an existing role through
+             * `GRANT` and `REVOKE` statements, not only at role creation.
              */
             inRoles: string[];
             /**
              * Whether a role "inherits" the privileges of roles it is a member of.
-             * Defaults is `true`.
+             * Default is `true`.
              */
             inherit: boolean;
             /**
@@ -7507,8 +7568,10 @@ export namespace postgresql {
         }
 
         /**
-         * Secret containing the password of the role (if present)
-         * If null, the password will be ignored unless DisablePassword is set
+         * Secret containing the password of the role (if present).
+         * If null, the password will be ignored unless DisablePassword is set.
+         * When set, the secret must follow the `kubernetes.io/basic-auth` format
+         * and contain both a `username` and a `password` field.
          */
         export interface ClusterSpecManagedRolesPasswordSecret {
             /**
@@ -7518,8 +7581,10 @@ export namespace postgresql {
         }
 
         /**
-         * Secret containing the password of the role (if present)
-         * If null, the password will be ignored unless DisablePassword is set
+         * Secret containing the password of the role (if present).
+         * If null, the password will be ignored unless DisablePassword is set.
+         * When set, the secret must follow the `kubernetes.io/basic-auth` format
+         * and contain both a `username` and a `password` field.
          */
         export interface ClusterSpecManagedRolesPasswordSecretPatch {
             /**
@@ -7574,11 +7639,13 @@ export namespace postgresql {
             /**
              * List of one or more existing roles to which this role will be
              * immediately added as a new member. Default empty.
+             * Changes to the list are applied to an existing role through
+             * `GRANT` and `REVOKE` statements, not only at role creation.
              */
             inRoles: string[];
             /**
              * Whether a role "inherits" the privileges of roles it is a member of.
-             * Defaults is `true`.
+             * Default is `true`.
              */
             inherit: boolean;
             /**
@@ -8942,6 +9009,7 @@ export namespace postgresql {
              */
             postgresUID: number;
             postgresql: outputs.postgresql.v1.ClusterSpecPostgresqlPatch;
+            primaryLease: outputs.postgresql.v1.ClusterSpecPrimaryLeasePatch;
             /**
              * Method to follow to upgrade the primary server during a rolling
              * update procedure, after all replicas have been successfully updated:
@@ -9735,7 +9803,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -9866,7 +9936,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -10215,6 +10287,78 @@ export namespace postgresql {
              * only useful for priority-based synchronous replication).
              */
             standbyNamesPre: string[];
+        }
+
+        /**
+         * Configuration of the Kubernetes `Lease` used to coordinate safe primary
+         * election within the cluster. When omitted, the operator applies built-in
+         * defaults; tune these values only if you understand the consequences for
+         * failover timing.
+         */
+        export interface ClusterSpecPrimaryLease {
+            /**
+             * How long, in seconds, the primary lease is considered valid before it
+             * expires and another instance may acquire it. It must be greater than
+             * `renewDeadlineSeconds`.
+             * Defaults to 15.
+             */
+            leaseDurationSeconds: number;
+            /**
+             * The TTL, in seconds, written when the primary explicitly releases the
+             * lease on a clean shutdown, allowing a replica to promote without waiting
+             * for the full lease duration to expire.
+             * Defaults to 1.
+             */
+            releasedLeaseDurationSeconds: number;
+            /**
+             * How long, in seconds, the current primary keeps retrying to renew the
+             * lease before giving up and stopping. It must be smaller than
+             * `leaseDurationSeconds`.
+             * Defaults to 10.
+             */
+            renewDeadlineSeconds: number;
+            /**
+             * How frequently, in seconds, a non-holder instance retries acquiring or
+             * renewing the lease.
+             * Defaults to 2.
+             */
+            retryPeriodSeconds: number;
+        }
+
+        /**
+         * Configuration of the Kubernetes `Lease` used to coordinate safe primary
+         * election within the cluster. When omitted, the operator applies built-in
+         * defaults; tune these values only if you understand the consequences for
+         * failover timing.
+         */
+        export interface ClusterSpecPrimaryLeasePatch {
+            /**
+             * How long, in seconds, the primary lease is considered valid before it
+             * expires and another instance may acquire it. It must be greater than
+             * `renewDeadlineSeconds`.
+             * Defaults to 15.
+             */
+            leaseDurationSeconds: number;
+            /**
+             * The TTL, in seconds, written when the primary explicitly releases the
+             * lease on a clean shutdown, allowing a replica to promote without waiting
+             * for the full lease duration to expire.
+             * Defaults to 1.
+             */
+            releasedLeaseDurationSeconds: number;
+            /**
+             * How long, in seconds, the current primary keeps retrying to renew the
+             * lease before giving up and stopping. It must be smaller than
+             * `leaseDurationSeconds`.
+             * Defaults to 10.
+             */
+            renewDeadlineSeconds: number;
+            /**
+             * How frequently, in seconds, a non-holder instance retries acquiring or
+             * renewing the lease.
+             * Defaults to 2.
+             */
+            retryPeriodSeconds: number;
         }
 
         /**
@@ -11822,7 +11966,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -11969,7 +12112,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -13961,6 +14103,8 @@ export namespace postgresql {
             lastSuccessfulBackupByMethod: {[key: string]: string};
             /**
              * ID of the latest generated node (used to avoid node name clashing)
+             *
+             * Deprecated: this field is not set anymore
              */
             latestGeneratedNode: number;
             managedRolesStatus: outputs.postgresql.v1.ClusterStatusManagedRolesStatus;
@@ -13968,6 +14112,12 @@ export namespace postgresql {
              * OnlineUpdateEnabled shows if the online upgrade is enabled inside the cluster
              */
             onlineUpdateEnabled: boolean;
+            /**
+             * OperatorCertificateFingerprint is the SHA256 fingerprint of the operator's
+             * in-memory client certificate public key. The instance manager pins this
+             * fingerprint to authenticate requests from the operator.
+             */
+            operatorCertificateFingerprint: string;
             pgDataImageInfo: outputs.postgresql.v1.ClusterStatusPgDataImageInfo;
             /**
              * Current phase of the cluster
@@ -14004,6 +14154,13 @@ export namespace postgresql {
              */
             resizingPVC: string[];
             secretsResourceVersion: outputs.postgresql.v1.ClusterStatusSecretsResourceVersion;
+            /**
+             * Selector is the serialized form of the label selector that identifies
+             * the pods managed by this cluster. Populated by the operator and exposed
+             * through the scale sub-resource so an autoscaler (such as HPA or VPA)
+             * can discover the managed instance pods.
+             */
+            selector: string;
             switchReplicaClusterStatus: outputs.postgresql.v1.ClusterStatusSwitchReplicaClusterStatus;
             /**
              * SystemID is the latest detected PostgreSQL SystemID
@@ -14013,6 +14170,7 @@ export namespace postgresql {
              * TablespacesStatus reports the state of the declarative tablespaces in the cluster
              */
             tablespacesStatus: outputs.postgresql.v1.ClusterStatusTablespacesStatus[];
+            targetPgDataImageInfo: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfo;
             /**
              * Target primary instance, this is different from the previous one
              * during a switchover or a failover
@@ -14282,8 +14440,10 @@ export namespace postgresql {
              */
             byStatus: {[key: string]: string[]};
             /**
-             * CannotReconcile lists roles that cannot be reconciled in PostgreSQL,
-             * with an explanation of the cause
+             * CannotReconcile lists roles that cannot be reconciled, with an
+             * explanation of the cause. Failures may originate in PostgreSQL
+             * (e.g. dropping a role that owns objects) or in Kubernetes (e.g.
+             * the referenced password Secret cannot be fetched).
              */
             cannotReconcile: {[key: string]: string[]};
             /**
@@ -14301,8 +14461,10 @@ export namespace postgresql {
              */
             byStatus: {[key: string]: string[]};
             /**
-             * CannotReconcile lists roles that cannot be reconciled in PostgreSQL,
-             * with an explanation of the cause
+             * CannotReconcile lists roles that cannot be reconciled, with an
+             * explanation of the cause. Failures may originate in PostgreSQL
+             * (e.g. dropping a role that owns objects) or in Kubernetes (e.g.
+             * the referenced password Secret cannot be fetched).
              */
             cannotReconcile: {[key: string]: string[]};
             /**
@@ -14431,6 +14593,8 @@ export namespace postgresql {
             lastSuccessfulBackupByMethod: {[key: string]: string};
             /**
              * ID of the latest generated node (used to avoid node name clashing)
+             *
+             * Deprecated: this field is not set anymore
              */
             latestGeneratedNode: number;
             managedRolesStatus: outputs.postgresql.v1.ClusterStatusManagedRolesStatusPatch;
@@ -14438,6 +14602,12 @@ export namespace postgresql {
              * OnlineUpdateEnabled shows if the online upgrade is enabled inside the cluster
              */
             onlineUpdateEnabled: boolean;
+            /**
+             * OperatorCertificateFingerprint is the SHA256 fingerprint of the operator's
+             * in-memory client certificate public key. The instance manager pins this
+             * fingerprint to authenticate requests from the operator.
+             */
+            operatorCertificateFingerprint: string;
             pgDataImageInfo: outputs.postgresql.v1.ClusterStatusPgDataImageInfoPatch;
             /**
              * Current phase of the cluster
@@ -14474,6 +14644,13 @@ export namespace postgresql {
              */
             resizingPVC: string[];
             secretsResourceVersion: outputs.postgresql.v1.ClusterStatusSecretsResourceVersionPatch;
+            /**
+             * Selector is the serialized form of the label selector that identifies
+             * the pods managed by this cluster. Populated by the operator and exposed
+             * through the scale sub-resource so an autoscaler (such as HPA or VPA)
+             * can discover the managed instance pods.
+             */
+            selector: string;
             switchReplicaClusterStatus: outputs.postgresql.v1.ClusterStatusSwitchReplicaClusterStatusPatch;
             /**
              * SystemID is the latest detected PostgreSQL SystemID
@@ -14483,6 +14660,7 @@ export namespace postgresql {
              * TablespacesStatus reports the state of the declarative tablespaces in the cluster
              */
             tablespacesStatus: outputs.postgresql.v1.ClusterStatusTablespacesStatusPatch[];
+            targetPgDataImageInfo: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoPatch;
             /**
              * Target primary instance, this is different from the previous one
              * during a switchover or a failover
@@ -14559,7 +14737,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -14690,7 +14870,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -15032,6 +15214,220 @@ export namespace postgresql {
         }
 
         /**
+         * TargetPGDataImageInfo contains the details of the target image for an
+         * in-progress major upgrade. It is set before the upgrade Job is created,
+         * and cleared on successful completion or when the upgrade is rolled back.
+         */
+        export interface ClusterStatusTargetPgDataImageInfo {
+            /**
+             * Extensions contains the container image extensions available for the current Image
+             */
+            extensions: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensions[];
+            /**
+             * Image is the image name
+             */
+            image: string;
+            /**
+             * MajorVersion is the major version of the image
+             */
+            majorVersion: number;
+        }
+
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensions {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path: string[];
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path: string[];
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensionsEnv[];
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path: string[];
+            image: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensionsImage;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path: string[];
+            /**
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
+             */
+            name: string;
+        }
+
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensionsEnv {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name: string;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value: string;
+        }
+
+        /**
+         * ExtensionEnvVar defines an environment variable for a specific extension
+         * image volume.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensionsEnvPatch {
+            /**
+             * Name of the environment variable to be injected into the
+             * PostgreSQL process.
+             */
+            name: string;
+            /**
+             * Value of the environment variable. CloudNativePG performs a direct
+             * replacement of this value, with support for placeholder expansion.
+             * The ${`image_root`} placeholder resolves to the absolute mount path
+             * of the extension's volume (e.g., `/extensions/my-extension`). This
+             * is particularly useful for allowing applications or libraries to
+             * locate specific directories within the mounted image.
+             * Unrecognized placeholders are rejected. To include a literal ${...}
+             * in the value, escape it as $${...}.
+             */
+            value: string;
+        }
+
+        /**
+         * The image containing the extension.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensionsImage {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy: string;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference: string;
+        }
+
+        /**
+         * The image containing the extension.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensionsImagePatch {
+            /**
+             * Policy for pulling OCI objects. Possible values are:
+             * Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails.
+             * Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present.
+             * IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+             * Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+             */
+            pullPolicy: string;
+            /**
+             * Required: Image or artifact reference to be used.
+             * Behaves in the same way as pod.spec.containers[*].image.
+             * Pull secrets will be assembled in the same way as for the container image by looking up node credentials, SA image pull secrets, and pod spec image pull secrets.
+             * More info: https://kubernetes.io/docs/concepts/containers/images
+             * This field is optional to allow higher level config management to default or override
+             * container images in workload controllers like Deployments and StatefulSets.
+             */
+            reference: string;
+        }
+
+        /**
+         * ExtensionConfiguration is the configuration used to add
+         * PostgreSQL extensions to the Cluster.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoExtensionsPatch {
+            /**
+             * A list of directories within the image to be appended to the
+             * PostgreSQL process's `PATH` environment variable.
+             */
+            bin_path: string[];
+            /**
+             * The list of directories inside the image which should be added to dynamic_library_path.
+             * If not defined, defaults to "/lib".
+             */
+            dynamic_library_path: string[];
+            /**
+             * Env is a list of custom environment variables to be set in the
+             * PostgreSQL process for this extension. It is the responsibility of the
+             * cluster administrator to ensure the variables are correct for the
+             * specific extension. Note that changes to these variables require
+             * a manual cluster restart to take effect.
+             */
+            env: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensionsEnvPatch[];
+            /**
+             * The list of directories inside the image which should be added to extension_control_path.
+             * If not defined, defaults to "/share".
+             */
+            extension_control_path: string[];
+            image: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensionsImagePatch;
+            /**
+             * The list of directories inside the image which should be added to ld_library_path.
+             */
+            ld_library_path: string[];
+            /**
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
+             */
+            name: string;
+        }
+
+        /**
+         * TargetPGDataImageInfo contains the details of the target image for an
+         * in-progress major upgrade. It is set before the upgrade Job is created,
+         * and cleared on successful completion or when the upgrade is rolled back.
+         */
+        export interface ClusterStatusTargetPgDataImageInfoPatch {
+            /**
+             * Extensions contains the container image extensions available for the current Image
+             */
+            extensions: outputs.postgresql.v1.ClusterStatusTargetPgDataImageInfoExtensionsPatch[];
+            /**
+             * Image is the image name
+             */
+            image: string;
+            /**
+             * MajorVersion is the major version of the image
+             */
+            majorVersion: number;
+        }
+
+        /**
          * Instances topology.
          */
         export interface ClusterStatusTopology {
@@ -15095,6 +15491,464 @@ export namespace postgresql {
             metadata: outputs.meta.v1.ObjectMeta;
             spec: outputs.postgresql.v1.DatabaseSpec;
             status: outputs.postgresql.v1.DatabaseStatus;
+        }
+
+        /**
+         * DatabaseRole is the Schema for the databaseroles API
+         */
+        export interface DatabaseRole {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion: "postgresql.cnpg.io/v1";
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind: "DatabaseRole";
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata: outputs.meta.v1.ObjectMeta;
+            spec: outputs.postgresql.v1.DatabaseRoleSpec;
+            status: outputs.postgresql.v1.DatabaseRoleStatus;
+        }
+
+        /**
+         * Specification of the desired DatabaseRole.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseRoleSpec {
+            /**
+             * Whether a role bypasses every row-level security (RLS) policy.
+             * Default is `false`.
+             */
+            bypassrls: boolean;
+            clientCertificate: outputs.postgresql.v1.DatabaseRoleSpecClientCertificate;
+            cluster: outputs.postgresql.v1.DatabaseRoleSpecCluster;
+            /**
+             * Description of the role
+             */
+            comment: string;
+            /**
+             * If the role can log in, this specifies how many concurrent
+             * connections the role can make. `-1` (the default) means no limit.
+             */
+            connectionLimit: number;
+            /**
+             * When set to `true`, the role being defined will be allowed to create
+             * new databases. Specifying `false` (default) will deny a role the
+             * ability to create databases.
+             */
+            createdb: boolean;
+            /**
+             * Whether the role will be permitted to create, alter, drop, comment
+             * on, change the security label for, and grant or revoke membership in
+             * other roles. Default is `false`.
+             */
+            createrole: boolean;
+            /**
+             * The policy for end-of-life maintenance of this role
+             */
+            databaseRoleReclaimPolicy: string;
+            /**
+             * DisablePassword indicates that a role's password should be set to NULL in Postgres
+             */
+            disablePassword: boolean;
+            /**
+             * Ensure the role is `present` or `absent` - defaults to "present"
+             */
+            ensure: string;
+            /**
+             * List of one or more existing roles to which this role will be
+             * immediately added as a new member. Default empty.
+             * Changes to the list are applied to an existing role through
+             * `GRANT` and `REVOKE` statements, not only at role creation.
+             */
+            inRoles: string[];
+            /**
+             * Whether a role "inherits" the privileges of roles it is a member of.
+             * Default is `true`.
+             */
+            inherit: boolean;
+            /**
+             * Whether the role is allowed to log in. A role having the `login`
+             * attribute can be thought of as a user. Roles without this attribute
+             * are useful for managing database privileges, but are not users in
+             * the usual sense of the word. Default is `false`.
+             */
+            login: boolean;
+            /**
+             * Name of the role
+             */
+            name: string;
+            passwordSecret: outputs.postgresql.v1.DatabaseRoleSpecPasswordSecret;
+            /**
+             * Whether a role is a replication role. A role must have this
+             * attribute (or be a superuser) in order to be able to connect to the
+             * server in replication mode (physical or logical replication) and in
+             * order to be able to create or drop replication slots. A role having
+             * the `replication` attribute is a very highly privileged role, and
+             * should only be used on roles actually used for replication. Default
+             * is `false`.
+             */
+            replication: boolean;
+            /**
+             * Whether the role is a `superuser` who can override all access
+             * restrictions within the database - superuser status is dangerous and
+             * should be used only when really needed. You must yourself be a
+             * superuser to create a new superuser. Defaults is `false`.
+             */
+            superuser: boolean;
+            /**
+             * Date and time after which the role's password is no longer valid.
+             * When omitted, the password will never expire (default).
+             */
+            validUntil: string;
+        }
+
+        /**
+         * ClientCertificate configures the operator to generate and renew a TLS client
+         * certificate for this role, signed by the cluster's client CA. The certificate
+         * is stored in a Secret named `<databaserole-name>-client-cert`.
+         * Requires login to be true.
+         */
+        export interface DatabaseRoleSpecClientCertificate {
+            /**
+             * Enabled turns on client certificate issuance for this role. When true,
+             * the role must have login enabled. Defaults to true when the block is present.
+             */
+            enabled: boolean;
+        }
+
+        /**
+         * ClientCertificate configures the operator to generate and renew a TLS client
+         * certificate for this role, signed by the cluster's client CA. The certificate
+         * is stored in a Secret named `<databaserole-name>-client-cert`.
+         * Requires login to be true.
+         */
+        export interface DatabaseRoleSpecClientCertificatePatch {
+            /**
+             * Enabled turns on client certificate issuance for this role. When true,
+             * the role must have login enabled. Defaults to true when the block is present.
+             */
+            enabled: boolean;
+        }
+
+        /**
+         * The corresponding cluster
+         */
+        export interface DatabaseRoleSpecCluster {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * The corresponding cluster
+         */
+        export interface DatabaseRoleSpecClusterPatch {
+            /**
+             * Name of the referent.
+             * This field is effectively required, but due to backwards compatibility is
+             * allowed to be empty. Instances of this type with an empty value here are
+             * almost certainly wrong.
+             * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+             */
+            name: string;
+        }
+
+        /**
+         * Secret containing the password of the role (if present).
+         * If null, the password will be ignored unless DisablePassword is set.
+         * When set, the secret must follow the `kubernetes.io/basic-auth` format
+         * and contain both a `username` and a `password` field.
+         */
+        export interface DatabaseRoleSpecPasswordSecret {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * Secret containing the password of the role (if present).
+         * If null, the password will be ignored unless DisablePassword is set.
+         * When set, the secret must follow the `kubernetes.io/basic-auth` format
+         * and contain both a `username` and a `password` field.
+         */
+        export interface DatabaseRoleSpecPasswordSecretPatch {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * Specification of the desired DatabaseRole.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseRoleSpecPatch {
+            /**
+             * Whether a role bypasses every row-level security (RLS) policy.
+             * Default is `false`.
+             */
+            bypassrls: boolean;
+            clientCertificate: outputs.postgresql.v1.DatabaseRoleSpecClientCertificatePatch;
+            cluster: outputs.postgresql.v1.DatabaseRoleSpecClusterPatch;
+            /**
+             * Description of the role
+             */
+            comment: string;
+            /**
+             * If the role can log in, this specifies how many concurrent
+             * connections the role can make. `-1` (the default) means no limit.
+             */
+            connectionLimit: number;
+            /**
+             * When set to `true`, the role being defined will be allowed to create
+             * new databases. Specifying `false` (default) will deny a role the
+             * ability to create databases.
+             */
+            createdb: boolean;
+            /**
+             * Whether the role will be permitted to create, alter, drop, comment
+             * on, change the security label for, and grant or revoke membership in
+             * other roles. Default is `false`.
+             */
+            createrole: boolean;
+            /**
+             * The policy for end-of-life maintenance of this role
+             */
+            databaseRoleReclaimPolicy: string;
+            /**
+             * DisablePassword indicates that a role's password should be set to NULL in Postgres
+             */
+            disablePassword: boolean;
+            /**
+             * Ensure the role is `present` or `absent` - defaults to "present"
+             */
+            ensure: string;
+            /**
+             * List of one or more existing roles to which this role will be
+             * immediately added as a new member. Default empty.
+             * Changes to the list are applied to an existing role through
+             * `GRANT` and `REVOKE` statements, not only at role creation.
+             */
+            inRoles: string[];
+            /**
+             * Whether a role "inherits" the privileges of roles it is a member of.
+             * Default is `true`.
+             */
+            inherit: boolean;
+            /**
+             * Whether the role is allowed to log in. A role having the `login`
+             * attribute can be thought of as a user. Roles without this attribute
+             * are useful for managing database privileges, but are not users in
+             * the usual sense of the word. Default is `false`.
+             */
+            login: boolean;
+            /**
+             * Name of the role
+             */
+            name: string;
+            passwordSecret: outputs.postgresql.v1.DatabaseRoleSpecPasswordSecretPatch;
+            /**
+             * Whether a role is a replication role. A role must have this
+             * attribute (or be a superuser) in order to be able to connect to the
+             * server in replication mode (physical or logical replication) and in
+             * order to be able to create or drop replication slots. A role having
+             * the `replication` attribute is a very highly privileged role, and
+             * should only be used on roles actually used for replication. Default
+             * is `false`.
+             */
+            replication: boolean;
+            /**
+             * Whether the role is a `superuser` who can override all access
+             * restrictions within the database - superuser status is dangerous and
+             * should be used only when really needed. You must yourself be a
+             * superuser to create a new superuser. Defaults is `false`.
+             */
+            superuser: boolean;
+            /**
+             * Date and time after which the role's password is no longer valid.
+             * When omitted, the password will never expire (default).
+             */
+            validUntil: string;
+        }
+
+        /**
+         * Most recently observed status of the DatabaseRole. This data may not be up
+         * to date. Populated by the system. Read-only.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseRoleStatus {
+            /**
+             * Applied is true if the role was reconciled correctly
+             */
+            applied: boolean;
+            clientCertificate: outputs.postgresql.v1.DatabaseRoleStatusClientCertificate;
+            /**
+             * Conditions for the DatabaseRole object
+             */
+            conditions: outputs.postgresql.v1.DatabaseRoleStatusConditions[];
+            /**
+             * Message is the reconciliation error message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
+            /**
+             * SecretResourceVersion is the resource version of the password secret
+             * last applied to the role; a change to it triggers reconciliation.
+             */
+            secretResourceVersion: string;
+        }
+
+        /**
+         * ClientCertificate holds the observed state of the generated TLS client
+         * certificate, when client certificate issuance is enabled.
+         */
+        export interface DatabaseRoleStatusClientCertificate {
+            /**
+             * Expiration is the expiration time of the generated client certificate, in RFC3339 format.
+             */
+            expiration: string;
+            /**
+             * Message contains a human-readable explanation of the current certificate status,
+             * such as why issuance was skipped or why an existing Secret was left untouched.
+             */
+            message: string;
+        }
+
+        /**
+         * ClientCertificate holds the observed state of the generated TLS client
+         * certificate, when client certificate issuance is enabled.
+         */
+        export interface DatabaseRoleStatusClientCertificatePatch {
+            /**
+             * Expiration is the expiration time of the generated client certificate, in RFC3339 format.
+             */
+            expiration: string;
+            /**
+             * Message contains a human-readable explanation of the current certificate status,
+             * such as why issuance was skipped or why an existing Secret was left untouched.
+             */
+            message: string;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface DatabaseRoleStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface DatabaseRoleStatusConditionsPatch {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type: string;
+        }
+
+        /**
+         * Most recently observed status of the DatabaseRole. This data may not be up
+         * to date. Populated by the system. Read-only.
+         * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+         */
+        export interface DatabaseRoleStatusPatch {
+            /**
+             * Applied is true if the role was reconciled correctly
+             */
+            applied: boolean;
+            clientCertificate: outputs.postgresql.v1.DatabaseRoleStatusClientCertificatePatch;
+            /**
+             * Conditions for the DatabaseRole object
+             */
+            conditions: outputs.postgresql.v1.DatabaseRoleStatusConditionsPatch[];
+            /**
+             * Message is the reconciliation error message
+             */
+            message: string;
+            /**
+             * A sequence number representing the latest
+             * desired state that was synchronized
+             */
+            observedGeneration: number;
+            /**
+             * SecretResourceVersion is the resource version of the password secret
+             * last applied to the role; a change to it triggers reconciliation.
+             */
+            secretResourceVersion: string;
         }
 
         /**
@@ -16092,9 +16946,42 @@ export namespace postgresql {
          */
         export interface ImageCatalogSpec {
             /**
+             * ComponentImages is a list of named images for components other than PostgreSQL
+             * (e.g. pgbouncer). Keys must be unique within a catalog.
+             */
+            componentImages: outputs.postgresql.v1.ImageCatalogSpecComponentImages[];
+            /**
              * List of CatalogImages available in the catalog
              */
             images: outputs.postgresql.v1.ImageCatalogSpecImages[];
+        }
+
+        /**
+         * CatalogComponentImage is a named image entry for a non-PostgreSQL component.
+         */
+        export interface ImageCatalogSpecComponentImages {
+            /**
+             * Image is the container image reference.
+             */
+            image: string;
+            /**
+             * Key is the unique identifier for this image within the catalog.
+             */
+            key: string;
+        }
+
+        /**
+         * CatalogComponentImage is a named image entry for a non-PostgreSQL component.
+         */
+        export interface ImageCatalogSpecComponentImagesPatch {
+            /**
+             * Image is the container image reference.
+             */
+            image: string;
+            /**
+             * Key is the unique identifier for this image within the catalog.
+             */
+            key: string;
         }
 
         /**
@@ -16149,7 +17036,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -16280,7 +17169,9 @@ export namespace postgresql {
              */
             ld_library_path: string[];
             /**
-             * The name of the extension, required
+             * The name of the extension, required. The limit of 59 characters
+             * leaves room for the prefix the operator adds when deriving the
+             * extension's Kubernetes Volume name (capped at 63 characters).
              */
             name: string;
         }
@@ -16308,6 +17199,11 @@ export namespace postgresql {
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         export interface ImageCatalogSpecPatch {
+            /**
+             * ComponentImages is a list of named images for components other than PostgreSQL
+             * (e.g. pgbouncer). Keys must be unique within a catalog.
+             */
+            componentImages: outputs.postgresql.v1.ImageCatalogSpecComponentImagesPatch[];
             /**
              * List of CatalogImages available in the catalog
              */
@@ -16477,44 +17373,58 @@ export namespace postgresql {
 
         /**
          * The configuration of the monitoring infrastructure of this pooler.
-         *
-         * Deprecated: This feature will be removed in an upcoming release. If
-         * you need this functionality, you can create a PodMonitor manually.
          */
         export interface PoolerSpecMonitoring {
             /**
              * Enable or disable the `PodMonitor`
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             enablePodMonitor: boolean;
             /**
              * The list of metric relabelings for the `PodMonitor`. Applied to samples before ingestion.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorMetricRelabelings: outputs.postgresql.v1.PoolerSpecMonitoringPodMonitorMetricRelabelings[];
             /**
              * The list of relabelings for the `PodMonitor`. Applied to samples before scraping.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorRelabelings: outputs.postgresql.v1.PoolerSpecMonitoringPodMonitorRelabelings[];
+            tls: outputs.postgresql.v1.PoolerSpecMonitoringTls;
         }
 
         /**
          * The configuration of the monitoring infrastructure of this pooler.
-         *
-         * Deprecated: This feature will be removed in an upcoming release. If
-         * you need this functionality, you can create a PodMonitor manually.
          */
         export interface PoolerSpecMonitoringPatch {
             /**
              * Enable or disable the `PodMonitor`
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             enablePodMonitor: boolean;
             /**
              * The list of metric relabelings for the `PodMonitor`. Applied to samples before ingestion.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorMetricRelabelings: outputs.postgresql.v1.PoolerSpecMonitoringPodMonitorMetricRelabelingsPatch[];
             /**
              * The list of relabelings for the `PodMonitor`. Applied to samples before scraping.
+             *
+             * Deprecated: This feature will be removed in an upcoming release. If
+             * you need this functionality, you can create a PodMonitor manually.
              */
             podMonitorRelabelings: outputs.postgresql.v1.PoolerSpecMonitoringPodMonitorRelabelingsPatch[];
+            tls: outputs.postgresql.v1.PoolerSpecMonitoringTlsPatch;
         }
 
         /**
@@ -16734,6 +17644,30 @@ export namespace postgresql {
         }
 
         /**
+         * Configure TLS communication for the metrics endpoint.
+         * Changing tls.enabled option will force a rollout of all instances.
+         */
+        export interface PoolerSpecMonitoringTls {
+            /**
+             * Enable TLS for the monitoring endpoint.
+             * Changing this option will force a rollout of all instances.
+             */
+            enabled: boolean;
+        }
+
+        /**
+         * Configure TLS communication for the metrics endpoint.
+         * Changing tls.enabled option will force a rollout of all instances.
+         */
+        export interface PoolerSpecMonitoringTlsPatch {
+            /**
+             * Enable TLS for the monitoring endpoint.
+             * Changing this option will force a rollout of all instances.
+             */
+            enabled: boolean;
+        }
+
+        /**
          * Specification of the desired behavior of the Pooler.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
@@ -16776,6 +17710,13 @@ export namespace postgresql {
             authQuerySecret: outputs.postgresql.v1.PoolerSpecPgbouncerAuthQuerySecret;
             clientCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientCASecret;
             clientTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientTLSSecret;
+            /**
+             * Image is the pgbouncer container image to use. When set, it takes
+             * precedence over ImageCatalogRef and the operator default, but is
+             * overridden by an explicit image set in the pod template.
+             */
+            image: string;
+            imageCatalogRef: outputs.postgresql.v1.PoolerSpecPgbouncerImageCatalogRef;
             /**
              * Additional parameters to be passed to PgBouncer - please check
              * the CNPG documentation for a list of options you can configure
@@ -16876,6 +17817,56 @@ export namespace postgresql {
         }
 
         /**
+         * ImageCatalogRef points to an entry in an ImageCatalog or ClusterImageCatalog.
+         * Mutually exclusive with Image.
+         */
+        export interface PoolerSpecPgbouncerImageCatalogRef {
+            /**
+             * APIGroup is the group for the resource being referenced.
+             * If APIGroup is not specified, the specified Kind must be in the core API group.
+             * For any other third-party types, APIGroup is required.
+             */
+            apiGroup: string;
+            /**
+             * Key identifies the entry within the catalog's componentImages list.
+             */
+            key: string;
+            /**
+             * Kind is the type of resource being referenced
+             */
+            kind: string;
+            /**
+             * Name is the name of resource being referenced
+             */
+            name: string;
+        }
+
+        /**
+         * ImageCatalogRef points to an entry in an ImageCatalog or ClusterImageCatalog.
+         * Mutually exclusive with Image.
+         */
+        export interface PoolerSpecPgbouncerImageCatalogRefPatch {
+            /**
+             * APIGroup is the group for the resource being referenced.
+             * If APIGroup is not specified, the specified Kind must be in the core API group.
+             * For any other third-party types, APIGroup is required.
+             */
+            apiGroup: string;
+            /**
+             * Key identifies the entry within the catalog's componentImages list.
+             */
+            key: string;
+            /**
+             * Kind is the type of resource being referenced
+             */
+            kind: string;
+            /**
+             * Name is the name of resource being referenced
+             */
+            name: string;
+        }
+
+        /**
          * The PgBouncer configuration
          */
         export interface PoolerSpecPgbouncerPatch {
@@ -16889,6 +17880,13 @@ export namespace postgresql {
             authQuerySecret: outputs.postgresql.v1.PoolerSpecPgbouncerAuthQuerySecretPatch;
             clientCASecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientCASecretPatch;
             clientTLSSecret: outputs.postgresql.v1.PoolerSpecPgbouncerClientTLSSecretPatch;
+            /**
+             * Image is the pgbouncer container image to use. When set, it takes
+             * precedence over ImageCatalogRef and the operator default, but is
+             * overridden by an explicit image set in the pod template.
+             */
+            image: string;
+            imageCatalogRef: outputs.postgresql.v1.PoolerSpecPgbouncerImageCatalogRefPatch;
             /**
              * Additional parameters to be passed to PgBouncer - please check
              * the CNPG documentation for a list of options you can configure
@@ -17808,7 +18806,6 @@ export namespace postgresql {
              * When set to false, a new userns is created for the pod. Setting false is useful for
              * mitigating container breakout vulnerabilities even allowing users to run their
              * containers as root without actually having root privileges on the host.
-             * This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.
              */
             hostUsers: boolean;
             /**
@@ -17947,6 +18944,7 @@ export namespace postgresql {
              * SchedulingGates can only be set at pod creation time, and be removed only afterwards.
              */
             schedulingGates: outputs.postgresql.v1.PoolerSpecTemplateSpecSchedulingGates[];
+            schedulingGroup: outputs.postgresql.v1.PoolerSpecTemplateSpecSchedulingGroup;
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContext;
             /**
              * DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
@@ -18005,7 +19003,6 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/storage/volumes
              */
             volumes: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumes[];
-            workloadRef: outputs.postgresql.v1.PoolerSpecTemplateSpecWorkloadRef;
         }
 
         /**
@@ -21611,7 +22608,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -21758,7 +22754,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -24486,7 +25481,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -24632,7 +25626,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -27369,7 +28362,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -27516,7 +28508,6 @@ export namespace postgresql {
              * procMount denotes the type of proc mount to use for the containers.
              * The default value is Default which uses the container runtime defaults for
              * readonly paths and masked paths.
-             * This requires the ProcMountType feature flag to be enabled.
              * Note that this field cannot be set when spec.os.name is windows.
              */
             procMount: string;
@@ -28332,7 +29323,6 @@ export namespace postgresql {
              * When set to false, a new userns is created for the pod. Setting false is useful for
              * mitigating container breakout vulnerabilities even allowing users to run their
              * containers as root without actually having root privileges on the host.
-             * This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature.
              */
             hostUsers: boolean;
             /**
@@ -28471,6 +29461,7 @@ export namespace postgresql {
              * SchedulingGates can only be set at pod creation time, and be removed only afterwards.
              */
             schedulingGates: outputs.postgresql.v1.PoolerSpecTemplateSpecSchedulingGatesPatch[];
+            schedulingGroup: outputs.postgresql.v1.PoolerSpecTemplateSpecSchedulingGroupPatch;
             securityContext: outputs.postgresql.v1.PoolerSpecTemplateSpecSecurityContextPatch;
             /**
              * DeprecatedServiceAccount is a deprecated alias for ServiceAccountName.
@@ -28529,7 +29520,6 @@ export namespace postgresql {
              * More info: https://kubernetes.io/docs/concepts/storage/volumes
              */
             volumes: outputs.postgresql.v1.PoolerSpecTemplateSpecVolumesPatch[];
-            workloadRef: outputs.postgresql.v1.PoolerSpecTemplateSpecWorkloadRefPatch;
         }
 
         /**
@@ -28559,6 +29549,14 @@ export namespace postgresql {
          *
          * It adds a name to it that uniquely identifies the ResourceClaim inside the Pod.
          * Containers that need access to the ResourceClaim reference it with this name.
+         *
+         * When the DRAWorkloadResourceClaims feature gate is enabled and this Pod
+         * belongs to a PodGroup, a PodResourceClaim is matched to a
+         * PodGroupResourceClaim if all of their fields are equal (Name,
+         * ResourceClaimName, and ResourceClaimTemplateName). A matched claim references
+         * a single ResourceClaim shared across all Pods in the PodGroup, reserved for
+         * the PodGroup in ResourceClaimStatus.ReservedFor rather than for individual
+         * Pods.
          */
         export interface PoolerSpecTemplateSpecResourceClaims {
             /**
@@ -28584,6 +29582,16 @@ export namespace postgresql {
              * generated component, will be used to form a unique name for the
              * ResourceClaim, which will be recorded in pod.status.resourceClaimStatuses.
              *
+             * When the DRAWorkloadResourceClaims feature gate is enabled and the pod
+             * belongs to a PodGroup that defines a PodGroupResourceClaim with the same
+             * Name and ResourceClaimTemplateName, this PodResourceClaim resolves to the
+             * ResourceClaim generated for the PodGroup. All pods in the group that
+             * define an equivalent PodResourceClaim matching the
+             * PodGroupResourceClaim's Name and ResourceClaimTemplateName share the same
+             * generated ResourceClaim. ResourceClaims generated for a PodGroup are
+             * owned by the PodGroup and their lifecycles are tied to the PodGroup
+             * instead of any individual pod.
+             *
              * This field is immutable and no changes will be made to the
              * corresponding ResourceClaim by the control plane after creating the
              * ResourceClaim.
@@ -28601,6 +29609,14 @@ export namespace postgresql {
          *
          * It adds a name to it that uniquely identifies the ResourceClaim inside the Pod.
          * Containers that need access to the ResourceClaim reference it with this name.
+         *
+         * When the DRAWorkloadResourceClaims feature gate is enabled and this Pod
+         * belongs to a PodGroup, a PodResourceClaim is matched to a
+         * PodGroupResourceClaim if all of their fields are equal (Name,
+         * ResourceClaimName, and ResourceClaimTemplateName). A matched claim references
+         * a single ResourceClaim shared across all Pods in the PodGroup, reserved for
+         * the PodGroup in ResourceClaimStatus.ReservedFor rather than for individual
+         * Pods.
          */
         export interface PoolerSpecTemplateSpecResourceClaimsPatch {
             /**
@@ -28625,6 +29641,16 @@ export namespace postgresql {
              * will also be deleted. The pod name and resource name, along with a
              * generated component, will be used to form a unique name for the
              * ResourceClaim, which will be recorded in pod.status.resourceClaimStatuses.
+             *
+             * When the DRAWorkloadResourceClaims feature gate is enabled and the pod
+             * belongs to a PodGroup that defines a PodGroupResourceClaim with the same
+             * Name and ResourceClaimTemplateName, this PodResourceClaim resolves to the
+             * ResourceClaim generated for the PodGroup. All pods in the group that
+             * define an equivalent PodResourceClaim matching the
+             * PodGroupResourceClaim's Name and ResourceClaimTemplateName share the same
+             * generated ResourceClaim. ResourceClaims generated for a PodGroup are
+             * owned by the PodGroup and their lifecycles are tied to the PodGroup
+             * instead of any individual pod.
              *
              * This field is immutable and no changes will be made to the
              * corresponding ResourceClaim by the control plane after creating the
@@ -28764,6 +29790,52 @@ export namespace postgresql {
              * Each scheduling gate must have a unique name field.
              */
             name: string;
+        }
+
+        /**
+         * SchedulingGroup provides a reference to the immediate scheduling runtime
+         * grouping object that this Pod belongs to.
+         * This field is used by the scheduler to identify the group and apply the
+         * correct group scheduling policies. The association with a group also
+         * impacts other lifecycle aspects of a Pod that are relevant in a wider context
+         * of scheduling like preemption, resource attachment, etc. If not specified,
+         * the Pod is treated as a single unit in all of these aspects.
+         * The group object referenced by this field may not exist at the time the
+         * Pod is created.
+         * This field is immutable, but a group object with the same name may be
+         * recreated with different policies. Doing this during pod scheduling
+         * may result in the placement not conforming to the expected policies.
+         */
+        export interface PoolerSpecTemplateSpecSchedulingGroup {
+            /**
+             * PodGroupName specifies the name of the standalone PodGroup object
+             * that represents the runtime instance of this group.
+             * Must be a DNS subdomain.
+             */
+            podGroupName: string;
+        }
+
+        /**
+         * SchedulingGroup provides a reference to the immediate scheduling runtime
+         * grouping object that this Pod belongs to.
+         * This field is used by the scheduler to identify the group and apply the
+         * correct group scheduling policies. The association with a group also
+         * impacts other lifecycle aspects of a Pod that are relevant in a wider context
+         * of scheduling like preemption, resource attachment, etc. If not specified,
+         * the Pod is treated as a single unit in all of these aspects.
+         * The group object referenced by this field may not exist at the time the
+         * Pod is created.
+         * This field is immutable, but a group object with the same name may be
+         * recreated with different policies. Doing this during pod scheduling
+         * may result in the placement not conforming to the expected policies.
+         */
+        export interface PoolerSpecTemplateSpecSchedulingGroupPatch {
+            /**
+             * PodGroupName specifies the name of the standalone PodGroup object
+             * that represents the runtime instance of this group.
+             * Must be a DNS subdomain.
+             */
+            podGroupName: string;
         }
 
         /**
@@ -31328,7 +32400,7 @@ export namespace postgresql {
          * A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
          * The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
          * The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-         * The volume will be mounted read-only (ro) and non-executable files (noexec).
+         * The volume will be mounted read-only (ro).
          * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
          * The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
          */
@@ -31364,7 +32436,7 @@ export namespace postgresql {
          * A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
          * The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
          * The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-         * The volume will be mounted read-only (ro) and non-executable files (noexec).
+         * The volume will be mounted read-only (ro).
          * Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
          * The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
          */
@@ -31693,8 +32765,7 @@ export namespace postgresql {
         /**
          * portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
          * Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-         * are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-         * is on.
+         * are redirected to the pxd.portworx.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesPortworxVolume {
             /**
@@ -31717,8 +32788,7 @@ export namespace postgresql {
         /**
          * portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
          * Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-         * are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-         * is on.
+         * are redirected to the pxd.portworx.com CSI driver.
          */
         export interface PoolerSpecTemplateSpecVolumesPortworxVolumePatch {
             /**
@@ -33215,83 +34285,36 @@ export namespace postgresql {
         }
 
         /**
-         * WorkloadRef provides a reference to the Workload object that this Pod belongs to.
-         * This field is used by the scheduler to identify the PodGroup and apply the
-         * correct group scheduling policies. The Workload object referenced
-         * by this field may not exist at the time the Pod is created.
-         * This field is immutable, but a Workload object with the same name
-         * may be recreated with different policies. Doing this during pod scheduling
-         * may result in the placement not conforming to the expected policies.
-         */
-        export interface PoolerSpecTemplateSpecWorkloadRef {
-            /**
-             * Name defines the name of the Workload object this Pod belongs to.
-             * Workload must be in the same namespace as the Pod.
-             * If it doesn't match any existing Workload, the Pod will remain unschedulable
-             * until a Workload object is created and observed by the kube-scheduler.
-             * It must be a DNS subdomain.
-             */
-            name: string;
-            /**
-             * PodGroup is the name of the PodGroup within the Workload that this Pod
-             * belongs to. If it doesn't match any existing PodGroup within the Workload,
-             * the Pod will remain unschedulable until the Workload object is recreated
-             * and observed by the kube-scheduler. It must be a DNS label.
-             */
-            podGroup: string;
-            /**
-             * PodGroupReplicaKey specifies the replica key of the PodGroup to which this
-             * Pod belongs. It is used to distinguish pods belonging to different replicas
-             * of the same pod group. The pod group policy is applied separately to each replica.
-             * When set, it must be a DNS label.
-             */
-            podGroupReplicaKey: string;
-        }
-
-        /**
-         * WorkloadRef provides a reference to the Workload object that this Pod belongs to.
-         * This field is used by the scheduler to identify the PodGroup and apply the
-         * correct group scheduling policies. The Workload object referenced
-         * by this field may not exist at the time the Pod is created.
-         * This field is immutable, but a Workload object with the same name
-         * may be recreated with different policies. Doing this during pod scheduling
-         * may result in the placement not conforming to the expected policies.
-         */
-        export interface PoolerSpecTemplateSpecWorkloadRefPatch {
-            /**
-             * Name defines the name of the Workload object this Pod belongs to.
-             * Workload must be in the same namespace as the Pod.
-             * If it doesn't match any existing Workload, the Pod will remain unschedulable
-             * until a Workload object is created and observed by the kube-scheduler.
-             * It must be a DNS subdomain.
-             */
-            name: string;
-            /**
-             * PodGroup is the name of the PodGroup within the Workload that this Pod
-             * belongs to. If it doesn't match any existing PodGroup within the Workload,
-             * the Pod will remain unschedulable until the Workload object is recreated
-             * and observed by the kube-scheduler. It must be a DNS label.
-             */
-            podGroup: string;
-            /**
-             * PodGroupReplicaKey specifies the replica key of the PodGroup to which this
-             * Pod belongs. It is used to distinguish pods belonging to different replicas
-             * of the same pod group. The pod group policy is applied separately to each replica.
-             * When set, it must be a DNS label.
-             */
-            podGroupReplicaKey: string;
-        }
-
-        /**
          * Most recently observed status of the Pooler. This data may not be up to
          * date. Populated by the system. Read-only.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         export interface PoolerStatus {
             /**
+             * Error is the latest admission validation error
+             */
+            error: string;
+            /**
+             * Image is the resolved pgbouncer container image that the operator is
+             * using for this Pooler, including any override coming from spec.template.
+             * While Phase is Active or Paused this field reflects what the Deployment
+             * actually runs; while Phase is Inactive or Failed it may carry the last
+             * successfully resolved value (or be empty if the Pooler has never reconciled
+             * successfully).
+             */
+            image: string;
+            /**
              * The number of pods trying to be scheduled
              */
             instances: number;
+            /**
+             * Phase summarizes the overall lifecycle state of the Pooler.
+             */
+            phase: string;
+            /**
+             * PhaseReason is a human-readable explanation of the current Phase.
+             */
+            phaseReason: string;
             secrets: outputs.postgresql.v1.PoolerStatusSecrets;
         }
 
@@ -33302,9 +34325,30 @@ export namespace postgresql {
          */
         export interface PoolerStatusPatch {
             /**
+             * Error is the latest admission validation error
+             */
+            error: string;
+            /**
+             * Image is the resolved pgbouncer container image that the operator is
+             * using for this Pooler, including any override coming from spec.template.
+             * While Phase is Active or Paused this field reflects what the Deployment
+             * actually runs; while Phase is Inactive or Failed it may carry the last
+             * successfully resolved value (or be empty if the Pooler has never reconciled
+             * successfully).
+             */
+            image: string;
+            /**
              * The number of pods trying to be scheduled
              */
             instances: number;
+            /**
+             * Phase summarizes the overall lifecycle state of the Pooler.
+             */
+            phase: string;
+            /**
+             * PhaseReason is a human-readable explanation of the current Phase.
+             */
+            phaseReason: string;
             secrets: outputs.postgresql.v1.PoolerStatusSecretsPatch;
         }
 
@@ -33959,6 +35003,10 @@ export namespace postgresql {
          */
         export interface ScheduledBackupStatus {
             /**
+             * Error is the latest admission validation error
+             */
+            error: string;
+            /**
              * The latest time the schedule
              */
             lastCheckTime: string;
@@ -33978,6 +35026,10 @@ export namespace postgresql {
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         export interface ScheduledBackupStatusPatch {
+            /**
+             * Error is the latest admission validation error
+             */
+            error: string;
             /**
              * The latest time the schedule
              */

@@ -7,3 +7,4 @@ export declare const ObjectStoreList: typeof import("./objectStoreList").ObjectS
 export { ObjectStorePatchArgs } from "./objectStorePatch";
 export type ObjectStorePatch = import("./objectStorePatch").ObjectStorePatch;
 export declare const ObjectStorePatch: typeof import("./objectStorePatch").ObjectStorePatch;
+//# sourceMappingURL=index.d.ts.map

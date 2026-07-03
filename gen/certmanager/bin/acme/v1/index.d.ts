@@ -16,3 +16,4 @@ export declare const OrderList: typeof import("./orderList").OrderList;
 export { OrderPatchArgs } from "./orderPatch";
 export type OrderPatch = import("./orderPatch").OrderPatch;
 export declare const OrderPatch: typeof import("./orderPatch").OrderPatch;
+//# sourceMappingURL=index.d.ts.map

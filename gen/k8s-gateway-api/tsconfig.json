@@ -1,16 +1,22 @@
 {
     "compilerOptions": {
+        // Output
         "outDir": "bin",
-        "target": "es2016",
-        "module": "commonjs",
-        "moduleResolution": "node",
         "declaration": true,
+        "declarationMap": true,
         "sourceMap": true,
         "stripInternal": true,
-        "experimentalDecorators": true,
+        // Environment
+        "target": "ES2022",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "moduleDetection": "force",
+        "types": ["node"],
+        // Type Checking
+        "strict": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "noImplicitReturns": true,
+        "skipLibCheck": true
     },
     "files": [
         "gateway/index.ts",
@@ -36,10 +42,19 @@
         "gateway/v1/referenceGrant.ts",
         "gateway/v1/referenceGrantList.ts",
         "gateway/v1/referenceGrantPatch.ts",
+        "gateway/v1/tcproute.ts",
+        "gateway/v1/tcprouteList.ts",
+        "gateway/v1/tcproutePatch.ts",
         "gateway/v1/tlsroute.ts",
         "gateway/v1/tlsrouteList.ts",
         "gateway/v1/tlsroutePatch.ts",
+        "gateway/v1/udproute.ts",
+        "gateway/v1/udprouteList.ts",
+        "gateway/v1/udproutePatch.ts",
         "gateway/v1alpha1/index.ts",
+        "gateway/v1alpha1/xbackend.ts",
+        "gateway/v1alpha1/xbackendList.ts",
+        "gateway/v1alpha1/xbackendPatch.ts",
         "gateway/v1alpha1/xbackendTrafficPolicy.ts",
         "gateway/v1alpha1/xbackendTrafficPolicyList.ts",
         "gateway/v1alpha1/xbackendTrafficPolicyPatch.ts",

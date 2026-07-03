@@ -25,3 +25,4 @@ export declare const ScrapeConfigList: typeof import("./scrapeConfigList").Scrap
 export { ScrapeConfigPatchArgs } from "./scrapeConfigPatch";
 export type ScrapeConfigPatch = import("./scrapeConfigPatch").ScrapeConfigPatch;
 export declare const ScrapeConfigPatch: typeof import("./scrapeConfigPatch").ScrapeConfigPatch;
+//# sourceMappingURL=index.d.ts.map

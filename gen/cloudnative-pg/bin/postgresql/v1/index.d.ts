@@ -34,6 +34,15 @@ export declare const DatabaseList: typeof import("./databaseList").DatabaseList;
 export { DatabasePatchArgs } from "./databasePatch";
 export type DatabasePatch = import("./databasePatch").DatabasePatch;
 export declare const DatabasePatch: typeof import("./databasePatch").DatabasePatch;
+export { DatabaseRoleArgs } from "./databaseRole";
+export type DatabaseRole = import("./databaseRole").DatabaseRole;
+export declare const DatabaseRole: typeof import("./databaseRole").DatabaseRole;
+export { DatabaseRoleListArgs } from "./databaseRoleList";
+export type DatabaseRoleList = import("./databaseRoleList").DatabaseRoleList;
+export declare const DatabaseRoleList: typeof import("./databaseRoleList").DatabaseRoleList;
+export { DatabaseRolePatchArgs } from "./databaseRolePatch";
+export type DatabaseRolePatch = import("./databaseRolePatch").DatabaseRolePatch;
+export declare const DatabaseRolePatch: typeof import("./databaseRolePatch").DatabaseRolePatch;
 export { FailoverQuorumArgs } from "./failoverQuorum";
 export type FailoverQuorum = import("./failoverQuorum").FailoverQuorum;
 export declare const FailoverQuorum: typeof import("./failoverQuorum").FailoverQuorum;
@@ -88,3 +97,4 @@ export declare const SubscriptionList: typeof import("./subscriptionList").Subsc
 export { SubscriptionPatchArgs } from "./subscriptionPatch";
 export type SubscriptionPatch = import("./subscriptionPatch").SubscriptionPatch;
 export declare const SubscriptionPatch: typeof import("./subscriptionPatch").SubscriptionPatch;
+//# sourceMappingURL=index.d.ts.map

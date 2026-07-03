@@ -39,19 +39,19 @@ export class NodeClaimList extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"karpenter.sh/v1">;
+    declare public readonly apiVersion: pulumi.Output<"karpenter.sh/v1">;
     /**
      * List of nodeclaims. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md
      */
-    public readonly items!: pulumi.Output<outputs.karpenter.v1.NodeClaim[]>;
+    declare public readonly items: pulumi.Output<outputs.karpenter.v1.NodeClaim[]>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"NodeClaimList">;
+    declare public readonly kind: pulumi.Output<"NodeClaimList">;
     /**
      * Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ListMeta>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ListMeta>;
 
     /**
      * Create a NodeClaimList resource with the given unique name, arguments, and options.
@@ -64,13 +64,13 @@ export class NodeClaimList extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.items === undefined) && !opts.urn) {
+            if (args?.items === undefined && !opts.urn) {
                 throw new Error("Missing required property 'items'");
             }
             resourceInputs["apiVersion"] = "karpenter.sh/v1";
-            resourceInputs["items"] = args ? args.items : undefined;
+            resourceInputs["items"] = args?.items;
             resourceInputs["kind"] = "NodeClaimList";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
+            resourceInputs["metadata"] = args?.metadata;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["items"] = undefined /*out*/;
@@ -89,7 +89,7 @@ export interface NodeClaimListArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"karpenter.sh/v1">;
+    apiVersion?: pulumi.Input<"karpenter.sh/v1" | undefined>;
     /**
      * List of nodeclaims. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md
      */
@@ -97,9 +97,9 @@ export interface NodeClaimListArgs {
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"NodeClaimList">;
+    kind?: pulumi.Input<"NodeClaimList" | undefined>;
     /**
      * Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ListMeta>;
+    metadata?: pulumi.Input<inputs.meta.v1.ListMeta | undefined>;
 }

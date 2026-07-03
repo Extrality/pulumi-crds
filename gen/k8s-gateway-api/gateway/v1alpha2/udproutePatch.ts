@@ -47,17 +47,17 @@ export class UDPRoutePatch extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"gateway.networking.k8s.io/v1alpha2">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1alpha2">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"UDPRoute">;
+    declare public readonly kind: pulumi.Output<"UDPRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
-    public readonly spec!: pulumi.Output<outputs.gateway.v1alpha2.UDPRouteSpecPatch>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1alpha2.UDPRouteStatusPatch>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1alpha2.UDPRouteSpecPatch>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1alpha2.UDPRouteStatusPatch>;
 
     /**
      * Create a UDPRoutePatch resource with the given unique name, arguments, and options.
@@ -72,8 +72,8 @@ export class UDPRoutePatch extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1alpha2";
             resourceInputs["kind"] = "UDPRoute";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -83,6 +83,8 @@ export class UDPRoutePatch extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:UDPRoutePatch" }] };
+        opts = pulumi.mergeOptions(opts, aliasOpts);
         super(UDPRoutePatch.__pulumiType, name, resourceInputs, opts);
     }
 }
@@ -94,14 +96,14 @@ export interface UDPRoutePatchArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"UDPRoute">;
+    kind?: pulumi.Input<"UDPRoute" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMetaPatch>;
-    spec?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecPatch>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMetaPatch | undefined>;
+    spec?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecPatch | undefined>;
 }

@@ -70,3 +70,4 @@ export declare const SecurityPolicyList: typeof import("./securityPolicyList").S
 export { SecurityPolicyPatchArgs } from "./securityPolicyPatch";
 export type SecurityPolicyPatch = import("./securityPolicyPatch").SecurityPolicyPatch;
 export declare const SecurityPolicyPatch: typeof import("./securityPolicyPatch").SecurityPolicyPatch;
+//# sourceMappingURL=index.d.ts.map

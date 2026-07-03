@@ -5,6 +5,21 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../../utilities";
 
 // Export members:
+export { XBackendArgs } from "./xbackend";
+export type XBackend = import("./xbackend").XBackend;
+export const XBackend: typeof import("./xbackend").XBackend = null as any;
+utilities.lazyLoad(exports, ["XBackend"], () => require("./xbackend"));
+
+export { XBackendListArgs } from "./xbackendList";
+export type XBackendList = import("./xbackendList").XBackendList;
+export const XBackendList: typeof import("./xbackendList").XBackendList = null as any;
+utilities.lazyLoad(exports, ["XBackendList"], () => require("./xbackendList"));
+
+export { XBackendPatchArgs } from "./xbackendPatch";
+export type XBackendPatch = import("./xbackendPatch").XBackendPatch;
+export const XBackendPatch: typeof import("./xbackendPatch").XBackendPatch = null as any;
+utilities.lazyLoad(exports, ["XBackendPatch"], () => require("./xbackendPatch"));
+
 export { XBackendTrafficPolicyArgs } from "./xbackendTrafficPolicy";
 export type XBackendTrafficPolicy = import("./xbackendTrafficPolicy").XBackendTrafficPolicy;
 export const XBackendTrafficPolicy: typeof import("./xbackendTrafficPolicy").XBackendTrafficPolicy = null as any;
@@ -40,6 +55,12 @@ const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "kubernetes:gateway.networking.x-k8s.io/v1alpha1:XBackend":
+                return new XBackend(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.x-k8s.io/v1alpha1:XBackendList":
+                return new XBackendList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.x-k8s.io/v1alpha1:XBackendPatch":
+                return new XBackendPatch(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.x-k8s.io/v1alpha1:XBackendTrafficPolicy":
                 return new XBackendTrafficPolicy(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.x-k8s.io/v1alpha1:XBackendTrafficPolicyList":

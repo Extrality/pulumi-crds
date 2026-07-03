@@ -39,17 +39,17 @@ export class EnvoyExtensionPolicy extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"gateway.envoyproxy.io/v1alpha1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.envoyproxy.io/v1alpha1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"EnvoyExtensionPolicy">;
+    declare public readonly kind: pulumi.Output<"EnvoyExtensionPolicy">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.gateway.v1alpha1.EnvoyExtensionPolicySpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1alpha1.EnvoyExtensionPolicySpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1alpha1.EnvoyExtensionPolicyStatus>;
 
     /**
      * Create a EnvoyExtensionPolicy resource with the given unique name, arguments, and options.
@@ -64,8 +64,8 @@ export class EnvoyExtensionPolicy extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.envoyproxy.io/v1alpha1";
             resourceInputs["kind"] = "EnvoyExtensionPolicy";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -86,14 +86,14 @@ export interface EnvoyExtensionPolicyArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.envoyproxy.io/v1alpha1">;
+    apiVersion?: pulumi.Input<"gateway.envoyproxy.io/v1alpha1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"EnvoyExtensionPolicy">;
+    kind?: pulumi.Input<"EnvoyExtensionPolicy" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.gateway.v1alpha1.EnvoyExtensionPolicySpec | undefined>;
 }

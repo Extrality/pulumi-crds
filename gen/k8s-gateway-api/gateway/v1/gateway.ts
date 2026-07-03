@@ -9,6 +9,8 @@ import * as utilities from "../../utilities";
 /**
  * Gateway represents an instance of a service-traffic handling infrastructure
  * by binding Listeners to a set of IP addresses.
+ * A Gateway name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+ * characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
  */
 export class Gateway extends pulumi.CustomResource {
     /**
@@ -40,17 +42,17 @@ export class Gateway extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"gateway.networking.k8s.io/v1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"Gateway">;
+    declare public readonly kind: pulumi.Output<"Gateway">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.gateway.v1.GatewaySpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1.GatewayStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1.GatewaySpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1.GatewayStatus>;
 
     /**
      * Create a Gateway resource with the given unique name, arguments, and options.
@@ -65,8 +67,8 @@ export class Gateway extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1";
             resourceInputs["kind"] = "Gateway";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -89,14 +91,14 @@ export interface GatewayArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"Gateway">;
+    kind?: pulumi.Input<"Gateway" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec | undefined>;
 }

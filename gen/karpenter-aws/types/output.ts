@@ -63,11 +63,13 @@ export namespace karpenter {
              * determine the set of eligible capacity reservations.
              */
             capacityReservationSelectorTerms: outputs.karpenter.v1.EC2NodeClassSpecCapacityReservationSelectorTerms[];
+            connectionTracking: outputs.karpenter.v1.EC2NodeClassSpecConnectionTracking;
             /**
              * Context is a Reserved field in EC2 APIs
              * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html
              */
             context: string;
+            cpuOptions: outputs.karpenter.v1.EC2NodeClassSpecCpuOptions;
             /**
              * DetailedMonitoring controls if detailed monitoring is enabled for instances that are launched
              */
@@ -422,6 +424,92 @@ export namespace karpenter {
         }
 
         /**
+         * ConnectionTracking configures idle connection tracking timeouts for
+         * ENIs Karpenter provisions in the launch template. EFA-only interfaces
+         * are excluded. See ConnectionTracking.
+         */
+        export interface EC2NodeClassSpecConnectionTracking {
+            /**
+             * TCPEstablishedTimeout is the timeout (in seconds) for idle TCP connections
+             * in an established state.
+             * Value must be between 60 and 432,000 (5 days).
+             * If unset, EC2 applies its default which is 350 seconds for Nitro v6
+             * instance types (excluding P6e-GB200) and 432,000 seconds for other
+             * instance types.
+             */
+            tcpEstablishedTimeout: number;
+            /**
+             * UDPStreamTimeout is the timeout (in seconds) for idle UDP "stream" flows
+             * that have seen more than one request-response transaction.
+             * Value must be between 60 and 180.
+             * If unset, EC2 applies its default of 180 seconds.
+             */
+            udpStreamTimeout: number;
+            /**
+             * UDPTimeout is the timeout (in seconds) for idle UDP flows that have seen
+             * traffic only in a single direction or a single request-response transaction.
+             * Value must be between 30 and 60.
+             * If unset, EC2 applies its default of 30 seconds.
+             */
+            udpTimeout: number;
+        }
+
+        /**
+         * ConnectionTracking configures idle connection tracking timeouts for
+         * ENIs Karpenter provisions in the launch template. EFA-only interfaces
+         * are excluded. See ConnectionTracking.
+         */
+        export interface EC2NodeClassSpecConnectionTrackingPatch {
+            /**
+             * TCPEstablishedTimeout is the timeout (in seconds) for idle TCP connections
+             * in an established state.
+             * Value must be between 60 and 432,000 (5 days).
+             * If unset, EC2 applies its default which is 350 seconds for Nitro v6
+             * instance types (excluding P6e-GB200) and 432,000 seconds for other
+             * instance types.
+             */
+            tcpEstablishedTimeout: number;
+            /**
+             * UDPStreamTimeout is the timeout (in seconds) for idle UDP "stream" flows
+             * that have seen more than one request-response transaction.
+             * Value must be between 60 and 180.
+             * If unset, EC2 applies its default of 180 seconds.
+             */
+            udpStreamTimeout: number;
+            /**
+             * UDPTimeout is the timeout (in seconds) for idle UDP flows that have seen
+             * traffic only in a single direction or a single request-response transaction.
+             * Value must be between 30 and 60.
+             * If unset, EC2 applies its default of 30 seconds.
+             */
+            udpTimeout: number;
+        }
+
+        /**
+         * CPUOptions defines the CPU options for the instance.
+         */
+        export interface EC2NodeClassSpecCpuOptions {
+            /**
+             * NestedVirtualization enables or disables nested virtualization on the instance.
+             * When enabled, Karpenter filters instance types to only those reporting
+             * "nested-virtualization" in ProcessorInfo.SupportedFeatures from DescribeInstanceTypes.
+             */
+            nestedVirtualization: string;
+        }
+
+        /**
+         * CPUOptions defines the CPU options for the instance.
+         */
+        export interface EC2NodeClassSpecCpuOptionsPatch {
+            /**
+             * NestedVirtualization enables or disables nested virtualization on the instance.
+             * When enabled, Karpenter filters instance types to only those reporting
+             * "nested-virtualization" in ProcessorInfo.SupportedFeatures from DescribeInstanceTypes.
+             */
+            nestedVirtualization: string;
+        }
+
+        /**
          * Kubelet defines args to be used when configuring kubelet on provisioned nodes.
          * They are a subset of the upstream types, recognizing not all options may be supported.
          * Wherever possible, the types and names should reflect the upstream kubelet types.
@@ -744,11 +832,13 @@ export namespace karpenter {
              * determine the set of eligible capacity reservations.
              */
             capacityReservationSelectorTerms: outputs.karpenter.v1.EC2NodeClassSpecCapacityReservationSelectorTermsPatch[];
+            connectionTracking: outputs.karpenter.v1.EC2NodeClassSpecConnectionTrackingPatch;
             /**
              * Context is a Reserved field in EC2 APIs
              * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html
              */
             context: string;
+            cpuOptions: outputs.karpenter.v1.EC2NodeClassSpecCpuOptionsPatch;
             /**
              * DetailedMonitoring controls if detailed monitoring is enabled for instances that are launched
              */
@@ -1322,14 +1412,14 @@ export namespace karpenter {
             requirements: outputs.karpenter.v1.NodeClaimSpecRequirements[];
             resources: outputs.karpenter.v1.NodeClaimSpecResources;
             /**
-             * StartupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
+             * startupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
              * within a short period of time, typically by a DaemonSet that tolerates the taint. These are commonly used by
              * daemonsets to allow initialization and enforce startup ordering.  StartupTaints are ignored for provisioning
              * purposes in that pods are not required to tolerate a StartupTaint in order to have nodes provisioned for them.
              */
             startupTaints: outputs.karpenter.v1.NodeClaimSpecStartupTaints[];
             /**
-             * Taints will be applied to the NodeClaim's node.
+             * taints will be applied to the NodeClaim's node.
              */
             taints: outputs.karpenter.v1.NodeClaimSpecTaints[];
             /**
@@ -1404,14 +1494,14 @@ export namespace karpenter {
             requirements: outputs.karpenter.v1.NodeClaimSpecRequirementsPatch[];
             resources: outputs.karpenter.v1.NodeClaimSpecResourcesPatch;
             /**
-             * StartupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
+             * startupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
              * within a short period of time, typically by a DaemonSet that tolerates the taint. These are commonly used by
              * daemonsets to allow initialization and enforce startup ordering.  StartupTaints are ignored for provisioning
              * purposes in that pods are not required to tolerate a StartupTaint in order to have nodes provisioned for them.
              */
             startupTaints: outputs.karpenter.v1.NodeClaimSpecStartupTaintsPatch[];
             /**
-             * Taints will be applied to the NodeClaim's node.
+             * taints will be applied to the NodeClaim's node.
              */
             taints: outputs.karpenter.v1.NodeClaimSpecTaintsPatch[];
             /**
@@ -1865,7 +1955,7 @@ export namespace karpenter {
              */
             nodes: string;
             /**
-             * Reasons is a list of disruption methods that this budget applies to. If Reasons is not set, this budget applies to all methods.
+             * reasons is a list of disruption methods that this budget applies to. If Reasons is not set, this budget applies to all methods.
              * Otherwise, this will apply to each reason defined.
              * allowed reasons are Underutilized, Empty, and Drifted.
              */
@@ -1904,7 +1994,7 @@ export namespace karpenter {
              */
             nodes: string;
             /**
-             * Reasons is a list of disruption methods that this budget applies to. If Reasons is not set, this budget applies to all methods.
+             * reasons is a list of disruption methods that this budget applies to. If Reasons is not set, this budget applies to all methods.
              * Otherwise, this will apply to each reason defined.
              * allowed reasons are Underutilized, Empty, and Drifted.
              */
@@ -1991,14 +2081,14 @@ export namespace karpenter {
 
         export interface NodePoolSpecTemplateMetadata {
             /**
-             * Annotations is an unstructured key value map stored with a resource that may be
+             * annotations is an unstructured key value map stored with a resource that may be
              * set by external tools to store and retrieve arbitrary metadata. They are not
              * queryable and should be preserved when modifying objects.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
              */
             annotations: {[key: string]: string};
             /**
-             * Map of string keys and values that can be used to organize and categorize
+             * labels is a map of string keys and values that can be used to organize and categorize
              * (scope and select) objects. May match selectors of replication controllers
              * and services.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
@@ -2008,14 +2098,14 @@ export namespace karpenter {
 
         export interface NodePoolSpecTemplateMetadataPatch {
             /**
-             * Annotations is an unstructured key value map stored with a resource that may be
+             * annotations is an unstructured key value map stored with a resource that may be
              * set by external tools to store and retrieve arbitrary metadata. They are not
              * queryable and should be preserved when modifying objects.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
              */
             annotations: {[key: string]: string};
             /**
-             * Map of string keys and values that can be used to organize and categorize
+             * labels is a map of string keys and values that can be used to organize and categorize
              * (scope and select) objects. May match selectors of replication controllers
              * and services.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
@@ -2051,14 +2141,14 @@ export namespace karpenter {
              */
             requirements: outputs.karpenter.v1.NodePoolSpecTemplateSpecRequirements[];
             /**
-             * StartupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
+             * startupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
              * within a short period of time, typically by a DaemonSet that tolerates the taint. These are commonly used by
              * daemonsets to allow initialization and enforce startup ordering.  StartupTaints are ignored for provisioning
              * purposes in that pods are not required to tolerate a StartupTaint in order to have nodes provisioned for them.
              */
             startupTaints: outputs.karpenter.v1.NodePoolSpecTemplateSpecStartupTaints[];
             /**
-             * Taints will be applied to the NodeClaim's node.
+             * taints will be applied to the NodeClaim's node.
              */
             taints: outputs.karpenter.v1.NodePoolSpecTemplateSpecTaints[];
             /**
@@ -2134,14 +2224,14 @@ export namespace karpenter {
              */
             requirements: outputs.karpenter.v1.NodePoolSpecTemplateSpecRequirementsPatch[];
             /**
-             * StartupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
+             * startupTaints are taints that are applied to nodes upon startup which are expected to be removed automatically
              * within a short period of time, typically by a DaemonSet that tolerates the taint. These are commonly used by
              * daemonsets to allow initialization and enforce startup ordering.  StartupTaints are ignored for provisioning
              * purposes in that pods are not required to tolerate a StartupTaint in order to have nodes provisioned for them.
              */
             startupTaints: outputs.karpenter.v1.NodePoolSpecTemplateSpecStartupTaintsPatch[];
             /**
-             * Taints will be applied to the NodeClaim's node.
+             * taints will be applied to the NodeClaim's node.
              */
             taints: outputs.karpenter.v1.NodePoolSpecTemplateSpecTaintsPatch[];
             /**
@@ -2480,7 +2570,7 @@ export namespace karpenter {
              */
             priceAdjustment: string;
             /**
-             * Requirements constrain when this NodeOverlay is applied during scheduling simulations.
+             * requirements constrain when this NodeOverlay is applied during scheduling simulations.
              * These requirements can match:
              * - Well-known labels (e.g., node.kubernetes.io/instance-type, karpenter.sh/nodepool)
              * - Custom labels from NodePool's spec.template.labels
@@ -2513,7 +2603,7 @@ export namespace karpenter {
              */
             priceAdjustment: string;
             /**
-             * Requirements constrain when this NodeOverlay is applied during scheduling simulations.
+             * requirements constrain when this NodeOverlay is applied during scheduling simulations.
              * These requirements can match:
              * - Well-known labels (e.g., node.kubernetes.io/instance-type, karpenter.sh/nodepool)
              * - Custom labels from NodePool's spec.template.labels
@@ -2695,6 +2785,12 @@ export namespace meta {
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
             selfLink: string;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo: outputs.meta.v1.ShardInfo;
         }
 
         /**
@@ -2983,6 +3079,16 @@ export namespace meta {
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
             uid: string;
+        }
+
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        export interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: string;
         }
 
     }

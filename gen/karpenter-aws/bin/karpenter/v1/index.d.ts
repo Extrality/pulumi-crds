@@ -25,3 +25,4 @@ export declare const NodePoolList: typeof import("./nodePoolList").NodePoolList;
 export { NodePoolPatchArgs } from "./nodePoolPatch";
 export type NodePoolPatch = import("./nodePoolPatch").NodePoolPatch;
 export declare const NodePoolPatch: typeof import("./nodePoolPatch").NodePoolPatch;
+//# sourceMappingURL=index.d.ts.map

@@ -9,91 +9,91 @@ export declare namespace barmancloud {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"barmancloud.cnpg.io/v1">;
+            apiVersion?: pulumi.Input<"barmancloud.cnpg.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"ObjectStore">;
+            kind?: pulumi.Input<"ObjectStore" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpec>;
-            status?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpec | undefined>;
+            status?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreStatus | undefined>;
         }
         /**
          * Specification of the desired behavior of the ObjectStore.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         interface ObjectStoreSpec {
-            configuration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfiguration>;
-            instanceSidecarConfiguration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfiguration>;
+            configuration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfiguration | undefined>;
+            instanceSidecarConfiguration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfiguration | undefined>;
             /**
              * RetentionPolicy is the retention policy to be used for backups
              * and WALs (i.e. '60d'). The retention policy is expressed in the form
              * of `XXu` where `XX` is a positive integer and `u` is in `[dwm]` -
              * days, weeks, months.
              */
-            retentionPolicy?: pulumi.Input<string>;
+            retentionPolicy?: pulumi.Input<string | undefined>;
         }
         /**
          * The configuration for the barman-cloud tool suite
          */
         interface ObjectStoreSpecConfiguration {
-            azureCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentials>;
-            data?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationData>;
+            azureCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentials | undefined>;
+            data?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationData | undefined>;
             /**
              * The path where to store the backup (i.e. s3://bucket/path/to/folder)
              * this path, with different destination folders, will be used for WALs
              * and for data
              */
-            destinationPath?: pulumi.Input<string>;
-            endpointCA?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationEndpointCA>;
+            destinationPath?: pulumi.Input<string | undefined>;
+            endpointCA?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationEndpointCA | undefined>;
             /**
              * Endpoint to be used to upload data to the cloud,
              * overriding the automatic endpoint discovery
              */
-            endpointURL?: pulumi.Input<string>;
-            googleCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentials>;
+            endpointURL?: pulumi.Input<string | undefined>;
+            googleCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentials | undefined>;
             /**
              * HistoryTags is a list of key value pairs that will be passed to the
              * Barman --history-tags option.
              */
             historyTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
-            s3Credentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3Credentials>;
+            } | undefined>;
+            s3Credentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3Credentials | undefined>;
             /**
              * The server name on S3, the cluster name is used if this
              * parameter is omitted
              */
-            serverName?: pulumi.Input<string>;
+            serverName?: pulumi.Input<string | undefined>;
             /**
              * Tags is a list of key value pairs that will be passed to the
              * Barman --tags option.
              */
             tags?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
-            wal?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationWal>;
+            } | undefined>;
+            wal?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationWal | undefined>;
         }
         /**
          * The credentials to use to upload data to Azure Blob Storage
          */
         interface ObjectStoreSpecConfigurationAzureCredentials {
-            connectionString?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsConnectionString>;
+            connectionString?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsConnectionString | undefined>;
             /**
              * Use the Azure AD based authentication without providing explicitly the keys.
              */
-            inheritFromAzureAD?: pulumi.Input<boolean>;
-            storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccount>;
-            storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKey>;
-            storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasToken>;
+            inheritFromAzureAD?: pulumi.Input<boolean | undefined>;
+            storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccount | undefined>;
+            storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKey | undefined>;
+            storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasToken | undefined>;
             /**
              * Use the default Azure authentication flow, which includes DefaultAzureCredential.
              * This allows authentication using environment variables and managed identities.
              */
-            useDefaultAzureCredentials?: pulumi.Input<boolean>;
+            useDefaultAzureCredentials?: pulumi.Input<boolean | undefined>;
         }
         /**
          * The connection string to be used
@@ -102,11 +102,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The connection string to be used
@@ -115,29 +115,29 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The credentials to use to upload data to Azure Blob Storage
          */
         interface ObjectStoreSpecConfigurationAzureCredentialsPatch {
-            connectionString?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsConnectionStringPatch>;
+            connectionString?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsConnectionStringPatch | undefined>;
             /**
              * Use the Azure AD based authentication without providing explicitly the keys.
              */
-            inheritFromAzureAD?: pulumi.Input<boolean>;
-            storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccountPatch>;
-            storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKeyPatch>;
-            storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasTokenPatch>;
+            inheritFromAzureAD?: pulumi.Input<boolean | undefined>;
+            storageAccount?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageAccountPatch | undefined>;
+            storageKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageKeyPatch | undefined>;
+            storageSasToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsStorageSasTokenPatch | undefined>;
             /**
              * Use the default Azure authentication flow, which includes DefaultAzureCredential.
              * This allows authentication using environment variables and managed identities.
              */
-            useDefaultAzureCredentials?: pulumi.Input<boolean>;
+            useDefaultAzureCredentials?: pulumi.Input<boolean | undefined>;
         }
         /**
          * The storage account where to upload data
@@ -146,11 +146,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The storage account where to upload data
@@ -159,11 +159,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The storage account key to be used in conjunction
@@ -173,11 +173,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The storage account key to be used in conjunction
@@ -187,11 +187,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * A shared-access-signature to be used in conjunction with
@@ -201,11 +201,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * A shared-access-signature to be used in conjunction with
@@ -215,11 +215,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The configuration to be used to backup the data files
@@ -244,20 +244,20 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-backup' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            additionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            additionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
-            compression?: pulumi.Input<string>;
+            compression?: pulumi.Input<string | undefined>;
             /**
              * Whenever to force the encryption of files (if the bucket is
              * not already configured for that).
              * Allowed options are empty string (use the bucket policy, default),
              * `AES256` and `aws:kms`
              */
-            encryption?: pulumi.Input<string>;
+            encryption?: pulumi.Input<string | undefined>;
             /**
              * Control whether the I/O workload for the backup initial checkpoint will
              * be limited, according to the `checkpoint_completion_target` setting on
@@ -265,12 +265,29 @@ export declare namespace barmancloud {
              * used, meaning PostgreSQL will complete the checkpoint as soon as
              * possible. `false` by default.
              */
-            immediateCheckpoint?: pulumi.Input<boolean>;
+            immediateCheckpoint?: pulumi.Input<boolean | undefined>;
             /**
              * The number of parallel jobs to be used to upload the backup, defaults
              * to 2
              */
-            jobs?: pulumi.Input<number>;
+            jobs?: pulumi.Input<number | undefined>;
+            /**
+             * Additional arguments that can be appended to the 'barman-cloud-restore'
+             * command-line invocation. These arguments provide flexibility to customize
+             * the data restore process further, according to specific requirements or
+             * configurations.
+             *
+             * Example:
+             * In a scenario where specialized restore options are required, such as setting
+             * a specific read timeout or defining custom behavior, users can use this field
+             * to specify additional command arguments.
+             *
+             * Note:
+             * It's essential to ensure that the provided arguments are valid and supported
+             * by the 'barman-cloud-restore' command, to avoid potential errors or unintended
+             * behavior during execution.
+             */
+            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
         /**
          * The configuration to be used to backup the data files
@@ -295,20 +312,20 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-backup' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            additionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            additionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Compress a backup file (a tar file per tablespace) while streaming it
              * to the object store. Available options are empty string (no
-             * compression, default), `gzip`, `bzip2`, and `snappy`.
+             * compression, default), `gzip`, `bzip2`, `lz4`, and `snappy`.
              */
-            compression?: pulumi.Input<string>;
+            compression?: pulumi.Input<string | undefined>;
             /**
              * Whenever to force the encryption of files (if the bucket is
              * not already configured for that).
              * Allowed options are empty string (use the bucket policy, default),
              * `AES256` and `aws:kms`
              */
-            encryption?: pulumi.Input<string>;
+            encryption?: pulumi.Input<string | undefined>;
             /**
              * Control whether the I/O workload for the backup initial checkpoint will
              * be limited, according to the `checkpoint_completion_target` setting on
@@ -316,12 +333,29 @@ export declare namespace barmancloud {
              * used, meaning PostgreSQL will complete the checkpoint as soon as
              * possible. `false` by default.
              */
-            immediateCheckpoint?: pulumi.Input<boolean>;
+            immediateCheckpoint?: pulumi.Input<boolean | undefined>;
             /**
              * The number of parallel jobs to be used to upload the backup, defaults
              * to 2
              */
-            jobs?: pulumi.Input<number>;
+            jobs?: pulumi.Input<number | undefined>;
+            /**
+             * Additional arguments that can be appended to the 'barman-cloud-restore'
+             * command-line invocation. These arguments provide flexibility to customize
+             * the data restore process further, according to specific requirements or
+             * configurations.
+             *
+             * Example:
+             * In a scenario where specialized restore options are required, such as setting
+             * a specific read timeout or defining custom behavior, users can use this field
+             * to specify additional command arguments.
+             *
+             * Note:
+             * It's essential to ensure that the provided arguments are valid and supported
+             * by the 'barman-cloud-restore' command, to avoid potential errors or unintended
+             * behavior during execution.
+             */
+            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
         /**
          * EndpointCA store the CA bundle of the barman endpoint.
@@ -332,11 +366,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * EndpointCA store the CA bundle of the barman endpoint.
@@ -347,22 +381,22 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The credentials to use to upload data to Google Cloud Storage
          */
         interface ObjectStoreSpecConfigurationGoogleCredentials {
-            applicationCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsApplicationCredentials>;
+            applicationCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsApplicationCredentials | undefined>;
             /**
              * If set to true, will presume that it's running inside a GKE environment,
              * default to false.
              */
-            gkeEnvironment?: pulumi.Input<boolean>;
+            gkeEnvironment?: pulumi.Input<boolean | undefined>;
         }
         /**
          * The secret containing the Google Cloud Storage JSON file with the credentials
@@ -371,11 +405,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The secret containing the Google Cloud Storage JSON file with the credentials
@@ -384,76 +418,76 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The credentials to use to upload data to Google Cloud Storage
          */
         interface ObjectStoreSpecConfigurationGoogleCredentialsPatch {
-            applicationCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsApplicationCredentialsPatch>;
+            applicationCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsApplicationCredentialsPatch | undefined>;
             /**
              * If set to true, will presume that it's running inside a GKE environment,
              * default to false.
              */
-            gkeEnvironment?: pulumi.Input<boolean>;
+            gkeEnvironment?: pulumi.Input<boolean | undefined>;
         }
         /**
          * The configuration for the barman-cloud tool suite
          */
         interface ObjectStoreSpecConfigurationPatch {
-            azureCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsPatch>;
-            data?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationDataPatch>;
+            azureCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationAzureCredentialsPatch | undefined>;
+            data?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationDataPatch | undefined>;
             /**
              * The path where to store the backup (i.e. s3://bucket/path/to/folder)
              * this path, with different destination folders, will be used for WALs
              * and for data
              */
-            destinationPath?: pulumi.Input<string>;
-            endpointCA?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationEndpointCAPatch>;
+            destinationPath?: pulumi.Input<string | undefined>;
+            endpointCA?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationEndpointCAPatch | undefined>;
             /**
              * Endpoint to be used to upload data to the cloud,
              * overriding the automatic endpoint discovery
              */
-            endpointURL?: pulumi.Input<string>;
-            googleCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsPatch>;
+            endpointURL?: pulumi.Input<string | undefined>;
+            googleCredentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationGoogleCredentialsPatch | undefined>;
             /**
              * HistoryTags is a list of key value pairs that will be passed to the
              * Barman --history-tags option.
              */
             historyTags?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
-            s3Credentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsPatch>;
+            } | undefined>;
+            s3Credentials?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsPatch | undefined>;
             /**
              * The server name on S3, the cluster name is used if this
              * parameter is omitted
              */
-            serverName?: pulumi.Input<string>;
+            serverName?: pulumi.Input<string | undefined>;
             /**
              * Tags is a list of key value pairs that will be passed to the
              * Barman --tags option.
              */
             tags?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
-            wal?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationWalPatch>;
+            } | undefined>;
+            wal?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationWalPatch | undefined>;
         }
         /**
          * The credentials to use to upload data to S3
          */
         interface ObjectStoreSpecConfigurationS3Credentials {
-            accessKeyId?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsAccessKeyId>;
+            accessKeyId?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsAccessKeyId | undefined>;
             /**
              * Use the role based authentication without providing explicitly the keys.
              */
-            inheritFromIAMRole?: pulumi.Input<boolean>;
-            region?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsRegion>;
-            secretAccessKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSecretAccessKey>;
-            sessionToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSessionToken>;
+            inheritFromIAMRole?: pulumi.Input<boolean | undefined>;
+            region?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsRegion | undefined>;
+            secretAccessKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSecretAccessKey | undefined>;
+            sessionToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSessionToken | undefined>;
         }
         /**
          * The reference to the access key id
@@ -462,11 +496,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The reference to the access key id
@@ -475,24 +509,24 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The credentials to use to upload data to S3
          */
         interface ObjectStoreSpecConfigurationS3CredentialsPatch {
-            accessKeyId?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsAccessKeyIdPatch>;
+            accessKeyId?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsAccessKeyIdPatch | undefined>;
             /**
              * Use the role based authentication without providing explicitly the keys.
              */
-            inheritFromIAMRole?: pulumi.Input<boolean>;
-            region?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsRegionPatch>;
-            secretAccessKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSecretAccessKeyPatch>;
-            sessionToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSessionTokenPatch>;
+            inheritFromIAMRole?: pulumi.Input<boolean | undefined>;
+            region?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsRegionPatch | undefined>;
+            secretAccessKey?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSecretAccessKeyPatch | undefined>;
+            sessionToken?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationS3CredentialsSessionTokenPatch | undefined>;
         }
         /**
          * The reference to the secret containing the region name
@@ -501,11 +535,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The reference to the secret containing the region name
@@ -514,11 +548,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The reference to the secret access key
@@ -527,11 +561,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The reference to the secret access key
@@ -540,11 +574,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The references to the session key
@@ -553,11 +587,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The references to the session key
@@ -566,11 +600,11 @@ export declare namespace barmancloud {
             /**
              * The key to select
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
         /**
          * The configuration for the backup of the WAL stream.
@@ -593,20 +627,20 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-wal-archive' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            archiveAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            archiveAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Compress a WAL file before sending it to the object store. Available
              * options are empty string (no compression, default), `gzip`, `bzip2`,
              * `lz4`, `snappy`, `xz`, and `zstd`.
              */
-            compression?: pulumi.Input<string>;
+            compression?: pulumi.Input<string | undefined>;
             /**
              * Whenever to force the encryption of files (if the bucket is
              * not already configured for that).
              * Allowed options are empty string (use the bucket policy, default),
              * `AES256` and `aws:kms`
              */
-            encryption?: pulumi.Input<string>;
+            encryption?: pulumi.Input<string | undefined>;
             /**
              * Number of WAL files to be either archived in parallel (when the
              * PostgreSQL instance is archiving to a backup object store) or
@@ -615,7 +649,7 @@ export declare namespace barmancloud {
              * will be processed one at a time. It accepts a positive integer as a
              * value - with 1 being the minimum accepted value.
              */
-            maxParallel?: pulumi.Input<number>;
+            maxParallel?: pulumi.Input<number | undefined>;
             /**
              * Additional arguments that can be appended to the 'barman-cloud-wal-restore'
              * command-line invocation. These arguments provide flexibility to customize
@@ -631,7 +665,7 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-wal-restore' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
         /**
          * The configuration for the backup of the WAL stream.
@@ -654,20 +688,20 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-wal-archive' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            archiveAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            archiveAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Compress a WAL file before sending it to the object store. Available
              * options are empty string (no compression, default), `gzip`, `bzip2`,
              * `lz4`, `snappy`, `xz`, and `zstd`.
              */
-            compression?: pulumi.Input<string>;
+            compression?: pulumi.Input<string | undefined>;
             /**
              * Whenever to force the encryption of files (if the bucket is
              * not already configured for that).
              * Allowed options are empty string (use the bucket policy, default),
              * `AES256` and `aws:kms`
              */
-            encryption?: pulumi.Input<string>;
+            encryption?: pulumi.Input<string | undefined>;
             /**
              * Number of WAL files to be either archived in parallel (when the
              * PostgreSQL instance is archiving to a backup object store) or
@@ -676,7 +710,7 @@ export declare namespace barmancloud {
              * will be processed one at a time. It accepts a positive integer as a
              * value - with 1 being the minimum accepted value.
              */
-            maxParallel?: pulumi.Input<number>;
+            maxParallel?: pulumi.Input<number | undefined>;
             /**
              * Additional arguments that can be appended to the 'barman-cloud-wal-restore'
              * command-line invocation. These arguments provide flexibility to customize
@@ -692,7 +726,7 @@ export declare namespace barmancloud {
              * by the 'barman-cloud-wal-restore' command, to avoid potential errors or unintended
              * behavior during execution.
              */
-            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            restoreAdditionalCommandArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
         /**
          * The configuration for the sidecar that runs in the instance pods
@@ -703,21 +737,21 @@ export declare namespace barmancloud {
              * to be passed to the sidecar container when it starts.
              * The provided arguments are appended to the container’s default arguments.
              */
-            additionalContainerArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            additionalContainerArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * The environment to be explicitly passed to the sidecar
              */
-            env?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnv>[]>;
+            env?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnv>[] | undefined>;
             /**
              * The log level for PostgreSQL instances. Valid values are: `error`, `warning`, `info` (default), `debug`, `trace`
              */
-            logLevel?: pulumi.Input<string>;
-            resources?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResources>;
+            logLevel?: pulumi.Input<string | undefined>;
+            resources?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResources | undefined>;
             /**
              * The retentionCheckInterval defines the frequency at which the
              * system checks and enforces retention policies.
              */
-            retentionPolicyIntervalSeconds?: pulumi.Input<number>;
+            retentionPolicyIntervalSeconds?: pulumi.Input<number | undefined>;
         }
         /**
          * EnvVar represents an environment variable present in a Container.
@@ -727,7 +761,7 @@ export declare namespace barmancloud {
              * Name of the environment variable.
              * May consist of any printable ASCII characters except '='.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Variable references $(VAR_NAME) are expanded
              * using the previously defined environment variables in the container and
@@ -739,8 +773,8 @@ export declare namespace barmancloud {
              * exists or not.
              * Defaults to "".
              */
-            value?: pulumi.Input<string>;
-            valueFrom?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFrom>;
+            value?: pulumi.Input<string | undefined>;
+            valueFrom?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFrom | undefined>;
         }
         /**
          * EnvVar represents an environment variable present in a Container.
@@ -750,7 +784,7 @@ export declare namespace barmancloud {
              * Name of the environment variable.
              * May consist of any printable ASCII characters except '='.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Variable references $(VAR_NAME) are expanded
              * using the previously defined environment variables in the container and
@@ -762,18 +796,18 @@ export declare namespace barmancloud {
              * exists or not.
              * Defaults to "".
              */
-            value?: pulumi.Input<string>;
-            valueFrom?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromPatch>;
+            value?: pulumi.Input<string | undefined>;
+            valueFrom?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromPatch | undefined>;
         }
         /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         interface ObjectStoreSpecInstanceSidecarConfigurationEnvValueFrom {
-            configMapKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromConfigMapKeyRef>;
-            fieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFieldRef>;
-            fileKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFileKeyRef>;
-            resourceFieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromResourceFieldRef>;
-            secretKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromSecretKeyRef>;
+            configMapKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromConfigMapKeyRef | undefined>;
+            fieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFieldRef | undefined>;
+            fileKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFileKeyRef | undefined>;
+            resourceFieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromResourceFieldRef | undefined>;
+            secretKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromSecretKeyRef | undefined>;
         }
         /**
          * Selects a key of a ConfigMap.
@@ -782,7 +816,7 @@ export declare namespace barmancloud {
             /**
              * The key to select.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              * This field is effectively required, but due to backwards compatibility is
@@ -790,11 +824,11 @@ export declare namespace barmancloud {
              * almost certainly wrong.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the ConfigMap or its key must be defined
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
         }
         /**
          * Selects a key of a ConfigMap.
@@ -803,7 +837,7 @@ export declare namespace barmancloud {
             /**
              * The key to select.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              * This field is effectively required, but due to backwards compatibility is
@@ -811,11 +845,11 @@ export declare namespace barmancloud {
              * almost certainly wrong.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the ConfigMap or its key must be defined
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
         }
         /**
          * Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
@@ -825,11 +859,11 @@ export declare namespace barmancloud {
             /**
              * Version of the schema the FieldPath is written in terms of, defaults to "v1".
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * Path of the field to select in the specified API version.
              */
-            fieldPath?: pulumi.Input<string>;
+            fieldPath?: pulumi.Input<string | undefined>;
         }
         /**
          * Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
@@ -839,11 +873,11 @@ export declare namespace barmancloud {
             /**
              * Version of the schema the FieldPath is written in terms of, defaults to "v1".
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * Path of the field to select in the specified API version.
              */
-            fieldPath?: pulumi.Input<string>;
+            fieldPath?: pulumi.Input<string | undefined>;
         }
         /**
          * FileKeyRef selects a key of the env file.
@@ -855,7 +889,7 @@ export declare namespace barmancloud {
              * The keys defined within a source may consist of any printable ASCII characters except '='.
              * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the file or its key must be defined. If the file or key
              * does not exist, then the env var is not published.
@@ -865,16 +899,16 @@ export declare namespace barmancloud {
              * If optional is set to false and the specified key does not exist,
              * an error will be returned during Pod creation.
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
             /**
              * The path within the volume from which to select the file.
              * Must be relative and may not contain the '..' path or start with '..'.
              */
-            path?: pulumi.Input<string>;
+            path?: pulumi.Input<string | undefined>;
             /**
              * The name of the volume mount containing the env file.
              */
-            volumeName?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string | undefined>;
         }
         /**
          * FileKeyRef selects a key of the env file.
@@ -886,7 +920,7 @@ export declare namespace barmancloud {
              * The keys defined within a source may consist of any printable ASCII characters except '='.
              * During Alpha stage of the EnvFiles feature gate, the key size is limited to 128 characters.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the file or its key must be defined. If the file or key
              * does not exist, then the env var is not published.
@@ -896,26 +930,26 @@ export declare namespace barmancloud {
              * If optional is set to false and the specified key does not exist,
              * an error will be returned during Pod creation.
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
             /**
              * The path within the volume from which to select the file.
              * Must be relative and may not contain the '..' path or start with '..'.
              */
-            path?: pulumi.Input<string>;
+            path?: pulumi.Input<string | undefined>;
             /**
              * The name of the volume mount containing the env file.
              */
-            volumeName?: pulumi.Input<string>;
+            volumeName?: pulumi.Input<string | undefined>;
         }
         /**
          * Source for the environment variable's value. Cannot be used if value is not empty.
          */
         interface ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromPatch {
-            configMapKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromConfigMapKeyRefPatch>;
-            fieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFieldRefPatch>;
-            fileKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFileKeyRefPatch>;
-            resourceFieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromResourceFieldRefPatch>;
-            secretKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromSecretKeyRefPatch>;
+            configMapKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromConfigMapKeyRefPatch | undefined>;
+            fieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFieldRefPatch | undefined>;
+            fileKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromFileKeyRefPatch | undefined>;
+            resourceFieldRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromResourceFieldRefPatch | undefined>;
+            secretKeyRef?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvValueFromSecretKeyRefPatch | undefined>;
         }
         /**
          * Selects a resource of the container: only resources limits and requests
@@ -925,15 +959,15 @@ export declare namespace barmancloud {
             /**
              * Container name: required for volumes, optional for env vars
              */
-            containerName?: pulumi.Input<string>;
+            containerName?: pulumi.Input<string | undefined>;
             /**
              * Specifies the output format of the exposed resources, defaults to "1"
              */
-            divisor?: pulumi.Input<number | string>;
+            divisor?: pulumi.Input<number | string | undefined>;
             /**
              * Required: resource to select
              */
-            resource?: pulumi.Input<string>;
+            resource?: pulumi.Input<string | undefined>;
         }
         /**
          * Selects a resource of the container: only resources limits and requests
@@ -943,15 +977,15 @@ export declare namespace barmancloud {
             /**
              * Container name: required for volumes, optional for env vars
              */
-            containerName?: pulumi.Input<string>;
+            containerName?: pulumi.Input<string | undefined>;
             /**
              * Specifies the output format of the exposed resources, defaults to "1"
              */
-            divisor?: pulumi.Input<number | string>;
+            divisor?: pulumi.Input<number | string | undefined>;
             /**
              * Required: resource to select
              */
-            resource?: pulumi.Input<string>;
+            resource?: pulumi.Input<string | undefined>;
         }
         /**
          * Selects a key of a secret in the pod's namespace
@@ -960,7 +994,7 @@ export declare namespace barmancloud {
             /**
              * The key of the secret to select from.  Must be a valid secret key.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              * This field is effectively required, but due to backwards compatibility is
@@ -968,11 +1002,11 @@ export declare namespace barmancloud {
              * almost certainly wrong.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the Secret or its key must be defined
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
         }
         /**
          * Selects a key of a secret in the pod's namespace
@@ -981,7 +1015,7 @@ export declare namespace barmancloud {
             /**
              * The key of the secret to select from.  Must be a valid secret key.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent.
              * This field is effectively required, but due to backwards compatibility is
@@ -989,11 +1023,11 @@ export declare namespace barmancloud {
              * almost certainly wrong.
              * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Specify whether the Secret or its key must be defined
              */
-            optional?: pulumi.Input<boolean>;
+            optional?: pulumi.Input<boolean | undefined>;
         }
         /**
          * The configuration for the sidecar that runs in the instance pods
@@ -1004,21 +1038,21 @@ export declare namespace barmancloud {
              * to be passed to the sidecar container when it starts.
              * The provided arguments are appended to the container’s default arguments.
              */
-            additionalContainerArgs?: pulumi.Input<pulumi.Input<string>[]>;
+            additionalContainerArgs?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * The environment to be explicitly passed to the sidecar
              */
-            env?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvPatch>[]>;
+            env?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationEnvPatch>[] | undefined>;
             /**
              * The log level for PostgreSQL instances. Valid values are: `error`, `warning`, `info` (default), `debug`, `trace`
              */
-            logLevel?: pulumi.Input<string>;
-            resources?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesPatch>;
+            logLevel?: pulumi.Input<string | undefined>;
+            resources?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesPatch | undefined>;
             /**
              * The retentionCheckInterval defines the frequency at which the
              * system checks and enforces retention policies.
              */
-            retentionPolicyIntervalSeconds?: pulumi.Input<number>;
+            retentionPolicyIntervalSeconds?: pulumi.Input<number | undefined>;
         }
         /**
          * Resources define cpu/memory requests and limits for the sidecar that runs in the instance pods.
@@ -1033,14 +1067,14 @@ export declare namespace barmancloud {
              *
              * This field is immutable. It can only be set for containers.
              */
-            claims?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesClaims>[]>;
+            claims?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesClaims>[] | undefined>;
             /**
              * Limits describes the maximum amount of compute resources allowed.
              * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
              */
             limits?: pulumi.Input<{
                 [key: string]: pulumi.Input<number | string>;
-            }>;
+            } | undefined>;
             /**
              * Requests describes the minimum amount of compute resources required.
              * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
@@ -1049,7 +1083,7 @@ export declare namespace barmancloud {
              */
             requests?: pulumi.Input<{
                 [key: string]: pulumi.Input<number | string>;
-            }>;
+            } | undefined>;
         }
         /**
          * ResourceClaim references one entry in PodSpec.ResourceClaims.
@@ -1060,13 +1094,13 @@ export declare namespace barmancloud {
              * the Pod where this field is used. It makes that resource available
              * inside a container.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Request is the name chosen for a request in the referenced claim.
              * If empty, everything from the claim is made available, otherwise
              * only the result of this request.
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
         /**
          * ResourceClaim references one entry in PodSpec.ResourceClaims.
@@ -1077,13 +1111,13 @@ export declare namespace barmancloud {
              * the Pod where this field is used. It makes that resource available
              * inside a container.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Request is the name chosen for a request in the referenced claim.
              * If empty, everything from the claim is made available, otherwise
              * only the result of this request.
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
         /**
          * Resources define cpu/memory requests and limits for the sidecar that runs in the instance pods.
@@ -1098,14 +1132,14 @@ export declare namespace barmancloud {
              *
              * This field is immutable. It can only be set for containers.
              */
-            claims?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesClaimsPatch>[]>;
+            claims?: pulumi.Input<pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationResourcesClaimsPatch>[] | undefined>;
             /**
              * Limits describes the maximum amount of compute resources allowed.
              * More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
              */
             limits?: pulumi.Input<{
                 [key: string]: pulumi.Input<number | string>;
-            }>;
+            } | undefined>;
             /**
              * Requests describes the minimum amount of compute resources required.
              * If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
@@ -1114,22 +1148,22 @@ export declare namespace barmancloud {
              */
             requests?: pulumi.Input<{
                 [key: string]: pulumi.Input<number | string>;
-            }>;
+            } | undefined>;
         }
         /**
          * Specification of the desired behavior of the ObjectStore.
          * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
          */
         interface ObjectStoreSpecPatch {
-            configuration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationPatch>;
-            instanceSidecarConfiguration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationPatch>;
+            configuration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecConfigurationPatch | undefined>;
+            instanceSidecarConfiguration?: pulumi.Input<inputs.barmancloud.v1.ObjectStoreSpecInstanceSidecarConfigurationPatch | undefined>;
             /**
              * RetentionPolicy is the retention policy to be used for backups
              * and WALs (i.e. '60d'). The retention policy is expressed in the form
              * of `XXu` where `XX` is a positive integer and `u` is in `[dwm]` -
              * days, weeks, months.
              */
-            retentionPolicy?: pulumi.Input<string>;
+            retentionPolicy?: pulumi.Input<string | undefined>;
         }
         /**
          * Most recently observed status of the ObjectStore. This data may not be up to
@@ -1144,7 +1178,7 @@ export declare namespace barmancloud {
                 [key: string]: pulumi.Input<{
                     [key: string]: pulumi.Input<string>;
                 }>;
-            }>;
+            } | undefined>;
         }
     }
 }
@@ -1157,19 +1191,25 @@ export declare namespace meta {
             /**
              * continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message.
              */
-            continue?: pulumi.Input<string>;
+            continue?: pulumi.Input<string | undefined>;
             /**
              * remainingItemCount is the number of subsequent items in the list which are not included in this list response. If the list request contained label or field selectors, then the number of remaining items is unknown and the field will be left unset and omitted during serialization. If the list is complete (either because it is not chunking or because this is the last chunk), then there are no more remaining items and this field will be left unset and omitted during serialization. Servers older than v1.15 do not set this field. The intended use of the remainingItemCount is *estimating* the size of a collection. Clients should not rely on the remainingItemCount to be set or to be exact.
              */
-            remainingItemCount?: pulumi.Input<number>;
+            remainingItemCount?: pulumi.Input<number | undefined>;
             /**
              * String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo?: pulumi.Input<inputs.meta.v1.ShardInfo | undefined>;
         }
         /**
          * ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.
@@ -1178,31 +1218,31 @@ export declare namespace meta {
             /**
              * APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
              */
-            fieldsType?: pulumi.Input<string>;
+            fieldsType?: pulumi.Input<string | undefined>;
             /**
              * FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
              */
-            fieldsV1?: any;
+            fieldsV1?: any | undefined;
             /**
              * Manager is an identifier of the workflow managing these fields.
              */
-            manager?: pulumi.Input<string>;
+            manager?: pulumi.Input<string | undefined>;
             /**
              * Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
              */
-            operation?: pulumi.Input<string>;
+            operation?: pulumi.Input<string | undefined>;
             /**
              * Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
              */
-            subresource?: pulumi.Input<string>;
+            subresource?: pulumi.Input<string | undefined>;
             /**
              * Time is the timestamp of when the ManagedFields entry was added. The timestamp will also be updated if a field is added, the manager changes any of the owned fields value or removes a field. The timestamp does not update when a field is removed from the entry because another manager took it over.
              */
-            time?: pulumi.Input<string>;
+            time?: pulumi.Input<string | undefined>;
         }
         /**
          * ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.
@@ -1211,31 +1251,31 @@ export declare namespace meta {
             /**
              * APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
              */
-            fieldsType?: pulumi.Input<string>;
+            fieldsType?: pulumi.Input<string | undefined>;
             /**
              * FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
              */
-            fieldsV1?: any;
+            fieldsV1?: any | undefined;
             /**
              * Manager is an identifier of the workflow managing these fields.
              */
-            manager?: pulumi.Input<string>;
+            manager?: pulumi.Input<string | undefined>;
             /**
              * Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
              */
-            operation?: pulumi.Input<string>;
+            operation?: pulumi.Input<string | undefined>;
             /**
              * Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
              */
-            subresource?: pulumi.Input<string>;
+            subresource?: pulumi.Input<string | undefined>;
             /**
              * Time is the timestamp of when the ManagedFields entry was added. The timestamp will also be updated if a field is added, the manager changes any of the owned fields value or removes a field. The timestamp does not update when a field is removed from the entry because another manager took it over.
              */
-            time?: pulumi.Input<string>;
+            time?: pulumi.Input<string | undefined>;
         }
         /**
          * ObjectMeta is metadata that all persisted resources must have, which includes all objects users must create.
@@ -1246,27 +1286,27 @@ export declare namespace meta {
              */
             annotations?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
+            } | undefined>;
             /**
              * CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
              *
              * Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            creationTimestamp?: pulumi.Input<string>;
+            creationTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
              */
-            deletionGracePeriodSeconds?: pulumi.Input<number>;
+            deletionGracePeriodSeconds?: pulumi.Input<number | undefined>;
             /**
              * DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
              *
              * Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            deletionTimestamp?: pulumi.Input<string>;
+            deletionTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
              */
-            finalizers?: pulumi.Input<pulumi.Input<string>[]>;
+            finalizers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
              *
@@ -1274,51 +1314,51 @@ export declare namespace meta {
              *
              * Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
              */
-            generateName?: pulumi.Input<string>;
+            generateName?: pulumi.Input<string | undefined>;
             /**
              * A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
              */
-            generation?: pulumi.Input<number>;
+            generation?: pulumi.Input<number | undefined>;
             /**
              * Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
              */
             labels?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
+            } | undefined>;
             /**
              * ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
              */
-            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntry>[]>;
+            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntry>[] | undefined>;
             /**
              * Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
              *
              * Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
              */
-            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReference>[]>;
+            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReference>[] | undefined>;
             /**
              * An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
              *
              * Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
             /**
              * UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
              *
              * Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
         }
         /**
          * ObjectMeta is metadata that all persisted resources must have, which includes all objects users must create.
@@ -1329,27 +1369,27 @@ export declare namespace meta {
              */
             annotations?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
+            } | undefined>;
             /**
              * CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
              *
              * Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            creationTimestamp?: pulumi.Input<string>;
+            creationTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
              */
-            deletionGracePeriodSeconds?: pulumi.Input<number>;
+            deletionGracePeriodSeconds?: pulumi.Input<number | undefined>;
             /**
              * DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
              *
              * Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            deletionTimestamp?: pulumi.Input<string>;
+            deletionTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
              */
-            finalizers?: pulumi.Input<pulumi.Input<string>[]>;
+            finalizers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
              *
@@ -1357,51 +1397,51 @@ export declare namespace meta {
              *
              * Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
              */
-            generateName?: pulumi.Input<string>;
+            generateName?: pulumi.Input<string | undefined>;
             /**
              * A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
              */
-            generation?: pulumi.Input<number>;
+            generation?: pulumi.Input<number | undefined>;
             /**
              * Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
              */
             labels?: pulumi.Input<{
                 [key: string]: pulumi.Input<string>;
-            }>;
+            } | undefined>;
             /**
              * ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
              */
-            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntryPatch>[]>;
+            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntryPatch>[] | undefined>;
             /**
              * Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
              *
              * Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
              */
-            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReferencePatch>[]>;
+            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReferencePatch>[] | undefined>;
             /**
              * An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
              *
              * Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
             /**
              * UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
              *
              * Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
         }
         /**
          * OwnerReference contains enough information to let you identify an owning object. An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.
@@ -1414,11 +1454,11 @@ export declare namespace meta {
             /**
              * If true, AND if the owner has the "foregroundDeletion" finalizer, then the owner cannot be deleted from the key-value store until this reference is removed. See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion for how the garbage collector interacts with this field and enforces the foreground deletion. Defaults to false. To set this field, a user needs "delete" permission of the owner, otherwise 422 (Unprocessable Entity) will be returned.
              */
-            blockOwnerDeletion?: pulumi.Input<boolean>;
+            blockOwnerDeletion?: pulumi.Input<boolean | undefined>;
             /**
              * If true, this reference points to the managing controller.
              */
-            controller?: pulumi.Input<boolean>;
+            controller?: pulumi.Input<boolean | undefined>;
             /**
              * Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
@@ -1439,27 +1479,37 @@ export declare namespace meta {
             /**
              * API version of the referent.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * If true, AND if the owner has the "foregroundDeletion" finalizer, then the owner cannot be deleted from the key-value store until this reference is removed. See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion for how the garbage collector interacts with this field and enforces the foreground deletion. Defaults to false. To set this field, a user needs "delete" permission of the owner, otherwise 422 (Unprocessable Entity) will be returned.
              */
-            blockOwnerDeletion?: pulumi.Input<boolean>;
+            blockOwnerDeletion?: pulumi.Input<boolean | undefined>;
             /**
              * If true, this reference points to the managing controller.
              */
-            controller?: pulumi.Input<boolean>;
+            controller?: pulumi.Input<boolean | undefined>;
             /**
              * Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
+        }
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: pulumi.Input<string>;
         }
     }
 }
+//# sourceMappingURL=input.d.ts.map

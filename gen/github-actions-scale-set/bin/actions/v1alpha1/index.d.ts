@@ -34,3 +34,4 @@ export declare const EphemeralRunnerSetList: typeof import("./ephemeralRunnerSet
 export { EphemeralRunnerSetPatchArgs } from "./ephemeralRunnerSetPatch";
 export type EphemeralRunnerSetPatch = import("./ephemeralRunnerSetPatch").EphemeralRunnerSetPatch;
 export declare const EphemeralRunnerSetPatch: typeof import("./ephemeralRunnerSetPatch").EphemeralRunnerSetPatch;
+//# sourceMappingURL=index.d.ts.map

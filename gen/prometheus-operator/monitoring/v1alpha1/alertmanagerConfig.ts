@@ -40,17 +40,17 @@ export class AlertmanagerConfig extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"monitoring.coreos.com/v1alpha1">;
+    declare public readonly apiVersion: pulumi.Output<"monitoring.coreos.com/v1alpha1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"AlertmanagerConfig">;
+    declare public readonly kind: pulumi.Output<"AlertmanagerConfig">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigSpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigSpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.monitoring.v1alpha1.AlertmanagerConfigStatus>;
 
     /**
      * Create a AlertmanagerConfig resource with the given unique name, arguments, and options.
@@ -65,8 +65,8 @@ export class AlertmanagerConfig extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "monitoring.coreos.com/v1alpha1";
             resourceInputs["kind"] = "AlertmanagerConfig";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
@@ -87,14 +87,14 @@ export interface AlertmanagerConfigArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"monitoring.coreos.com/v1alpha1">;
+    apiVersion?: pulumi.Input<"monitoring.coreos.com/v1alpha1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"AlertmanagerConfig">;
+    kind?: pulumi.Input<"AlertmanagerConfig" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.monitoring.v1alpha1.AlertmanagerConfigSpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.monitoring.v1alpha1.AlertmanagerConfigSpec | undefined>;
 }

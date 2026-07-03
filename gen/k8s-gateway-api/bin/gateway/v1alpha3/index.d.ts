@@ -16,3 +16,4 @@ export declare const TLSRouteList: typeof import("./tlsrouteList").TLSRouteList;
 export { TLSRoutePatchArgs } from "./tlsroutePatch";
 export type TLSRoutePatch = import("./tlsroutePatch").TLSRoutePatch;
 export declare const TLSRoutePatch: typeof import("./tlsroutePatch").TLSRoutePatch;
+//# sourceMappingURL=index.d.ts.map

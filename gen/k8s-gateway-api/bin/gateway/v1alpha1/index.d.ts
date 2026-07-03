@@ -1,3 +1,12 @@
+export { XBackendArgs } from "./xbackend";
+export type XBackend = import("./xbackend").XBackend;
+export declare const XBackend: typeof import("./xbackend").XBackend;
+export { XBackendListArgs } from "./xbackendList";
+export type XBackendList = import("./xbackendList").XBackendList;
+export declare const XBackendList: typeof import("./xbackendList").XBackendList;
+export { XBackendPatchArgs } from "./xbackendPatch";
+export type XBackendPatch = import("./xbackendPatch").XBackendPatch;
+export declare const XBackendPatch: typeof import("./xbackendPatch").XBackendPatch;
 export { XBackendTrafficPolicyArgs } from "./xbackendTrafficPolicy";
 export type XBackendTrafficPolicy = import("./xbackendTrafficPolicy").XBackendTrafficPolicy;
 export declare const XBackendTrafficPolicy: typeof import("./xbackendTrafficPolicy").XBackendTrafficPolicy;
@@ -16,3 +25,4 @@ export declare const XMeshList: typeof import("./xmeshList").XMeshList;
 export { XMeshPatchArgs } from "./xmeshPatch";
 export type XMeshPatch = import("./xmeshPatch").XMeshPatch;
 export declare const XMeshPatch: typeof import("./xmeshPatch").XMeshPatch;
+//# sourceMappingURL=index.d.ts.map

@@ -19,3 +19,4 @@ export declare class Provider extends pulumi.ProviderResource {
  */
 export interface ProviderArgs {
 }
+//# sourceMappingURL=provider.d.ts.map

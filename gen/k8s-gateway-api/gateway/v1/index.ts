@@ -110,6 +110,21 @@ export type ReferenceGrantPatch = import("./referenceGrantPatch").ReferenceGrant
 export const ReferenceGrantPatch: typeof import("./referenceGrantPatch").ReferenceGrantPatch = null as any;
 utilities.lazyLoad(exports, ["ReferenceGrantPatch"], () => require("./referenceGrantPatch"));
 
+export { TCPRouteArgs } from "./tcproute";
+export type TCPRoute = import("./tcproute").TCPRoute;
+export const TCPRoute: typeof import("./tcproute").TCPRoute = null as any;
+utilities.lazyLoad(exports, ["TCPRoute"], () => require("./tcproute"));
+
+export { TCPRouteListArgs } from "./tcprouteList";
+export type TCPRouteList = import("./tcprouteList").TCPRouteList;
+export const TCPRouteList: typeof import("./tcprouteList").TCPRouteList = null as any;
+utilities.lazyLoad(exports, ["TCPRouteList"], () => require("./tcprouteList"));
+
+export { TCPRoutePatchArgs } from "./tcproutePatch";
+export type TCPRoutePatch = import("./tcproutePatch").TCPRoutePatch;
+export const TCPRoutePatch: typeof import("./tcproutePatch").TCPRoutePatch = null as any;
+utilities.lazyLoad(exports, ["TCPRoutePatch"], () => require("./tcproutePatch"));
+
 export { TLSRouteArgs } from "./tlsroute";
 export type TLSRoute = import("./tlsroute").TLSRoute;
 export const TLSRoute: typeof import("./tlsroute").TLSRoute = null as any;
@@ -124,6 +139,21 @@ export { TLSRoutePatchArgs } from "./tlsroutePatch";
 export type TLSRoutePatch = import("./tlsroutePatch").TLSRoutePatch;
 export const TLSRoutePatch: typeof import("./tlsroutePatch").TLSRoutePatch = null as any;
 utilities.lazyLoad(exports, ["TLSRoutePatch"], () => require("./tlsroutePatch"));
+
+export { UDPRouteArgs } from "./udproute";
+export type UDPRoute = import("./udproute").UDPRoute;
+export const UDPRoute: typeof import("./udproute").UDPRoute = null as any;
+utilities.lazyLoad(exports, ["UDPRoute"], () => require("./udproute"));
+
+export { UDPRouteListArgs } from "./udprouteList";
+export type UDPRouteList = import("./udprouteList").UDPRouteList;
+export const UDPRouteList: typeof import("./udprouteList").UDPRouteList = null as any;
+utilities.lazyLoad(exports, ["UDPRouteList"], () => require("./udprouteList"));
+
+export { UDPRoutePatchArgs } from "./udproutePatch";
+export type UDPRoutePatch = import("./udproutePatch").UDPRoutePatch;
+export const UDPRoutePatch: typeof import("./udproutePatch").UDPRoutePatch = null as any;
+utilities.lazyLoad(exports, ["UDPRoutePatch"], () => require("./udproutePatch"));
 
 
 const _module = {
@@ -172,12 +202,24 @@ const _module = {
                 return new ReferenceGrantList(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantPatch":
                 return new ReferenceGrantPatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRoute":
+                return new TCPRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRouteList":
+                return new TCPRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRoutePatch":
+                return new TCPRoutePatch(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:TLSRoute":
                 return new TLSRoute(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:TLSRouteList":
                 return new TLSRouteList(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:TLSRoutePatch":
                 return new TLSRoutePatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRoute":
+                return new UDPRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRouteList":
+                return new UDPRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRoutePatch":
+                return new UDPRoutePatch(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

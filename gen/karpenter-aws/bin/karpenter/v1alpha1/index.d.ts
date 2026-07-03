@@ -7,3 +7,4 @@ export declare const NodeOverlayList: typeof import("./nodeOverlayList").NodeOve
 export { NodeOverlayPatchArgs } from "./nodeOverlayPatch";
 export type NodeOverlayPatch = import("./nodeOverlayPatch").NodeOverlayPatch;
 export declare const NodeOverlayPatch: typeof import("./nodeOverlayPatch").NodeOverlayPatch;
+//# sourceMappingURL=index.d.ts.map

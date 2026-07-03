@@ -4,6 +4,8 @@ import * as outputs from "../../types/output";
 /**
  * Gateway represents an instance of a service-traffic handling infrastructure
  * by binding Listeners to a set of IP addresses.
+ * A Gateway name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+ * characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
  */
 export declare class Gateway extends pulumi.CustomResource {
     /**
@@ -50,14 +52,15 @@ export interface GatewayArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"Gateway">;
+    kind?: pulumi.Input<"Gateway" | undefined>;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+    spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec | undefined>;
 }
+//# sourceMappingURL=gateway.d.ts.map

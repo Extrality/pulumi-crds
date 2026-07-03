@@ -34,3 +34,4 @@ export declare const ReferenceGrantList: typeof import("./referenceGrantList").R
 export { ReferenceGrantPatchArgs } from "./referenceGrantPatch";
 export type ReferenceGrantPatch = import("./referenceGrantPatch").ReferenceGrantPatch;
 export declare const ReferenceGrantPatch: typeof import("./referenceGrantPatch").ReferenceGrantPatch;
+//# sourceMappingURL=index.d.ts.map

@@ -4,3 +4,4 @@ export declare const Provider: typeof import("./provider").Provider;
 import * as postgresql from "./postgresql";
 import * as types from "./types";
 export { postgresql, types, };
+//# sourceMappingURL=index.d.ts.map
