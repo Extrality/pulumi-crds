@@ -63,7 +63,8 @@ function gen() {
     ' {} +
     # pre-compile the package: allows removing the postinstall script
     ./node_modules/typescript/bin/tsc -p "./gen/$foldername" || true
-    jq 'del(.scripts.postinstall)' "./gen/$foldername/package.json" > temp.json && mv temp.json "./gen/$foldername/package.json"
+    # Include the compiled output when packing Git dependencies, despite .gitignore.
+    jq 'del(.scripts.postinstall) | .files = ["bin"]' "./gen/$foldername/package.json" > temp.json && mv temp.json "./gen/$foldername/package.json"
     rm "./gen/$foldername/scripts/postinstall.js"
     cp "./gen/$foldername/package.json" "./gen/$foldername/bin/package.json"
 }

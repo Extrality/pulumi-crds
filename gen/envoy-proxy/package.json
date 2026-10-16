@@ -11,6 +11,9 @@
   "repository": "https://github.com/pulumi/pulumi-kubernetes",
   "license": "Apache-2.0",
   "main": "bin/index.js",
+  "files": [
+    "bin"
+  ],
   "scripts": {
     "build": "tsc"
   },
